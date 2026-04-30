@@ -1,0 +1,32 @@
+{
+  "generated_at": "ISO8601",
+  // e.g. "2024-01-15T10:30:00Z"
+  "source_media": "/absolute/path/to/vod.mp4",
+  "model": "whisper-cpp:ggml-large-v3-turbo",
+  "duration_sec": 25464.701,
+  "chunk_seconds": 1200,
+  "chunk_count": 22,
+  "language": "en",
+  "hallucinations_removed": 1098,
+  "text": "Full concatenated transcript text",
+  "segments": [
+    {
+      "id": 0,
+      "chunk_index": 0,
+      "start": 0,
+      "end": 10.88,
+      "text": "segment text"
+    }
+  ],
+  "chunks": [
+    {
+      "chunk_index": 0,
+      "start": 0,
+      "end": 1200,
+      "duration_sec": 1200,
+      "segments_count": 176,
+      "words_count": 2497,
+      "text": "chunk text"
+    }
+  ]
+}

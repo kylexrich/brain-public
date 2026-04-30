@@ -1,0 +1,687 @@
+{
+  "version": 1,
+  "jobs": [
+    {
+      "id": "c8e12767-b7aa-4cf4-8374-a986327b6a3a",
+      "name": "refresh-tokens",
+      "description": "Refresh all OAuth tokens (Attio + YouTube) via wrapper script",
+      "enabled": false,
+      "agentId": "main",
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "createdAtMs": 1772591788807,
+      "updatedAtMs": 1775759212340,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 6,18 * * *",
+        "tz": "America/Vancouver"
+      },
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Execute the refresh-tokens-job skill exactly. Nothing else.",
+        "model": "codex-mini",
+        "thinking": "medium",
+        "lightContext": true
+      },
+      "delivery": {
+        "mode": "none"
+      },
+      "state": {
+        "lastRunAtMs": 1775747049032,
+        "lastRunStatus": "ok",
+        "lastStatus": "ok",
+        "lastDurationMs": 23676,
+        "lastDeliveryStatus": "not-delivered",
+        "lastDelivered": false,
+        "consecutiveErrors": 0
+      },
+      "failureAlert": {
+        "after": 2,
+        "channel": "bluebubbles",
+        "to": "+16043684730",
+        "mode": "announce"
+      }
+    },
+    {
+      "id": "9e6beb79-6c83-44c5-a45a-c6650e2db768",
+      "name": "daily-commitment-scanner",
+      "description": "Scan today's iMessages for commitments Kyle made. In-person meeting commitments become Google Calendar events; other commitments (follow-ups, calls, sends) become Apple Reminders.",
+      "enabled": false,
+      "agentId": "main",
+      "sessionTarget": "session:agent:main:bluebubbles:direct:+16043684730",
+      "wakeMode": "now",
+      "createdAtMs": 1772595846424,
+      "updatedAtMs": 1775759211732,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 21 * * *",
+        "tz": "America/Vancouver"
+      },
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Execute the commitment-scanner-job skill exactly. If nothing to report, reply NO_REPLY.",
+        "model": "codex-mini",
+        "thinking": "xhigh",
+        "timeoutSeconds": 600
+      },
+      "delivery": {
+        "mode": "announce",
+        "channel": "bluebubbles",
+        "to": "+16043684730"
+      },
+      "state": {
+        "lastRunAtMs": 1775675588476,
+        "lastRunStatus": "ok",
+        "lastStatus": "ok",
+        "lastDurationMs": 209013,
+        "lastDeliveryStatus": "not-delivered",
+        "consecutiveErrors": 0,
+        "lastDelivered": false
+      },
+      "failureAlert": {
+        "after": 2,
+        "channel": "bluebubbles",
+        "to": "+16043684730",
+        "mode": "announce"
+      }
+    },
+    {
+      "id": "70293e24-e20b-4fd4-8361-e28145ff1f07",
+      "name": "Marvin status check-in",
+      "enabled": false,
+      "agentId": "main",
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "createdAtMs": 1772612338580,
+      "updatedAtMs": 1775759212208,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 5-22 * * *",
+        "tz": "America/Vancouver"
+      },
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Execute the status-checkin-job skill exactly. Nothing else.",
+        "model": "codex-mini",
+        "thinking": "medium"
+      },
+      "delivery": {
+        "mode": "announce",
+        "channel": "bluebubbles",
+        "to": "+16043684730"
+      },
+      "state": {
+        "lastRunAtMs": 1775746926997,
+        "lastRunStatus": "ok",
+        "lastStatus": "ok",
+        "lastDurationMs": 97028,
+        "lastDeliveryStatus": "not-delivered",
+        "consecutiveErrors": 0,
+        "lastDelivered": false
+      },
+      "failureAlert": {
+        "after": 2,
+        "channel": "bluebubbles",
+        "to": "+16043684730",
+        "mode": "announce"
+      }
+    },
+    {
+      "id": "1160a7c2-a840-4157-97e4-10236a5b74e5",
+      "name": "vault-review-nudge",
+      "enabled": false,
+      "agentId": "main",
+      "sessionTarget": "session:agent:main:bluebubbles:direct:+16043684730",
+      "wakeMode": "now",
+      "createdAtMs": 1772806377252,
+      "updatedAtMs": 1775759212409,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 20 * * *",
+        "tz": "America/Vancouver"
+      },
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Execute the vault-review-job skill exactly. If nothing to report, reply NO_REPLY.",
+        "model": "codex-mini",
+        "thinking": "high",
+        "timeoutSeconds": 600
+      },
+      "delivery": {
+        "mode": "announce",
+        "channel": "bluebubbles",
+        "to": "+16043684730"
+      },
+      "state": {
+        "lastRunAtMs": 1775747087968,
+        "lastRunStatus": "ok",
+        "lastStatus": "ok",
+        "lastDurationMs": 77843,
+        "lastDeliveryStatus": "not-delivered",
+        "lastDelivered": false,
+        "consecutiveErrors": 0
+      },
+      "failureAlert": {
+        "after": 2,
+        "channel": "bluebubbles",
+        "to": "+16043684730",
+        "mode": "announce"
+      }
+    },
+    {
+      "id": "d21a4481-4414-4d3f-a40d-723572f0736d",
+      "name": "Daily Brief",
+      "enabled": false,
+      "agentId": "main",
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "createdAtMs": 1773285436514,
+      "updatedAtMs": 1775759211895,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 6 * * *",
+        "tz": "America/Vancouver"
+      },
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Execute the daily-brief-job skill exactly. If nothing to report, reply NO_REPLY.",
+        "model": "codex",
+        "thinking": "high",
+        "timeoutSeconds": 600
+      },
+      "delivery": {
+        "mode": "announce",
+        "channel": "bluebubbles",
+        "to": "+16043684730"
+      },
+      "state": {
+        "lastRunAtMs": 1775675797489,
+        "lastRunStatus": "ok",
+        "lastStatus": "ok",
+        "lastDurationMs": 107406,
+        "lastDeliveryStatus": "delivered",
+        "consecutiveErrors": 0,
+        "lastDelivered": true
+      },
+      "failureAlert": {
+        "after": 2,
+        "channel": "bluebubbles",
+        "to": "+16043684730",
+        "mode": "announce"
+      }
+    },
+    {
+      "id": "524a98b7-9f2a-4e49-94a6-e75322af747f",
+      "name": "health-nag-noon",
+      "enabled": false,
+      "agentId": "main",
+      "sessionTarget": "session:agent:main:bluebubbles:direct:+16043684730",
+      "wakeMode": "now",
+      "createdAtMs": 1773418042330,
+      "updatedAtMs": 1775759212264,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 12 * * *",
+        "tz": "America/Vancouver"
+      },
+      "payload": {
+        "kind": "agentTurn",
+        "message": "SLOT=noon. Execute the health-nag-job skill exactly. If nothing to report, reply NO_REPLY.",
+        "model": "codex-mini",
+        "thinking": "high"
+      },
+      "delivery": {
+        "mode": "announce",
+        "channel": "bluebubbles",
+        "to": "+16043684730"
+      },
+      "state": {
+        "lastRunAtMs": 1775675429537,
+        "lastRunStatus": "ok",
+        "lastStatus": "ok",
+        "lastDurationMs": 36112,
+        "lastDeliveryStatus": "not-delivered",
+        "lastDelivered": false,
+        "consecutiveErrors": 0
+      },
+      "failureAlert": {
+        "after": 2,
+        "channel": "bluebubbles",
+        "to": "+16043684730",
+        "mode": "announce"
+      }
+    },
+    {
+      "id": "4bb881eb-3cce-49c5-ae3f-fbc5acca0291",
+      "name": "health-nag-afternoon",
+      "enabled": false,
+      "agentId": "main",
+      "sessionTarget": "session:agent:main:bluebubbles:direct:+16043684730",
+      "wakeMode": "now",
+      "createdAtMs": 1773418042345,
+      "updatedAtMs": 1775759212304,
+      "schedule": {
+        "kind": "cron",
+        "expr": "30 14 * * *",
+        "tz": "America/Vancouver"
+      },
+      "payload": {
+        "kind": "agentTurn",
+        "message": "SLOT=afternoon. Execute the health-nag-job skill exactly. If nothing to report, reply NO_REPLY.",
+        "model": "codex-mini",
+        "thinking": "high"
+      },
+      "delivery": {
+        "mode": "announce",
+        "channel": "bluebubbles",
+        "to": "+16043684730"
+      },
+      "state": {
+        "lastRunAtMs": 1775747024025,
+        "lastRunStatus": "ok",
+        "lastStatus": "ok",
+        "lastDurationMs": 25007,
+        "lastDeliveryStatus": "not-delivered",
+        "lastDelivered": false,
+        "consecutiveErrors": 0
+      },
+      "failureAlert": {
+        "after": 2,
+        "channel": "bluebubbles",
+        "to": "+16043684730",
+        "mode": "announce"
+      }
+    },
+    {
+      "id": "daa487e5-e929-48cc-85f9-30bce6cfd741",
+      "name": "health-nag-evening",
+      "enabled": false,
+      "agentId": "main",
+      "sessionTarget": "session:agent:main:bluebubbles:direct:+16043684730",
+      "wakeMode": "now",
+      "createdAtMs": 1773418042357,
+      "updatedAtMs": 1775759212392,
+      "schedule": {
+        "kind": "cron",
+        "expr": "30 18 * * *",
+        "tz": "America/Vancouver"
+      },
+      "payload": {
+        "kind": "agentTurn",
+        "message": "SLOT=evening. Execute the health-nag-job skill exactly. If nothing to report, reply NO_REPLY.",
+        "model": "codex-mini",
+        "thinking": "high"
+      },
+      "delivery": {
+        "mode": "announce",
+        "channel": "bluebubbles",
+        "to": "+16043684730"
+      },
+      "state": {
+        "lastRunAtMs": 1775747072708,
+        "lastRunStatus": "ok",
+        "lastStatus": "ok",
+        "lastDurationMs": 15260,
+        "lastDeliveryStatus": "not-delivered",
+        "lastDelivered": false,
+        "consecutiveErrors": 0
+      },
+      "failureAlert": {
+        "after": 2,
+        "channel": "bluebubbles",
+        "to": "+16043684730",
+        "mode": "announce"
+      }
+    },
+    {
+      "id": "e61d0af3-e7ee-4f9f-b138-ded1b2c0c984",
+      "name": "health-nag-night",
+      "enabled": false,
+      "agentId": "main",
+      "sessionTarget": "session:agent:main:bluebubbles:direct:+16043684730",
+      "wakeMode": "now",
+      "createdAtMs": 1773418042367,
+      "updatedAtMs": 1775759212442,
+      "schedule": {
+        "kind": "cron",
+        "expr": "30 20 * * *",
+        "tz": "America/Vancouver"
+      },
+      "payload": {
+        "kind": "agentTurn",
+        "message": "SLOT=night. Execute the health-nag-job skill exactly. If nothing to report, reply NO_REPLY.",
+        "model": "codex-mini",
+        "thinking": "high"
+      },
+      "delivery": {
+        "mode": "announce",
+        "channel": "bluebubbles",
+        "to": "+16043684730"
+      },
+      "state": {
+        "lastRunAtMs": 1775747170820,
+        "lastRunStatus": "ok",
+        "lastStatus": "ok",
+        "lastDurationMs": 10363,
+        "lastDeliveryStatus": "delivered",
+        "lastDelivered": true,
+        "consecutiveErrors": 0
+      },
+      "failureAlert": {
+        "after": 2,
+        "channel": "bluebubbles",
+        "to": "+16043684730",
+        "mode": "announce"
+      }
+    },
+    {
+      "id": "2fd57261-ba68-449b-a022-b09a967400ca",
+      "name": "health-nag-latenight",
+      "enabled": false,
+      "agentId": "main",
+      "sessionTarget": "session:agent:main:bluebubbles:direct:+16043684730",
+      "wakeMode": "now",
+      "createdAtMs": 1773461658523,
+      "updatedAtMs": 1775759211748,
+      "schedule": {
+        "kind": "cron",
+        "expr": "30 21 * * *",
+        "tz": "America/Vancouver"
+      },
+      "payload": {
+        "kind": "agentTurn",
+        "message": "SLOT=latenight. Execute the health-nag-job skill exactly. If nothing to report, reply NO_REPLY.",
+        "model": "codex-mini",
+        "thinking": "high"
+      },
+      "delivery": {
+        "mode": "announce",
+        "channel": "bluebubbles",
+        "to": "+16043684730"
+      },
+      "state": {
+        "lastRunAtMs": 1775675912501,
+        "lastRunStatus": "ok",
+        "lastStatus": "ok",
+        "lastDurationMs": 9238,
+        "lastDeliveryStatus": "delivered",
+        "lastDelivered": true,
+        "consecutiveErrors": 0
+      },
+      "failureAlert": {
+        "after": 2,
+        "channel": "bluebubbles",
+        "to": "+16043684730",
+        "mode": "announce"
+      }
+    },
+    {
+      "id": "d79405d7-72a6-4734-b866-cc5cfaca428a",
+      "agentId": "main",
+      "name": "nightly-stream-pipeline-945pm",
+      "description": "Run the end-to-end stream pipeline.",
+      "enabled": false,
+      "createdAtMs": 1773851483596,
+      "updatedAtMs": 1775451007912,
+      "schedule": {
+        "kind": "cron",
+        "expr": "45 21 * * *",
+        "tz": "America/Vancouver"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Execute the video-processing-pipeline-job skill exactly. Nothing else.",
+        "model": "codex",
+        "thinking": "xhigh",
+        "timeoutSeconds": 7200
+      },
+      "delivery": {
+        "mode": "none"
+      },
+      "state": {
+        "lastRunAtMs": 1775450700020,
+        "lastRunStatus": "ok",
+        "lastStatus": "ok",
+        "lastDurationMs": 307892,
+        "lastDelivered": false,
+        "lastDeliveryStatus": "not-delivered",
+        "consecutiveErrors": 0
+      },
+      "failureAlert": {
+        "after": 2,
+        "channel": "bluebubbles",
+        "to": "+16043684730",
+        "mode": "announce"
+      }
+    },
+    {
+      "id": "a3f7d821-5c94-4e2b-b8f1-9d4e6a1c3b57",
+      "name": "agents-violation-scanner",
+      "description": "Nightly AGENTS.md violation scan. Runs a safe sync-ai preflight, then spawns one sub-agent per AGENTS scope unit (leaf scopes plus residual parent scopes). Leaves changes unstaged.",
+      "enabled": false,
+      "agentId": "main",
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "createdAtMs": 1774390136706,
+      "updatedAtMs": 1775759211821,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 2 * * *",
+        "tz": "America/Vancouver"
+      },
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Execute the agents-violation-scanner-job skill exactly. Nothing else.",
+        "model": "codex",
+        "thinking": "high",
+        "timeoutSeconds": 3600
+      },
+      "delivery": {
+        "mode": "none"
+      },
+      "failureAlert": {
+        "after": 2,
+        "channel": "bluebubbles",
+        "to": "+16043684730",
+        "mode": "announce"
+      },
+      "state": {
+        "lastRunAtMs": 1775675921739,
+        "lastRunStatus": "ok",
+        "lastStatus": "ok",
+        "lastDurationMs": 34040,
+        "lastDelivered": false,
+        "lastDeliveryStatus": "not-delivered",
+        "consecutiveErrors": 0
+      }
+    },
+    {
+      "id": "bdcc6f17-a954-47e0-a49b-c5715c4f6236",
+      "agentId": "main",
+      "sessionKey": "agent:main:main",
+      "name": "Ring light ON",
+      "enabled": false,
+      "createdAtMs": 1774502336850,
+      "updatedAtMs": 1775759212030,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 7 * * *",
+        "tz": "America/Vancouver"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "next-heartbeat",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Run this exact command and reply NO_REPLY:\ncurl -s -X PUT http://elgato-ring-light.local:9123/elgato/lights -H 'Content-Type: application/json' -d '{\"numberOfLights\":1,\"lights\":[{\"on\":1}]}'",
+        "model": "codex",
+        "lightContext": true
+      },
+      "delivery": {
+        "mode": "none"
+      },
+      "failureAlert": {
+        "after": 2,
+        "channel": "bluebubbles",
+        "to": "+16043684730",
+        "mode": "announce"
+      },
+      "state": {
+        "lastRunAtMs": 1775675955779,
+        "lastRunStatus": "ok",
+        "lastStatus": "ok",
+        "lastDurationMs": 12937,
+        "lastDelivered": false,
+        "lastDeliveryStatus": "not-delivered",
+        "consecutiveErrors": 0
+      }
+    },
+    {
+      "id": "ec8071db-effa-4a70-89f9-2f143e8c16c7",
+      "agentId": "main",
+      "sessionKey": "agent:main:main",
+      "name": "Ring light OFF",
+      "enabled": false,
+      "createdAtMs": 1774502336853,
+      "updatedAtMs": 1775759211751,
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 22 * * *",
+        "tz": "America/Vancouver"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "next-heartbeat",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Run this exact command and reply NO_REPLY:\ncurl -s -X PUT http://elgato-ring-light.local:9123/elgato/lights -H 'Content-Type: application/json' -d '{\"numberOfLights\":1,\"lights\":[{\"on\":0}]}'",
+        "model": "codex",
+        "lightContext": true
+      },
+      "delivery": {
+        "mode": "none"
+      },
+      "failureAlert": {
+        "after": 2,
+        "channel": "bluebubbles",
+        "to": "+16043684730",
+        "mode": "announce"
+      },
+      "state": {
+        "lastRunAtMs": 1775675968716,
+        "lastRunStatus": "ok",
+        "lastStatus": "ok",
+        "lastDurationMs": 13219,
+        "lastDelivered": false,
+        "lastDeliveryStatus": "not-delivered",
+        "consecutiveErrors": 0
+      }
+    },
+    {
+      "id": "e8f94231-49cd-4e1f-8796-9866eb9daa7b",
+      "agentId": "main",
+      "sessionKey": "agent:main:vid-proc-day-11-mar-31",
+      "name": "nightly-stream-pipeline-1145pm",
+      "description": "Run the end-to-end stream pipeline (11:30 PM retry/resume).",
+      "enabled": false,
+      "createdAtMs": 1775096829014,
+      "updatedAtMs": 1775458064537,
+      "schedule": {
+        "kind": "cron",
+        "expr": "45 23 * * *",
+        "tz": "America/Vancouver"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Execute the video-processing-pipeline-job skill exactly. Nothing else.",
+        "model": "codex",
+        "thinking": "high",
+        "timeoutSeconds": 7200
+      },
+      "delivery": {
+        "mode": "none"
+      },
+      "failureAlert": {
+        "after": 2,
+        "channel": "bluebubbles",
+        "to": "+16043684730",
+        "mode": "announce"
+      },
+      "state": {
+        "lastRunAtMs": 1775457900024,
+        "lastRunStatus": "ok",
+        "lastStatus": "ok",
+        "lastDurationMs": 164513,
+        "lastDelivered": false,
+        "lastDeliveryStatus": "not-delivered",
+        "consecutiveErrors": 0
+      }
+    },
+    {
+      "id": "e000dda5-0991-4f64-b5ed-62c4343d9563",
+      "agentId": "main",
+      "sessionKey": "agent:main:main",
+      "name": "video-pipeline-recovery-2026-04-03-2300",
+      "enabled": false,
+      "deleteAfterRun": true,
+      "createdAtMs": 1775280668647,
+      "updatedAtMs": 1775282609765,
+      "schedule": {
+        "kind": "at",
+        "at": "2026-04-04T06:00:00.000Z"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Run the video processing pipeline for stream_date 2026-04-03 and resume from current state (force=false). Process end-to-end once only; do not force re-run completed stages. If already fully completed, verify state and exit cleanly."
+      },
+      "delivery": {
+        "mode": "announce"
+      },
+      "state": {
+        "lastRunAtMs": 1775282400012,
+        "lastRunStatus": "error",
+        "lastStatus": "error",
+        "lastDurationMs": 209753,
+        "lastError": "Channel is required when multiple channels are configured: telegram, slack, bluebubbles Set delivery.channel explicitly or use a main session with a previous channel.",
+        "lastDeliveryStatus": "unknown",
+        "consecutiveErrors": 1
+      }
+    },
+    {
+      "id": "fc88dcc9-ce91-4581-bbf7-18fbd1cda758",
+      "agentId": "main",
+      "sessionKey": "agent:main:main",
+      "name": "video-pipeline-recovery-2026-04-03-2345",
+      "enabled": false,
+      "deleteAfterRun": true,
+      "createdAtMs": 1775280668652,
+      "updatedAtMs": 1775285395485,
+      "schedule": {
+        "kind": "at",
+        "at": "2026-04-04T06:45:00.000Z"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Run the video processing pipeline for stream_date 2026-04-03 and resume from current state (force=false). Process end-to-end once only; do not force re-run completed stages. If already fully completed, verify state and exit cleanly."
+      },
+      "delivery": {
+        "mode": "announce"
+      },
+      "state": {
+        "lastRunAtMs": 1775285200391,
+        "lastRunStatus": "error",
+        "lastStatus": "error",
+        "lastDurationMs": 195094,
+        "lastError": "Channel is required when multiple channels are configured: telegram, slack, bluebubbles Set delivery.channel explicitly or use a main session with a previous channel.",
+        "lastDeliveryStatus": "unknown",
+        "consecutiveErrors": 1
+      }
+    }
+  ]
+}

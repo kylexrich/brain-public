@@ -1,0 +1,76 @@
+.DS_Store
+.idea/
+node_modules/
+dist/
+*.tsbuildinfo
+*.bak
+*.bak*
+**/.openclaw
+**/.env
+openclaw/**/config/
+
+# Temp Files
+*.tmp
+*.tmp.*
+.tmp*
+tmp/
+temp/
+*.temp
+*.temp.*
+.temp*
+
+# OpenClaw temporary files (any depth)
+openclaw/**/*.swp
+openclaw/**/*.swo
+openclaw/**/*~
+openclaw/**/*.orig
+openclaw/**/*.pyc
+openclaw/**/__pycache__/
+openclaw/**/*.log
+
+# Live OpenClaw runtime workspaces (tracked snapshots live in openclaw/mbp-m4max-16/)
+openclaw/main/
+openclaw/team/
+openclaw/cron/
+
+# Stream pipeline media artifacts
+vault/stream-videos/**/*.mov
+vault/stream-videos/**/*.mp4
+vault/stream-videos/**/*.wav
+vault/stream-videos/**/*.m4a
+
+# BlueBubbles channel downloaded attachments
+system/ai-config/claude-config/channels/bluebubbles/attachments/
+
+# AI config (symlinked from ~/.claude, ~/.codex — only curated files live here)
+system/ai-config/**/.DS_Store
+system/ai-config/claude-config/backups/
+system/ai-config/**/*.backup.*
+system/ai-config/**/*.bak
+system/ai-config/**/sessions/
+
+# Claude Code projects — ignore conversation data, keep memory/ subdirs
+system/ai-config/claude-config/projects/**
+!system/ai-config/claude-config/projects/*/
+!system/ai-config/claude-config/projects/*/memory/
+!system/ai-config/claude-config/projects/*/memory/**
+oclif.manifest.json
+
+openclaw/**/cron/runs/
+
+.claude/worktrees/
+
+system/ai-config/claude-config/plugins/known_marketplaces.json
+system/ai-config/claude-config/claude.json
+system/ai-config/claude-config/claude-desktop-config.json
+system/ai-config/claude-config/plans/
+
+system/ai-config/claude-config/plugins/cache/claude-plugins-official/superpowers/5.0.7
+**/temp_git_*/
+
+.memsearch/.index.pid
+
+
+*.log
+
+.claude/scheduled_tasks.lock

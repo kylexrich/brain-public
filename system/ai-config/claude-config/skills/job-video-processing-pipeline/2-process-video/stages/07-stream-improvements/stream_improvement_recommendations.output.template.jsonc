@@ -1,0 +1,18 @@
+// stream_improvement_recommendations.json — output artifact written by stage 07-stream-improvements
+// Written to: <stream_dir>/meta/outputs/stream_improvement_recommendations.json
+{
+  "generated_at": "ISO8601",
+  "recommendation_count": 3,
+  "recommendations": [
+    {
+      "severity": "HIGH | MEDIUM | LOW",
+      "title": "Specific future-stream improvement",
+      "body": "What to do differently in future streams",
+      "evidence": "What in the stream showed the need for this improvement",
+      "confidence": "high | medium",
+      "source_chunks": [
+        "chunk_002.txt"
+      ]
+    }
+  ]
+}

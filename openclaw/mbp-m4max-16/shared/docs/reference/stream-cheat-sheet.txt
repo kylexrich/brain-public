@@ -1,0 +1,25 @@
+STREAM REMINDERS
+
+STREAM OPEN
+1/ Day [N]. Let's go.
+2/ Focus for today.
+3/ Energy: [Low / Medium / High].
+
+PRIVATE / BRB START
+1/ Going for [CATEGORY]/[OUTCOME]
+2/ Back in about [X]minutes.
+3/ I’ll recap when I’m back.
+
+PRIVATE / BRB END
+1/ [HIGH-LEVEL RESULT]
+2/ [NEXT]
+
+STREAM END
+1/ [WINS]
+2/ [MISSES]
+3/ [GOAL FOR TOMORROW]
+
+
+--
+
+Main Objectives

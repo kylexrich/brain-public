@@ -1,0 +1,186 @@
+<!doctype html>
+<!--
+  runtime-topology template.
+  Substitute only the commented PROJECT-SUBSTITUTION blocks.
+  Do not remove or reorder the Mermaid initialization options, theme variables,
+  CSS image-sizing rules, or classDef declarations.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title><!-- PROJECT-NAME --> — Runtime Topology</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root {
+    --bg: #0b0d12;
+    --panel: #12151c;
+    --border: #242a36;
+    --text: #e7ecf3;
+    --muted: #8a94a6;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin:0; background: var(--bg); color: var(--text);
+    font: 14px/1.45 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Inter, Roboto, sans-serif; }
+  header { padding: 28px 32px 8px; }
+  header h1 { margin: 0 0 6px; font-size: 22px; }
+  header p { margin: 0; color: var(--muted); font-size: 13px; }
+  main { padding: 8px 16px 40px; }
+  .card {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 14px;
+    padding: 14px 14px 8px; margin: 14px 16px;
+  }
+  .card h2 {
+    margin: 0 0 10px; font-size: 12px; letter-spacing: 1.2px;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; color: var(--muted);
+    font-size: 12px; padding: 8px 16px 0; }
+  .swatch { display:inline-block; width:10px; height:10px; border-radius: 2px;
+    margin-right: 6px; vertical-align: middle; }
+  .mermaid { background: transparent; }
+  .mermaid .nodeLabel img, .mermaid foreignObject img {
+    height: 22px; width: auto; vertical-align: middle; margin-right: 6px;
+    display: inline-block;
+  }
+  .mermaid .nodeLabel { white-space: nowrap; }
+  footer { color: var(--muted); font-size: 11px; padding: 0 32px 32px; }
+  code { background: #0f131b; border: 1px solid var(--border); padding: 1px 5px;
+    border-radius: 4px; font-size: 12px; }
+</style>
+</head>
+<body>
+<header>
+  <h1><!-- PROJECT-NAME --> — Runtime Topology</h1>
+  <p>How the pieces connect. <!-- PROJECT-SUBTITLE: one-liner about region / hosting / key constraint -->.
+    For a tech-stack inventory see <code>tech-stack.html</code>.</p>
+</header>
+
+<div class="legend">
+  <span><i class="swatch" style="background:#94a3b8"></i>Client</span>
+  <span><i class="swatch" style="background:#f59e0b"></i>Edge / DNS</span>
+  <span><i class="swatch" style="background:#60a5fa"></i>Compute</span>
+  <span><i class="swatch" style="background:#34d399"></i>Data plane</span>
+  <span><i class="swatch" style="background:#c084fc"></i>Async / events</span>
+  <span><i class="swatch" style="background:#f472b6"></i>Security · observability</span>
+  <span><i class="swatch" style="background:#94a3b8"></i>Third-party</span>
+  <span style="margin-left:auto">── solid: runtime traffic / data</span>
+  <span>┄ dashed: config, secrets, certs, webhooks</span>
+</div>
+
+<main>
+
+  <section class="card">
+    <h2>Runtime topology</h2>
+    <pre class="mermaid">
+flowchart LR
+  %% ---------------------------------------------------------------
+  %% PROJECT-SUBSTITUTION: nodes, subgraphs, and edges go below.
+  %% Preserve class names: client, edge, compute, data, queue, sec, ext.
+  %% Every node with a logo uses quoted HTML label with <img height='22'/>.
+  %% ---------------------------------------------------------------
+
+  %% Example scaffolding (remove once real content is generated):
+  user("👤 End user"):::client
+
+  subgraph EDGE["Edge"]
+    direction TB
+    dns["<img src='...' height='22'/>DNS"]:::edge
+    cdn["<img src='...' height='22'/>CDN"]:::edge
+  end
+
+  subgraph RUNTIME["Runtime"]
+    direction TB
+    subgraph TASK_A["<img src='...' height='16'/> Deployable unit A"]
+      svc1["<img src='...' height='22'/>Service 1"]:::compute
+    end
+    subgraph TASK_B["<img src='...' height='16'/> Deployable unit B"]
+      svc2["<img src='...' height='22'/>Service 2"]:::compute
+    end
+  end
+
+  subgraph DATA["Data"]
+    direction LR
+    db[("<img src='...' height='22'/>Primary DB")]:::data
+    cache[("<img src='...' height='22'/>Cache")]:::data
+  end
+
+  subgraph ASYNC["Async / events"]
+    q1["<img src='...' height='22'/>Queue"]:::queue
+  end
+
+  subgraph SEC["Security"]
+    sm["<img src='...' height='22'/>Secrets"]:::sec
+  end
+
+  subgraph OBS["Observability"]
+    logs["<img src='...' height='22'/>Logs / Metrics / Alarms"]:::sec
+  end
+
+  subgraph THIRD["Third-party"]
+    ext1("<img src='...' height='22'/>Vendor A"):::ext
+  end
+
+  user -->|HTTPS| dns --> cdn --> svc1
+  svc1 --> db
+  svc1 --> cache
+  svc1 --> q1
+  q1 --> svc2
+  svc1 -.pulls.-> sm
+  svc1 --> logs
+  svc1 --> ext1
+
+  %% --- Class definitions (do not modify) ---
+  classDef client  fill:#1f2937,stroke:#94a3b8,color:#e5e7eb
+  classDef edge    fill:#78350f,stroke:#f59e0b,color:#fde68a
+  classDef compute fill:#1e3a8a,stroke:#60a5fa,color:#dbeafe
+  classDef data    fill:#064e3b,stroke:#34d399,color:#d1fae5
+  classDef queue   fill:#4c1d95,stroke:#c084fc,color:#ede9fe
+  classDef sec     fill:#831843,stroke:#f472b6,color:#fce7f3
+  classDef ext     fill:#111827,stroke:#94a3b8,color:#cbd5e1,stroke-dasharray: 4 3
+
+  %% --- Subgraph styles (customize the set of subgraphs as needed) ---
+  style EDGE     fill:#0f131b,stroke:#f59e0b,color:#fde68a
+  style RUNTIME  fill:#0f131b,stroke:#60a5fa,color:#dbeafe
+  style TASK_A   fill:#0f1a2e,stroke:#60a5fa,stroke-dasharray: 6 4,color:#dbeafe
+  style TASK_B   fill:#0f1a2e,stroke:#60a5fa,stroke-dasharray: 6 4,color:#dbeafe
+  style DATA     fill:#0f131b,stroke:#34d399,color:#d1fae5
+  style ASYNC    fill:#0f131b,stroke:#c084fc,color:#ede9fe
+  style SEC      fill:#0f131b,stroke:#f472b6,color:#fce7f3
+  style OBS      fill:#0f131b,stroke:#f472b6,color:#fce7f3
+  style THIRD    fill:#0f131b,stroke:#94a3b8,color:#cbd5e1
+    </pre>
+  </section>
+
+  <!-- OPTIONAL SECOND CARD:
+       Include a second Mermaid block for deployment/package topology when the
+       project has a layered IaC or multi-stage deploy worth showing (e.g., CDK
+       stacks, Terraform modules, Pulumi projects, K8s namespaces).
+       Remove the card entirely if not applicable. -->
+
+</main>
+
+<footer>
+  Sources: <!-- PROJECT-SUBSTITUTION: list the primary IaC/source files the diagram was grounded in, as inline code references. -->
+</footer>
+
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'base',
+    securityLevel: 'loose',
+    flowchart: { curve: 'basis', htmlLabels: true, padding: 12 },
+    themeVariables: {
+      background: '#0b0d12',
+      primaryColor: '#1f2937',
+      primaryTextColor: '#e7ecf3',
+      primaryBorderColor: '#475569',
+      lineColor: '#94a3b8',
+      secondaryColor: '#0f131b',
+      tertiaryColor: '#0f131b',
+      fontSize: '13px'
+    }
+  });
+</script>
+</body>
+</html>

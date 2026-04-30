@@ -1,0 +1,7 @@
+{
+  "name": "sonos-pr3",
+  "repo": "https://github.com/STop211650/sonoscli.git",
+  "ref": "061f7fdfedc4ed625497a54295e62fd63db4e96c",
+  "package": "./cmd/sonos",
+  "notes": "Pinned to Apple Music feature branch commit used by local sonos-pr3 binary."
+}

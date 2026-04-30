@@ -1,0 +1,15 @@
+// youtube_publish.json — output artifact written by stage 13-youtube-publish
+// Written to: <stream_dir>/meta/outputs/youtube_publish.json
+//
+// Does NOT include `status` — that belongs in the orchestrator return result, returned inline.
+
+{
+  "generated_at": "<ISO8601>",
+  // timestamp of when the publish ran
+  "video_id": "<string>",
+  // YouTube video ID resolved from source_stream.json
+  "published_title": "<boolean>",
+  // true if title was successfully pushed
+  "published_description": "<boolean>"
+  // true if description was successfully pushed
+}

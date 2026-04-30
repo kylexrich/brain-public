@@ -1,0 +1,22 @@
+// clip_production_manifest.json — output artifact written by stage 14-clip-production
+// Written to: <stream_dir>/meta/outputs/clip_production_manifest.json
+{
+  "generated_at": "ISO8601",
+  "source_vod": "/absolute/path/to/stream_key_vod.mp4",
+  "clips_dir": "/absolute/path/to/meta/outputs/clips/",
+  "clip_count": 8,
+  "clips": [
+    {
+      "filename": "01-clip-title.mp4",
+      "title": "Clip Title",
+      "start_seconds": 4200,
+      "end_seconds": 5460,
+      "duration_sec": 1260,
+      "format": "SHORT | HIGHLIGHT | TUTORIAL | STORY",
+      "confidence": "high | medium",
+      "file_size_bytes": 123456789,
+      "status": "success | error",
+      "error": "string | null"
+    }
+  ]
+}

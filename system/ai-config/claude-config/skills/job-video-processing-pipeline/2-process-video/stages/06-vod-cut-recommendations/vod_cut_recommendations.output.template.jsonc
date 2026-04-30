@@ -1,0 +1,25 @@
+// vod_cut_recommendations.json — output artifact written by stage 06-vod-cut-recommendations
+// Written to: <stream_dir>/meta/outputs/vod_cut_recommendations.json
+{
+  "generated_at": "ISO8601",
+  "recommendation_count": 4,
+  "recommendations": [
+    {
+      "category": "PRIVACY | SECURITY",
+      "title": "Brief description of what to cut",
+      "reason": "Why this segment should be trimmed — specific enough to convey severity",
+      "kyle_explicitly_requested_cut": "TRUE", // always TRUE — this stage is strict-explicit-only
+      "start_seconds": 10140,
+      "end_seconds": 10780,
+      "start_timestamp": "2:49:00",
+      "end_timestamp": "2:59:40",
+      "duration_sec": 640,
+      "severity": "HIGH | MEDIUM | LOW",
+      "confidence": "HIGH | MEDIUM | LOW",
+      "source_chunks": [
+        "chunk_003.txt"
+      ],
+      "transcript_excerpt": "Exact transcript text from the chunk between start_timestamp and end_timestamp. Copy verbatim — do not summarize, redact, or paraphrase."
+    }
+  ]
+}

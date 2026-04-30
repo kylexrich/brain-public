@@ -1,0 +1,29 @@
+// composite_clip_suggestions.json — output artifact written by stage 09-composite-clip-suggestions
+// Written to: <stream_dir>/meta/outputs/composite_clip_suggestions.json
+{
+  "generated_at": "ISO8601",
+  "composite_count": 2,
+  "composites": [
+    {
+      "title": "Composite title",
+      "hook": "Opening premise that draws the viewer in (1-2 sentences)",
+      "format_category": "GAME_RECAP | TOPIC_DEEP_DIVE | JOURNEY_ARC | THEME_COMPILATION | TOPIC_MERGE",
+      "narrative_thread": "How the segments connect (1-2 sentences)",
+      "editorial_effort": "LOW | MEDIUM | HIGH",
+      "estimated_duration_sec": 237,
+      "confidence": "high | medium",
+      "segments": [
+        {
+          "role": "INTRO | BODY | PAYOFF",
+          "title": "Segment title",
+          "description": "What this segment contributes to the composite",
+          "start_seconds": 1690,
+          "end_seconds": 1769,
+          "start_timestamp": "0:28:10",
+          "end_timestamp": "0:29:29",
+          "duration_sec": 79
+        }
+      ]
+    }
+  ]
+}

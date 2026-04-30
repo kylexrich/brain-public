@@ -1,0 +1,171 @@
+import { Command } from "@oclif/core";
+import { readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join, relative } from "node:path";
+import { fileURLToPath } from "node:url";
+
+export const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "..");
+
+const IGNORED_DIRECTORIES = new Set([
+  ".git",
+  "node_modules",
+  "dist",
+  ".next",
+  "out",
+  "coverage",
+  "build",
+  "openclaw"
+]);
+
+const HEADER_START = "> **`AGENTS.md` Instruction Precedence (DO NOT EDIT)**";
+const SEPARATOR = "\n\n---\n\n";
+
+function buildChain(agentsPath: string): string[] {
+  const chain: string[] = [];
+  let currentDirectory = dirname(agentsPath);
+
+  while (true) {
+    const candidatePath = join(currentDirectory, "AGENTS.md");
+    try {
+      readFileSync(candidatePath, "utf8");
+      chain.push(relative(REPO_ROOT, candidatePath) || "AGENTS.md");
+    } catch {
+      // Skip missing files while walking upward.
+    }
+
+    if (currentDirectory === REPO_ROOT) {
+      return chain.map((entry) => (entry === "" ? "AGENTS.md" : entry));
+    }
+    const parentDirectory = dirname(currentDirectory);
+    if (parentDirectory === currentDirectory) {
+      return chain;
+    }
+    currentDirectory = parentDirectory;
+  }
+}
+
+function formatChainEntry(relativePath: string, isThisFile: boolean): string {
+  if (relativePath === "AGENTS.md") {
+    return "`AGENTS.md` _(root)_";
+  }
+  if (isThisFile) {
+    return `\`${relativePath}\` _(this file)_`;
+  }
+  return `\`${relativePath}\``;
+}
+
+function generateHeader(agentsPath: string): string {
+  const chain = buildChain(agentsPath);
+  const thisRelativePath = relative(REPO_ROOT, agentsPath) || "AGENTS.md";
+  const isRoot = thisRelativePath === "AGENTS.md";
+
+  const chainString = isRoot
+    ? "`AGENTS.md` _(root — this file)_"
+    : chain.map((entry, index) => formatChainEntry(entry, index === 0)).join(" > ");
+
+  const description = isRoot
+    ? "This is the repo root `AGENTS.md`. All other `AGENTS.md` files inherit from this one. Most specific wins on conflict."
+    : "Hierarchical and additive — apply this file plus all parent `AGENTS.md` files up to repo root. Most specific wins on conflict.";
+
+  return [
+    HEADER_START,
+    ">",
+    `> ${description}`,
+    ">",
+    `> **Chain:** ${chainString}`
+  ].join("\n");
+}
+
+function stripHeader(content: string): string {
+  if (!content.startsWith(HEADER_START)) {
+    return content;
+  }
+
+  const separatorIndex = content.indexOf("\n---\n");
+  if (separatorIndex === -1) {
+    return content;
+  }
+
+  let contentStart = separatorIndex + "\n---\n".length;
+  while (contentStart < content.length && content[contentStart] === "\n") {
+    contentStart += 1;
+  }
+  return content.slice(contentStart);
+}
+
+export function processFile(agentsPath: string): boolean {
+  const existingContent = readFileSync(agentsPath, "utf8");
+  const strippedContent = stripHeader(existingContent);
+  const newContent = `${generateHeader(agentsPath)}${SEPARATOR}${strippedContent}`;
+
+  if (newContent === existingContent) {
+    return false;
+  }
+
+  writeFileSync(agentsPath, newContent, "utf8");
+  return true;
+}
+
+export function collectAgentsFiles(startDirectory: string): string[] {
+  const results: string[] = [];
+  const stack = [startDirectory];
+
+  while (stack.length > 0) {
+    const currentDirectory = stack.pop()!;
+    let entries;
+    try {
+      entries = readdirSync(currentDirectory, { withFileTypes: true });
+    } catch {
+      continue;
+    }
+
+    for (const entry of entries) {
+      if (entry.isDirectory()) {
+        if (IGNORED_DIRECTORIES.has(entry.name)) {
+          continue;
+        }
+        stack.push(join(currentDirectory, entry.name));
+        continue;
+      }
+
+      if (entry.isFile() && entry.name === "AGENTS.md") {
+        results.push(join(currentDirectory, entry.name));
+      }
+    }
+  }
+
+  return results;
+}
+
+export function runAgentsMdHeader(): number {
+  const files = collectAgentsFiles(REPO_ROOT);
+  let updatedCount = 0;
+
+  for (const file of files) {
+    const wasUpdated = processFile(file);
+    const relativePath = relative(REPO_ROOT, file) || "AGENTS.md";
+    process.stdout.write(`  ${wasUpdated ? "updated" : "ok"}: ${relativePath}\n`);
+    if (wasUpdated) {
+      updatedCount += 1;
+    }
+  }
+
+  process.stdout.write(`\n  → ${updatedCount}/${files.length} AGENTS.md file(s) updated\n`);
+  return updatedCount;
+}
+
+export function main(_argv: string[] = []): number {
+  void _argv;
+  process.stdout.write("agents-md-header: injecting precedence headers\n");
+  return runAgentsMdHeader();
+}
+
+export default class RepoAgentsHeader extends Command {
+  static description = "Inject AGENTS.md precedence headers across the repo";
+
+  async run(): Promise<void> {
+    const exitCode = main();
+    if (exitCode !== 0) {
+      this.exit(exitCode);
+    }
+  }
+}

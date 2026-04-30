@@ -1,0 +1,108 @@
+<!doctype html>
+<!--
+  tech-stack template.
+  Substitute only the PROJECT-SUBSTITUTION blocks. The structural contract
+  (grouped cards, tile grid, dark-theme tokens, image sizing) must not change.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title><!-- PROJECT-NAME --> — Tech Stack</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root {
+    --bg: #0b0d12;
+    --panel: #12151c;
+    --panel-2: #171b24;
+    --border: #242a36;
+    --text: #e7ecf3;
+    --muted: #8a94a6;
+    --accent: #6ea8fe;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text);
+    font: 14px/1.45 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Inter, Roboto, sans-serif; }
+  header { padding: 28px 32px 8px; }
+  header h1 { margin: 0 0 6px; font-size: 22px; letter-spacing: .2px; }
+  header p { margin: 0; color: var(--muted); font-size: 13px; }
+  main { padding: 16px 24px 48px; display: grid; gap: 18px; }
+  .row { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+  .group {
+    background: linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%);
+    border: 1px solid var(--border); border-radius: 14px; padding: 16px 16px 14px;
+    position: relative;
+  }
+  .group h2 {
+    margin: 0 0 12px; font-size: 12px; letter-spacing: 1.2px; text-transform: uppercase;
+    color: var(--muted); display: flex; align-items: center; gap: 10px;
+  }
+  .group h2::before {
+    content: ""; width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent); box-shadow: 0 0 0 3px rgba(110,168,254,.15);
+  }
+  /* Optional per-group accent dot recolor via class on .group: .group.client|.api|.data|.infra|.ai|.integ */
+  .group.client h2::before { background:#38bdf8; box-shadow:0 0 0 3px rgba(56,189,248,.15); }
+  .group.api h2::before    { background:#a78bfa; box-shadow:0 0 0 3px rgba(167,139,250,.15); }
+  .group.data h2::before   { background:#34d399; box-shadow:0 0 0 3px rgba(52,211,153,.15); }
+  .group.infra h2::before  { background:#fbbf24; box-shadow:0 0 0 3px rgba(251,191,36,.15); }
+  .group.ai h2::before     { background:#f87171; box-shadow:0 0 0 3px rgba(248,113,113,.15); }
+  .group.integ h2::before  { background:#60a5fa; box-shadow:0 0 0 3px rgba(96,165,250,.15); }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; }
+  .tile {
+    background: #0f131b; border: 1px solid var(--border); border-radius: 10px;
+    padding: 10px 10px 8px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 6px; min-height: 74px; text-align: center;
+    transition: transform .15s ease, border-color .15s ease;
+  }
+  .tile:hover { transform: translateY(-1px); border-color: #2f3848; }
+  .tile img { height: 26px; width: auto; max-width: 56px; object-fit: contain; }
+  .tile .name { font-size: 11.5px; color: #cfd6e1; }
+  .tile .sub  { font-size: 10px; color: var(--muted); margin-top: -2px; }
+  .tile .badge {
+    display:inline-flex; align-items:center; justify-content:center;
+    height:26px; width:26px; border-radius:6px; background:#1f2937;
+    color:#e5e7eb; font-weight:700; font-size:13px;
+  }
+  .legend { color: var(--muted); font-size: 11px; margin-top: 10px; }
+  .wide { grid-column: 1 / -1; }
+  footer { color: var(--muted); font-size: 11px; padding: 0 32px 32px; }
+</style>
+</head>
+<body>
+<header>
+  <h1><!-- PROJECT-NAME --> — Tech Stack</h1>
+  <p>Primary packages, runtimes, and third-party dependencies. Grouped by layer; flow intentionally omitted. For the runtime topology see <code>runtime-topology.html</code>.</p>
+</header>
+
+<main>
+
+  <!-- PROJECT-SUBSTITUTION:
+       Emit one <section class="group <slot-class>"> per meaningful layer in the project.
+       Slot classes (optional, purely visual): client · api · data · infra · ai · integ.
+       Within each group emit <div class="tile"> for each primary dependency/runtime.
+       Use the <div class="badge">X</div> form only when every logo CDN failed. -->
+
+  <section class="group client">
+    <h2>Layer — <code style="color:#cbd5e1">path/or-package</code> · runtime/framework</h2>
+    <div class="tiles">
+      <div class="tile">
+        <img alt="Thing" src="<verified-logo-url>" />
+        <div class="name">Thing</div>
+        <div class="sub">optional one-liner</div>
+      </div>
+      <div class="tile">
+        <div class="badge">X</div>
+        <div class="name">Thing With No Logo</div>
+        <div class="sub">no public logo</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <!-- PROJECT-SUBSTITUTION: brief footer naming the primary deployment units and their role. -->
+</footer>
+</body>
+</html>

@@ -1,0 +1,28 @@
+// composite_clip_suggestions.worker-result.schema.jsonc — worker return schema for stage 09-composite-clip-suggestions
+// Not written to disk — returned in-memory by each worker to the orchestrator
+{
+  "chunk_file": "chunk_003.txt",
+  "composites": [
+    // Zero or more partial composite objects found in this chunk.
+    // Each entry represents a set of segments from this chunk that could participate in a composite.
+    {
+      "candidate_theme": "Brief label for the narrative thread (e.g., 'Chess endgame recap')",
+      "format_category": "GAME_RECAP | TOPIC_DEEP_DIVE | JOURNEY_ARC | THEME_COMPILATION | TOPIC_MERGE",
+      "confidence": "high | medium",
+      "segments": [
+        // One or more segment objects matching the entries in
+        // `composite_clip_suggestions.output.template.jsonc` -> `composites[].segments[]`.
+        {
+          "role": "INTRO | BODY | PAYOFF",
+          "title": "Segment title",
+          "description": "What this segment contributes to the composite",
+          "start_seconds": 1690,
+          "end_seconds": 1769,
+          "start_timestamp": "0:28:10",
+          "end_timestamp": "0:29:29",
+          "duration_sec": 79
+        }
+      ]
+    }
+  ]
+}

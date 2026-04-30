@@ -1,0 +1,117 @@
+// video-state.json — per-video pipeline state written by the process-video orchestrator
+// Written to: <stream_dir>/meta/pipeline/video-state.json
+{
+  "generated_at": "ISO8601",
+  "stream_date": "YYYY-MM-DD",
+  "stream_key": "YYYY-MM-DD_HH-MM-SS",
+  "youtube_video_id": "abc123",
+  "stages": {
+    // Per-stage shape: { status, started_at, completed_at, error, result }
+    // result contains stage-specific output — see each stage's SKILL.md
+    "youtube_sync": {
+      "status": "pending | success | error | skipped",
+      "started_at": "ISO8601 | null",
+      "completed_at": "ISO8601 | null",
+      "error": "string | null",
+      "result": {}
+    },
+    "download": {
+      "status": "pending | success | error | skipped",
+      "started_at": "ISO8601 | null",
+      "completed_at": "ISO8601 | null",
+      "error": "string | null",
+      "result": {}
+    },
+    "transcribe": {
+      "status": "pending | success | error | skipped",
+      "started_at": "ISO8601 | null",
+      "completed_at": "ISO8601 | null",
+      "error": "string | null",
+      "result": {}
+    },
+    "chunk_transcript": {
+      "status": "pending | success | error | skipped",
+      "started_at": "ISO8601 | null",
+      "completed_at": "ISO8601 | null",
+      "error": "string | null",
+      "result": {}
+    },
+    "brain_extract": {
+      "status": "pending | success | error | skipped",
+      "started_at": "ISO8601 | null",
+      "completed_at": "ISO8601 | null",
+      "error": "string | null",
+      "result": {}
+    },
+    "vod_cut_recommendations": {
+      "status": "pending | success | error | skipped",
+      "started_at": "ISO8601 | null",
+      "completed_at": "ISO8601 | null",
+      "error": "string | null",
+      "result": {}
+    },
+    "stream_improvements": {
+      "status": "pending | success | error | skipped",
+      "started_at": "ISO8601 | null",
+      "completed_at": "ISO8601 | null",
+      "error": "string | null",
+      "result": {}
+    },
+    "clip_suggestions": {
+      "status": "pending | success | error | skipped",
+      "started_at": "ISO8601 | null",
+      "completed_at": "ISO8601 | null",
+      "error": "string | null",
+      "result": {}
+    },
+    "composite_clip_suggestions": {
+      "status": "pending | success | error | skipped",
+      "started_at": "ISO8601 | null",
+      "completed_at": "ISO8601 | null",
+      "error": "string | null",
+      "result": {}
+    },
+    "stream_chapters": {
+      "status": "pending | success | error | skipped",
+      "started_at": "ISO8601 | null",
+      "completed_at": "ISO8601 | null",
+      "error": "string | null",
+      "result": {}
+    },
+    "stream_summary": {
+      "status": "pending | success | error | skipped",
+      "started_at": "ISO8601 | null",
+      "completed_at": "ISO8601 | null",
+      "error": "string | null",
+      "result": {}
+    },
+    "stream_title": {
+      "status": "pending | success | error | skipped",
+      "started_at": "ISO8601 | null",
+      "completed_at": "ISO8601 | null",
+      "error": "string | null",
+      "result": {}
+    },
+    "youtube_publish": {
+      "status": "pending | success | error | skipped",
+      "started_at": "ISO8601 | null",
+      "completed_at": "ISO8601 | null",
+      "error": "string | null",
+      "result": {}
+    },
+    "clip_production": {
+      "status": "pending | success | error | skipped",
+      "started_at": "ISO8601 | null",
+      "completed_at": "ISO8601 | null",
+      "error": "string | null",
+      "result": {}
+    },
+    "composite_clip_production": {
+      "status": "pending | success | error | skipped",
+      "started_at": "ISO8601 | null",
+      "completed_at": "ISO8601 | null",
+      "error": "string | null",
+      "result": {}
+    }
+  }
+}

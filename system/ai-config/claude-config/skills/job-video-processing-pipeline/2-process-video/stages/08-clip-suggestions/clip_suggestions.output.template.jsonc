@@ -1,0 +1,19 @@
+// clip_suggestions.json — output artifact written by stage 08-clip-suggestions
+// Written to: <stream_dir>/meta/outputs/clip_suggestions.json
+{
+  "generated_at": "ISO8601",
+  "suggestion_count": 8,
+  "suggestions": [
+    {
+      "title": "Clip headline",
+      "reason": "Why this works as standalone content",
+      "format": "SHORT | HIGHLIGHT | TUTORIAL | STORY",
+      "start_seconds": 21815,
+      "end_seconds": 22116,
+      "start_timestamp": "6:03:35",
+      "end_timestamp": "6:08:36",
+      "duration_sec": 301,
+      "confidence": "high | medium"
+    }
+  ]
+}

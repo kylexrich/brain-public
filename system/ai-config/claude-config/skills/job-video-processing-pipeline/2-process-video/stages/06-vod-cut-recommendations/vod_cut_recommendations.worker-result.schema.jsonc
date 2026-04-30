@@ -1,0 +1,9 @@
+// vod_cut_recommendations.worker-result.schema.jsonc — worker return schema for stage 06-vod-cut-recommendations
+// Not written to disk — returned in-memory by each worker to the orchestrator
+{
+  "chunk_file": "chunk_003.txt",
+  "recommendations": [
+    // Zero or more recommendation objects matching recommendations[] in
+    // system/ai-config/claude-config/skills/job-video-processing-pipeline/2-process-video/stages/06-vod-cut-recommendations/vod_cut_recommendations.output.template.jsonc
+  ]
+}

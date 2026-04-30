@@ -1,0 +1,30 @@
+recorded_at_utc: 2026-02-26T15:45:18Z
+binary: /Users/kylerich/Developer/brain/bin/sonos-pr3
+sha256: 98d4af92ae5632483d74ba3714704f25fd9865cf55da0de77d3056078578b707
+module: github.com/STop211650/sonoscli
+path: github.com/STop211650/sonoscli/cmd/sonos
+vcs_revision: 061f7fdfedc4ed625497a54295e62fd63db4e96c
+vcs_time: 2026-01-22T18:19:30Z
+dist_binary: /Users/kylerich/Developer/brain/vendor/sonos-pr3/dist/sonos-pr3
+dist_sha256: 98d4af92ae5632483d74ba3714704f25fd9865cf55da0de77d3056078578b707
+
+/Users/kylerich/Developer/brain/bin/sonos-pr3: go1.26.0
+	path	github.com/STop211650/sonoscli/cmd/sonos
+	mod	github.com/STop211650/sonoscli	v0.1.2-0.20260122181930-061f7fdfedc4	
+	dep	github.com/spf13/cobra	v1.8.1	h1:e5/vxKd/rZsfSJMUX1agtjeTDf+qv1/JdBF8gg5k9ZM=
+	dep	github.com/spf13/pflag	v1.0.5	h1:iy+VFUOCP1a+8yFto/drg2CJ5u0yRoB7fZw3DKv/JXA=
+	build	-buildmode=exe
+	build	-compiler=gc
+	build	DefaultGODEBUG=asynctimerchan=1,containermaxprocs=0,cryptocustomrand=1,decoratemappings=0,gotestjsonbuildtext=1,gotypesalias=0,httpcookiemaxnum=0,httpservecontentkeepheaders=1,multipathtcp=0,randseednop=0,rsa1024min=0,tls3des=1,tlsmlkem=0,tlssecpmlkem=0,tlssha1=1,updatemaxprocs=0,urlmaxqueryparams=0,urlstrictcolons=0,winreadlinkvolume=0,winsymlink=0,x509keypairleaf=0,x509negativeserial=1,x509rsacrt=0,x509sha256skid=0,x509usepolicies=0
+	build	CGO_ENABLED=1
+	build	CGO_CFLAGS=
+	build	CGO_CPPFLAGS=
+	build	CGO_CXXFLAGS=
+	build	CGO_LDFLAGS=
+	build	GOARCH=arm64
+	build	GOOS=darwin
+	build	GOARM64=v8.0
+	build	vcs=git
+	build	vcs.revision=061f7fdfedc4ed625497a54295e62fd63db4e96c
+	build	vcs.time=2026-01-22T18:19:30Z
+	build	vcs.modified=false

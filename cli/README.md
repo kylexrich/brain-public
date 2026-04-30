@@ -52,5 +52,4 @@
 
 | Command | Purpose |
 | --- | --- |
-| `refresh-attio` | Refresh the Attio OAuth token and sync mcporter configs. |
 | `refresh-youtube` | Refresh the YouTube OAuth token near expiry. |

@@ -15,10 +15,12 @@ I was tired of scattering AI config and scripts across a million places without 
 ```
 cli/               — Brain CLI (oclif, TypeScript)
 emily-repo-resources/ — Public-only generated Emily AGENTS snapshots + skills
-openclaw/          — OpenClaw runtime (legacy; not actively used).
+deprecated/
+  openclaw/        — Legacy OpenClaw runtime archive (not actively used)
 system/            — Machine config (AI config, shell, bootstrap, symlinks)
   ai-config/       — Configuration for Claude Code, Claude Desktop, Codex
   bootstrap-system.md — macOS setup guide
+  credentials/     — Private local OAuth/client credential storage (excluded)
   symlinks/        — Per-machine symlink manifests + apply scripts
   zshrc/           — Shell config sourced by ~/.zshrc
   scripts/         — Small terminal utilities
@@ -37,7 +39,7 @@ A TypeScript oclif CLI under `cli/` used exclusively by AI agents. Topics:
 - **`image`** — Gemini image generation / editing.
 - **`stt` / `tts`** — On-device whisper.cpp transcription and Microsoft Edge text-to-speech.
 - **`repo`** — Maintenance: `AGENTS.md` header injection, public-mirror export, AI config sync.
-- **`token`** — OAuth rotation (YouTube, Attio).
+- **`token`** — OAuth rotation (YouTube).
 
 External tools needed: `ffmpeg`, `ffprobe`, `whisper-cli` (whisper.cpp, `brew install whisper-cpp`), `yt-dlp`, `gog` (Google Contacts), Sonos discovery (bundled at `cli/bin/`), `curl`.
 

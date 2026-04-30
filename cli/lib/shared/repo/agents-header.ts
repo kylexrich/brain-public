@@ -13,7 +13,7 @@ const IGNORED_DIRECTORIES = new Set([
   "out",
   "coverage",
   "build",
-  "openclaw"
+  "deprecated"
 ]);
 
 const HEADER_START = "> **`AGENTS.md` Instruction Precedence (DO NOT EDIT)**";

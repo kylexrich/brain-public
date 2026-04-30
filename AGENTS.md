@@ -8,7 +8,7 @@
 
 # `/` Brain — Kyle's Second Brain
 
-The repo root for Kyle's second brain. Contains the knowledge vault, a TypeScript CLI, OpenClaw runtime, and system configuration.
+The repo root for Kyle's second brain. Contains the knowledge vault, a TypeScript CLI, deprecated OpenClaw runtime archive, and system configuration.
 
 ## Rule Types
 
@@ -20,8 +20,9 @@ The repo root for Kyle's second brain. Contains the knowledge vault, a TypeScrip
 
 ```
 cli/               — Brain CLI (oclif TypeScript CLI — see cli/AGENTS.md)
+deprecated/        — Deprecated runtime archives
+  openclaw/        — Legacy OpenClaw runtime archive (not actively used)
 docs/              — Historical task plans and migration docs
-openclaw/          — OpenClaw runtime (config, cron, agent workspaces)
 system/            — System configuration (AI config, shell, symlinks, scripts)
 vault/             — Knowledge graph content (see vault/AGENTS.md)
 ```

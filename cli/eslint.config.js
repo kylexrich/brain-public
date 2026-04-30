@@ -7,11 +7,11 @@ export default tseslint.config(
       "dist/**",
       "node_modules/**",
       "vault/**",
-      "openclaw/**/memory/**",
-      "openclaw/**/config/**",
-      "openclaw/**/site-packages/**",
-      "openclaw/**/youtube-venv/**",
-      "openclaw/**/.venv/**"
+      "deprecated/openclaw/**/memory/**",
+      "deprecated/openclaw/**/config/**",
+      "deprecated/openclaw/**/site-packages/**",
+      "deprecated/openclaw/**/youtube-venv/**",
+      "deprecated/openclaw/**/.venv/**"
     ]
   },
   js.configs.recommended,

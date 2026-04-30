@@ -7,7 +7,8 @@ dist/
 *.bak*
 **/.openclaw
 **/.env
-openclaw/**/config/
+deprecated/openclaw/**/config/
+system/credentials/**
 
 # Temp Files
 *.tmp
@@ -20,18 +21,18 @@ temp/
 .temp*
 
 # OpenClaw temporary files (any depth)
-openclaw/**/*.swp
-openclaw/**/*.swo
-openclaw/**/*~
-openclaw/**/*.orig
-openclaw/**/*.pyc
-openclaw/**/__pycache__/
-openclaw/**/*.log
+deprecated/openclaw/**/*.swp
+deprecated/openclaw/**/*.swo
+deprecated/openclaw/**/*~
+deprecated/openclaw/**/*.orig
+deprecated/openclaw/**/*.pyc
+deprecated/openclaw/**/__pycache__/
+deprecated/openclaw/**/*.log
 
-# Live OpenClaw runtime workspaces (tracked snapshots live in openclaw/mbp-m4max-16/)
-openclaw/main/
-openclaw/team/
-openclaw/cron/
+# Live OpenClaw runtime workspaces (tracked snapshots live in deprecated/openclaw/mbp-m4max-16/)
+deprecated/openclaw/main/
+deprecated/openclaw/team/
+deprecated/openclaw/cron/
 
 # Stream pipeline media artifacts
 vault/stream-videos/**/*.mov
@@ -56,7 +57,7 @@ system/ai-config/claude-config/projects/**
 !system/ai-config/claude-config/projects/*/memory/**
 oclif.manifest.json
 
-openclaw/**/cron/runs/
+deprecated/openclaw/**/cron/runs/
 
 .claude/worktrees/
 

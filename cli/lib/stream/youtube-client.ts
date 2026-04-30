@@ -7,8 +7,10 @@ import { OAuth2Client, type Credentials } from "google-auth-library";
 import { readJsonFile, writeJsonFile } from "../shared/util/json.js";
 import { loadJson } from "./pipeline-utils.js";
 
-export const DEFAULT_CLIENT_SECRET = "/Users/kylerich/Developer/brain/openclaw/mbp-m4max-16/main/config/youtube-client-secret.json";
-export const DEFAULT_TOKEN_PATH = "/Users/kylerich/Developer/brain/openclaw/mbp-m4max-16/main/config/youtube-token.json";
+const DEFAULT_CREDENTIALS_DIR = process.env.BRAIN_YOUTUBE_CREDENTIALS_DIR ?? "/Users/kylerich/Developer/brain/system/credentials/youtube";
+
+export const DEFAULT_CLIENT_SECRET = `${DEFAULT_CREDENTIALS_DIR}/youtube-client-secret.json`;
+export const DEFAULT_TOKEN_PATH = `${DEFAULT_CREDENTIALS_DIR}/youtube-token.json`;
 export const ALL_SCOPES = [
   "https://www.googleapis.com/auth/youtube.upload",
   "https://www.googleapis.com/auth/youtube.readonly",

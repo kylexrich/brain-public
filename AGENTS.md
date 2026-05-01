@@ -44,6 +44,14 @@ When changing code, scripts, AGENTS files, skills, config, or technical docs:
 * Implement focused changes that fit existing conventions.
 * Verify the result with the relevant validation or review path before claiming completion.
 
+## [STRICT] No Agent-Created Tests Unless Explicitly Requested
+
+When changing code, scripts, config, or technical docs:
+* Do not add, scaffold, generate, or modify automated tests unless the user explicitly asks for tests in the current task.
+* Do not add or enable test runners, test scripts, test dependencies, test fixtures, snapshots, or `tests/` directories as part of normal implementation work.
+* Do not apply test-first/TDD workflows by default in this repo. Use non-test validation such as type-checking, linting, builds, static inspection, or the smallest safe manual command that exercises the changed path.
+* Existing tests may only be run when the user asks for test execution or when the current task is explicitly about maintaining an existing test suite.
+
 ## [STRICT] Public Mirror Documentation and Export Hygiene
 
 When changing public-facing repo structure, reusable tools, skills, agents, setup docs, or public export behavior:

@@ -24,9 +24,11 @@
  * Config (env vars):
  *   SCHEDULER_HTTP_PORT      HTTP listen port           (default: 47240)
  *   SCHEDULER_TICK_MS        Tick interval ms           (default: 1000)
- *   SCHEDULER_DEFAULT_TZ     Default timezone for cron  (default: America/Vancouver)
- *   CLAUDE_BIN               Path to claude CLI binary  (default: /Users/kylerich/.local/bin/claude)
- *   SCHEDULER_DEFAULT_CWD    Default cwd for spawn jobs (default: $HOME/Developer/brain)
+ *   SCHEDULER_DEFAULT_TZ     Default timezone for cron  (default: BRAIN_DEFAULT_TIMEZONE or America/Vancouver)
+ *   BRAIN_DEFAULT_TIMEZONE   Shared fallback timezone   (default: America/Vancouver)
+ *   BRAIN_ROOT               Brain repo root            (default: $HOME/Developer/brain)
+ *   CLAUDE_BIN               Path to claude CLI binary  (default: $HOME/.local/bin/claude)
+ *   SCHEDULER_DEFAULT_CWD    Default cwd for spawn jobs (default: BRAIN_ROOT)
  *
  * MCP registration (Claude Code) — in claude.json mcpServers:
  *   "scheduler": { "type": "http", "url": "http://127.0.0.1:47240/mcp" }
@@ -47,9 +49,10 @@ import cronParser from 'cron-parser'
 
 const SCHEDULER_HTTP_PORT = parseInt(process.env.SCHEDULER_HTTP_PORT ?? '47240')
 const SCHEDULER_TICK_MS = parseInt(process.env.SCHEDULER_TICK_MS ?? '1000')
-const SCHEDULER_DEFAULT_TZ = process.env.SCHEDULER_DEFAULT_TZ ?? 'America/Vancouver'
-const CLAUDE_BIN = process.env.CLAUDE_BIN ?? '/Users/kylerich/.local/bin/claude'
-const SCHEDULER_DEFAULT_CWD = process.env.SCHEDULER_DEFAULT_CWD ?? join(homedir(), 'Developer/brain')
+const SCHEDULER_DEFAULT_TZ = process.env.SCHEDULER_DEFAULT_TZ ?? process.env.BRAIN_DEFAULT_TIMEZONE ?? 'America/Vancouver'
+const BRAIN_ROOT = process.env.BRAIN_ROOT ?? join(homedir(), 'Developer/brain')
+const CLAUDE_BIN = process.env.CLAUDE_BIN ?? join(homedir(), '.local/bin/claude')
+const SCHEDULER_DEFAULT_CWD = process.env.SCHEDULER_DEFAULT_CWD ?? BRAIN_ROOT
 
 const JOBS_FILE = join(import.meta.dirname, 'jobs.json')
 const RUNS_DIR = join(import.meta.dirname, 'runs')
@@ -104,7 +107,7 @@ try {
 const EXTRA_PATHS = [
   join(homedir(), '.local/bin'),
   join(homedir(), '.bun/bin'),
-  join(homedir(), 'Developer/brain/cli/bin'),
+  join(BRAIN_ROOT, 'cli/bin'),
   '/opt/homebrew/bin',
   '/usr/local/bin',
 ]
@@ -500,7 +503,7 @@ const TOOL_LIST = [
               properties: {
                 kind: { const: 'cron' },
                 expr: { type: 'string', description: '5-field cron, e.g. "0 6 * * *"' },
-                tz: { type: 'string', description: 'IANA timezone, defaults to America/Vancouver' },
+                tz: { type: 'string', description: 'IANA timezone, defaults to BRAIN_DEFAULT_TIMEZONE or America/Vancouver' },
               },
               required: ['kind', 'expr'],
             },

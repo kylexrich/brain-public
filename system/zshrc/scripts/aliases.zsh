@@ -1,6 +1,6 @@
 # Terminal art aliases
-alias brb='bash "$HOME/Developer/brain/system/scripts/brb.sh"'
-alias privacy='bash "$HOME/Developer/brain/system/scripts/privacy.sh"'
+alias brb='bash "$BRAIN_ROOT/system/scripts/brb.sh"'
+alias privacy='bash "$BRAIN_ROOT/system/scripts/privacy.sh"'
 alias rbd='npm run ci && npm run dev'
 alias dev='npm run dev'
 # Claude Code — start with BlueBubbles iMessage channel (kyledvrich@gmail.com via claw user)

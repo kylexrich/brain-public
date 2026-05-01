@@ -1,5 +1,6 @@
 import { mkdirSync, readdirSync } from "node:fs";
-import { basename, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { Command, Flags } from "@oclif/core";
 import { safeExists } from "../../lib/shared/util/fs.js";
 import {
@@ -17,7 +18,8 @@ import {
 } from "../../lib/stream/pipeline-utils.js";
 import { DEFAULT_TOKEN_PATH } from "../../lib/stream/youtube-client.js";
 
-const DEFAULT_VAULT_ROOT = "/Users/kylerich/Developer/brain/vault/stream-videos";
+const BRAIN_ROOT = process.env.BRAIN_ROOT?.trim() || join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
+const DEFAULT_VAULT_ROOT = join(BRAIN_ROOT, "vault/stream-videos");
 const STREAM_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const DAY_FOLDER_PATTERN = /^\d{4}-\d{2}-\d{2}_day-(\d+)$/;
 

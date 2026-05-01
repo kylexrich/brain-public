@@ -1,8 +1,10 @@
 import { Command, Flags } from "@oclif/core";
-import { readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const DEFAULT_OUTPUT_DIR = "/Users/kylerich/Developer/brain/.ai/tmp";
+const BRAIN_ROOT = process.env.BRAIN_ROOT?.trim() || join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
+const DEFAULT_OUTPUT_DIR = join(BRAIN_ROOT, ".ai/tmp");
 
 const GEMINI_MODEL = "gemini-3-pro-image-preview";
 const GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta/models";
@@ -118,6 +120,7 @@ export default class ImageGenerate extends Command {
       for (const part of candidate.content?.parts ?? []) {
         if (part.inlineData?.data) {
           const imgBytes = Buffer.from(part.inlineData.data, "base64");
+          mkdirSync(dirname(outputPath), { recursive: true });
           writeFileSync(outputPath, imgBytes);
           process.stdout.write(`${outputPath}\n`);
           return;

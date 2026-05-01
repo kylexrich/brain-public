@@ -1,14 +1,14 @@
 recorded_at_utc: 2026-02-26T15:45:18Z
-binary: /Users/kylerich/Developer/brain/bin/sonos-pr3
+binary: cli/bin/sonos-pr3
 sha256: 98d4af92ae5632483d74ba3714704f25fd9865cf55da0de77d3056078578b707
 module: github.com/STop211650/sonoscli
 path: github.com/STop211650/sonoscli/cmd/sonos
 vcs_revision: 061f7fdfedc4ed625497a54295e62fd63db4e96c
 vcs_time: 2026-01-22T18:19:30Z
-dist_binary: /Users/kylerich/Developer/brain/vendor/sonos-pr3/dist/sonos-pr3
+dist_binary: cli/vendor/sonos-pr3/dist/sonos-pr3
 dist_sha256: 98d4af92ae5632483d74ba3714704f25fd9865cf55da0de77d3056078578b707
 
-/Users/kylerich/Developer/brain/bin/sonos-pr3: go1.26.0
+cli/bin/sonos-pr3: go1.26.0
 	path	github.com/STop211650/sonoscli/cmd/sonos
 	mod	github.com/STop211650/sonoscli	v0.1.2-0.20260122181930-061f7fdfedc4	
 	dep	github.com/spf13/cobra	v1.8.1	h1:e5/vxKd/rZsfSJMUX1agtjeTDf+qv1/JdBF8gg5k9ZM=

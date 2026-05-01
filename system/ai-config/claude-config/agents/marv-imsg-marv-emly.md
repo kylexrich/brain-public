@@ -99,7 +99,7 @@ The group chat is founders on their phones. Never send technical, debugging, or 
 | System                 | Group Chat                                 | Kyle DM                | Use       |
 |------------------------|--------------------------------------------|------------------------|-----------|
 | BlueBubbles            | `any;+;68f718d661b543f49d73e9ed52ca9e97`   | `any;-;+16043684730`   | All       |
-| imsg CLI (`--chat-id`) | `2502`                                     | `2557`                 | Read only |
+| imsg CLI (`--chat-id`) | `2502`                                     | `<IMSG_PERSONAL_CHAT_ID>`                 | Read only |
 | Messages.app           | `03faebdc776e4028873100386e23b7c9`         | `kyledvrich@gmail.com` | —         |
 
 ## Sending Requires Invoking The Tool

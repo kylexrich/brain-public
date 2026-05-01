@@ -16,6 +16,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 WORKSPACE_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+REPO_ROOT="$(cd "$WORKSPACE_DIR/.." && pwd)"
 SOURCE_JSON="${SOURCE_JSON:-$SCRIPT_DIR/SOURCE.json}"
 OUT_BIN="${OUT_BIN:-$WORKSPACE_DIR/bin/sonos-pr3}"
 DIST_BIN="$SCRIPT_DIR/dist/sonos-pr3"
@@ -79,6 +80,9 @@ cp "$OUT_BIN" "$DIST_BIN"
 
 SHA256="$(shasum -a 256 "$OUT_BIN" | awk '{print $1}')"
 GO_VERSION_M="$(go version -m "$OUT_BIN" 2>/dev/null || true)"
+OUT_BIN_REL="$(node -e 'const path=require("node:path"); console.log(path.relative(process.argv[1], process.argv[2]) || ".")' "$REPO_ROOT" "$OUT_BIN")"
+DIST_BIN_REL="$(node -e 'const path=require("node:path"); console.log(path.relative(process.argv[1], process.argv[2]) || ".")' "$REPO_ROOT" "$DIST_BIN")"
+GO_VERSION_M_REL="${GO_VERSION_M//$OUT_BIN/$OUT_BIN_REL}"
 
 echo "[sonos-pr3] installed: $OUT_BIN"
 echo "[sonos-pr3] dist copy: $DIST_BIN"
@@ -90,14 +94,14 @@ repo: $SONOSCLI_REPO
 ref_requested: $SONOSCLI_REF
 commit_built: $ACTUAL_COMMIT
 package: $SONOSCLI_PACKAGE
-out_bin: $OUT_BIN
-dist_bin: $DIST_BIN
+out_bin: $OUT_BIN_REL
+dist_bin: $DIST_BIN_REL
 sha256: $SHA256
 
-$GO_VERSION_M
+$GO_VERSION_M_REL
 EOF
 
-node -e 'const fs=require("node:fs"); const [path,builtAtUtc,repo,refRequested,commitBuilt,packageName,outBin,distBin,sha256]=process.argv.slice(1); const payload={builtAtUtc,repo,refRequested,commitBuilt,package:packageName,outBin,distBin,sha256}; fs.writeFileSync(path, JSON.stringify(payload,null,2)+"\n","utf8");' "$SCRIPT_DIR/current-build.json" "$BUILD_TIME_UTC" "$SONOSCLI_REPO" "$SONOSCLI_REF" "$ACTUAL_COMMIT" "$SONOSCLI_PACKAGE" "$OUT_BIN" "$DIST_BIN" "$SHA256"
+node -e 'const fs=require("node:fs"); const [path,builtAtUtc,repo,refRequested,commitBuilt,packageName,outBin,distBin,sha256]=process.argv.slice(1); const payload={builtAtUtc,repo,refRequested,commitBuilt,package:packageName,outBin,distBin,sha256}; fs.writeFileSync(path, JSON.stringify(payload,null,2)+"\n","utf8");' "$SCRIPT_DIR/current-build.json" "$BUILD_TIME_UTC" "$SONOSCLI_REPO" "$SONOSCLI_REF" "$ACTUAL_COMMIT" "$SONOSCLI_PACKAGE" "$OUT_BIN_REL" "$DIST_BIN_REL" "$SHA256"
 
 echo "[sonos-pr3] wrote metadata: $SCRIPT_DIR/current-build.txt"
 echo "[sonos-pr3] wrote metadata: $SCRIPT_DIR/current-build.json"

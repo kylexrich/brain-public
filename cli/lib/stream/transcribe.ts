@@ -9,7 +9,8 @@ const execFileAsync = promisify(execFile);
 export const DEFAULT_FFMPEG = "/opt/homebrew/bin/ffmpeg";
 export const DEFAULT_FFPROBE = "/opt/homebrew/bin/ffprobe";
 export const DEFAULT_WHISPER_CLI = "/opt/homebrew/bin/whisper-cli";
-export const DEFAULT_MODEL = "/opt/homebrew/share/whisper-cpp/ggml-large-v3-turbo.bin";
+export const DEFAULT_MODEL =
+  process.env.BRAIN_WHISPER_MODEL_PATH?.trim() || "/opt/homebrew/share/whisper-cpp/ggml-large-v3-turbo.bin";
 export const DEFAULT_CHUNK_SECONDS = 20 * 60;
 export const DEFAULT_WORKERS = 2;
 

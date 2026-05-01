@@ -1,16 +1,18 @@
 import { chmodSync } from "node:fs";
 import { createServer } from "node:http";
 import { spawnSync } from "node:child_process";
-import { resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { google, type youtube_v3 } from "googleapis";
 import { OAuth2Client, type Credentials } from "google-auth-library";
 import { readJsonFile, writeJsonFile } from "../shared/util/json.js";
 import { loadJson } from "./pipeline-utils.js";
 
-const DEFAULT_CREDENTIALS_DIR = process.env.BRAIN_YOUTUBE_CREDENTIALS_DIR ?? "/Users/kylerich/Developer/brain/system/credentials/youtube";
+const BRAIN_ROOT = process.env.BRAIN_ROOT?.trim() || join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
+const DEFAULT_CREDENTIALS_DIR = join(BRAIN_ROOT, "system/credentials/youtube");
 
-export const DEFAULT_CLIENT_SECRET = `${DEFAULT_CREDENTIALS_DIR}/youtube-client-secret.json`;
-export const DEFAULT_TOKEN_PATH = `${DEFAULT_CREDENTIALS_DIR}/youtube-token.json`;
+export const DEFAULT_CLIENT_SECRET = join(DEFAULT_CREDENTIALS_DIR, "youtube-client-secret.json");
+export const DEFAULT_TOKEN_PATH = join(DEFAULT_CREDENTIALS_DIR, "youtube-token.json");
 export const ALL_SCOPES = [
   "https://www.googleapis.com/auth/youtube.upload",
   "https://www.googleapis.com/auth/youtube.readonly",

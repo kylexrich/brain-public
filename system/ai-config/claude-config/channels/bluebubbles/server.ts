@@ -21,7 +21,7 @@
  *
  * Config (env vars):
  *   BB_URL                      BlueBubbles server URL          (default: http://127.0.0.1:1234)
- *   BB_PASSWORD                 BB server password              (fallback: OPENCLAW_BLUEBUBBLES_PASSWORD)
+ *   BB_PASSWORD                 BB server password
  *   BB_HTTP_PORT                HTTP listen port                (default: 47239)
  *   BB_FETCH_TIMEOUT_MS         Default fetch timeout           (default: 5000)
  *   BB_ATTACHMENT_TIMEOUT_MS    Attachment upload timeout ms    (default: 180000)
@@ -50,13 +50,14 @@ import { pipeline } from 'node:stream/promises'
 // --- Config ------------------------------------------------------------------
 
 const BB_URL = (process.env.BB_URL ?? 'http://127.0.0.1:1234').replace(/\/$/, '')
-const BB_PASSWORD = process.env.BB_PASSWORD ?? process.env.OPENCLAW_BLUEBUBBLES_PASSWORD ?? ''
+const BB_PASSWORD = process.env.BB_PASSWORD ?? ''
 const BB_HTTP_PORT = parseInt(process.env.BB_HTTP_PORT ?? '47239')
 const BB_FETCH_TIMEOUT_MS = parseInt(process.env.BB_FETCH_TIMEOUT_MS ?? '5000')
 const BB_ATTACHMENT_TIMEOUT_MS = parseInt(process.env.BB_ATTACHMENT_TIMEOUT_MS ?? '180000')
 const BB_DEBOUNCE_MS = parseInt(process.env.BB_DEBOUNCE_MS ?? '6000')
 const BB_MAX_ATTACHMENT_BYTES = parseInt(process.env.BB_MAX_ATTACHMENT_BYTES ?? String(100 * 1024 * 1024))
 const ATTACHMENTS_MAX_TOTAL_BYTES = parseInt(process.env.ATTACHMENTS_MAX_TOTAL_BYTES ?? String(500 * 1024 * 1024))
+const BRAIN_ROOT = process.env.BRAIN_ROOT ?? join(homedir(), 'Developer/brain')
 const TTS_FILE = join(import.meta.dirname, 'tts-settings.json')
 const ATTACHMENTS_DIR = join(import.meta.dirname, 'attachments')
 mkdirSync(ATTACHMENTS_DIR, { recursive: true })
@@ -92,7 +93,7 @@ const logger = {
 // --- Startup guards ----------------------------------------------------------
 
 if (!BB_PASSWORD) {
-  logger.error('BB_PASSWORD / OPENCLAW_BLUEBUBBLES_PASSWORD not set — exiting')
+  logger.error('BB_PASSWORD not set — exiting')
   process.exit(1)
 }
 process.on('unhandledRejection', err =>
@@ -203,14 +204,14 @@ function parseFilter(url: URL): ChatFilter {
 
 // --- Contact resolution -------------------------------------------------------
 
-const BRAIN_BIN = join(homedir(), 'Developer/brain/cli/bin/brain')
+const BRAIN_CLI = join(BRAIN_ROOT, 'cli/bin/brain')
 const contactCache = new Map<string, string>()
 
 function resolveContact(identifier: string): string {
   const cached = contactCache.get(identifier)
   if (cached) return cached
   try {
-    const res = spawnSync(BRAIN_BIN, ['contact', 'resolve', '--identifier', identifier, '--mode', 'report'], {
+    const res = spawnSync(BRAIN_CLI, ['contact', 'resolve', '--identifier', identifier, '--mode', 'report'], {
       encoding: 'utf8',
       timeout: 15_000,  // cold-start tsx→node compile can exceed 5s under launchd
       env: { ...process.env },
@@ -659,7 +660,7 @@ async function sendTts(chatId: string, text: string): Promise<void> {
   logger.info('TTS start', { chatId, textLength: clean.length })
   const outPath = join(tmpdir(), `bb-tts-${randomUUID()}.mp3`)
   try {
-    const res = spawnSync(BRAIN_BIN, ['tts', 'synthesize', clean, '--out', outPath], {
+    const res = spawnSync(BRAIN_CLI, ['tts', 'synthesize', clean, '--out', outPath], {
       encoding: 'utf8',
       timeout: 60_000,
       env: { ...process.env },

@@ -1,11 +1,11 @@
 {
   "recordedAtUtc": "2026-02-26T15:45:18Z",
-  "binary": "/Users/kylerich/Developer/brain/cli/bin/sonos-pr3",
+  "binary": "cli/bin/sonos-pr3",
   "sha256": "98d4af92ae5632483d74ba3714704f25fd9865cf55da0de77d3056078578b707",
   "module": "github.com/STop211650/sonoscli",
   "path": "github.com/STop211650/sonoscli/cmd/sonos",
   "vcsRevision": "061f7fdfedc4ed625497a54295e62fd63db4e96c",
   "vcsTime": "2026-01-22T18:19:30Z",
-  "distBinary": "/Users/kylerich/Developer/brain/vendor/sonos-pr3/dist/sonos-pr3",
+  "distBinary": "cli/vendor/sonos-pr3/dist/sonos-pr3",
   "distSha256": "98d4af92ae5632483d74ba3714704f25fd9865cf55da0de77d3056078578b707"
 }

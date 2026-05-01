@@ -1,6 +1,6 @@
 import { Args, Command, Flags } from "@oclif/core";
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -81,7 +81,6 @@ export default class TtsSynthesize extends Command {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private async synthesizeChunk(EdgeTTSClass: any, text: string, outPath: string, voice: string): Promise<void> {
     const tts = new EdgeTTSClass({
       voice,

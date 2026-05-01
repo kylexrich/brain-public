@@ -75,7 +75,7 @@ export default class SttTranscribe extends Command {
       this.error(
         `Whisper model not found: ${modelPath}\n` +
           "Install via Homebrew: brew install whisper-cpp " +
-          "(installs ggml-large-v3-turbo.bin to /opt/homebrew/share/whisper-cpp/)",
+          "(installs ggml-large-v3-turbo.bin to /opt/homebrew/share/whisper-cpp/), set BRAIN_WHISPER_MODEL_PATH, or pass --model.",
         { exit: 1 }
       );
     }

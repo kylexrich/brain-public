@@ -118,6 +118,7 @@ type CompiledVerifyRule = CompiledStringVerifyRule | CompiledRegexVerifyRule;
 
 type ExportPlan = {
   configPath: string;
+  excludePatterns: string[];
   externalResourceSets: ParsedExternalResourceSetConfig[];
   targetRoot: string;
   selectedPaths: string[];
@@ -412,6 +413,7 @@ function buildExportPlan(configPath: string, targetOverride?: string): ExportPla
 
   return {
     configPath,
+    excludePatterns: config.exclude,
     externalResourceSets: config.externalResourceSets,
     targetRoot: resolveTargetRoot(configPath, config, targetOverride),
     selectedPaths,
@@ -439,12 +441,17 @@ function writePreservedStructureMarkers(
   targetRoot: string,
   trackedFiles: string[],
   selectedPaths: string[],
+  excludePatterns: string[],
 ): void {
   const sourceDirs = collectAncestorDirs(trackedFiles);
   const mirroredDirs = collectAncestorDirs(selectedPaths);
+  const excludeMatchers = excludePatterns.map(compileGlob);
 
   for (const relativeDir of sourceDirs) {
     if (mirroredDirs.has(relativeDir)) continue;
+    if (matchesAny(`${relativeDir}/.gitkeep`, excludeMatchers) || matchesAny(`${relativeDir}/placeholder`, excludeMatchers)) {
+      continue;
+    }
     const parent = dirname(relativeDir);
     const parentIsRootOrMirrored = parent === "." || parent === "/" || mirroredDirs.has(parent);
     if (!parentIsRootOrMirrored) continue;
@@ -665,7 +672,7 @@ export function main(argv: string[] = []): number {
     return copiedPaths;
   });
 
-  writePreservedStructureMarkers(plan.targetRoot, plan.trackedFiles, plan.selectedPaths);
+  writePreservedStructureMarkers(plan.targetRoot, plan.trackedFiles, plan.selectedPaths, plan.excludePatterns);
   runVerifyChecks(plan.targetRoot, [...plan.selectedPaths, ...externalCopiedPaths], plan.verifyRules);
 
   process.stdout.write("export-public: done ✓\n");

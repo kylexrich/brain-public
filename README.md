@@ -54,7 +54,7 @@ External tools needed: `ffmpeg`, `ffprobe`, `whisper-cli` (whisper.cpp, `brew in
 - **Claude config** (`system/.dot-claude/`) — For Claude.
 - **Skills** (`/skills/`) — Apple Notes, Reminders, Hue, Sonos, whisper transcription, image gen, video understanding, symlink management, scheduled-job skills, and more.
 - **Subagents** (`/agents/`) — CLI-invoked iMessage handlers for a personal 1:1 and a group chat.
-- **BlueBubbles MCP server** (`/channels/bluebubbles/`) — A self-built HTTP MCP that bridges [BlueBubbles](https://bluebubbles.app/) iMessage into Claude sessions. Webhook-driven; one daemon serves many sessions.
+- **BlueBubbles MCP server** (`system/custom-mcp/bluebubbles/`) — A self-built HTTP MCP that bridges [BlueBubbles](https://bluebubbles.app/) iMessage into Claude sessions. Webhook-driven; one daemon serves many sessions.
 - **Scheduled tasks** (`/scheduled-tasks/`) — Morning brief, video-processing pipeline, OAuth refresh, health nags, ring-light control.
 
 
@@ -87,7 +87,7 @@ You will see the *shape* of the real `brain` repo, with some private content hid
 
 Copy the relevant directory or file into your own setup. Many of the skills, agents, mcp servers, configurations, etc. are mostly self-contained by design. 
 
-The BlueBubbles MCP server has its own `package.json` under `system/.dot-claude/channels/bluebubbles/`; `bun install` + wire up the env vars and run it.
+The BlueBubbles MCP server has its own `package.json` under `system/custom-mcp/bluebubbles/`; `npm install` + wire up the env vars and run it.
 
 ### Forking the whole thing
 

@@ -127,7 +127,7 @@ curl -fsSL https://claude.ai/install.sh | bash
 
 # Bun — https://bun.sh/
 # Required by the BlueBubbles channel runtime under
-# system/.dot-claude/channels/bluebubbles/.
+# system/custom-mcp/bluebubbles/.
 curl -fsSL https://bun.sh/install | bash
 
 # AWS CLI — https://docs.aws.amazon.com/cli/latest/userguide/getting-started-quickstart.html

@@ -6,35 +6,39 @@ allowed-tools: Bash, Read, Glob, Grep, mcp__linear__*
 
 # Git Commit Skill
 
-Create validated git commits with clear, descriptive messages. Proactively searches Linear for related issues and asks to link them in the commit description.
+Validate, compose, and create one well-structured local commit. If the Linear MCP is available, discover related issues and back-link them to the commit.
 
-## Trigger Phrases
+## Triggers
 
-Activate when the user says:
-- "commit" or `$commit` (`/commit`)
-- "create a commit"
-- "commit my changes"
+`commit` · `create a commit` · `commit my changes` · `$commit` · `/commit`
+
+## Rules
+
+1. **Stage everything.** Always `git add .`. Never selectively stage. Never ask which files to include.
+2. **Local only.** Never push to a remote. Never include `Co-Authored-By` or any attribution line.
+3. **Validate first.** No commit without a clean CI pass.
+4. **Single commit.** Group all changes into one commit, not many.
+5. **Themes, not files.** Body bullets describe areas of impact, not enumerated paths.
 
 ## Workflow
 
-### Step 1: Validate Changes
+### Step 1 — Validate
 
 Follow the `$ci` (`/ci`) skill.
 
-**If CI fails:**
-1. Stage all current changes (so fixes remain unstaged):
-   ```bash
-   git add .
-   ```
-2. Attempt to resolve any issues per the `$ci` (`/ci`) skill.
-3. After fixing, the fixes will be in unstaged changes
-4. Follow the `$ci` (`/ci`) skill again to verify fixes work
-5. If resolved, ask the user to review the unstaged changes (the fixes) before proceeding
-6. Only after user approval, stage the fixes and continue to commit
+**If CI passes:** continue to Step 2.
 
-### Step 2: Analyze Changes
+**If CI fails**, isolate the fix so the user can review only what changed:
 
-Gather context about what's being committed:
+1. `git add .` — stage existing changes so the upcoming fix lands as an unstaged delta.
+2. Resolve issues per the `$ci` (`/ci`) skill. The fix appears as the new unstaged diff.
+3. Re-run `$ci` until clean.
+4. Show the user the unstaged diff (`git diff`) and request approval of the fix.
+5. On approval, `git add .` again and continue.
+
+### Step 2 — Analyze
+
+Inspect what's about to ship:
 
 ```bash
 git status
@@ -44,127 +48,98 @@ git log --oneline -5
 ```
 
 Identify:
-- **Primary themes** - What areas of code changed (API, client, infra, etc.)?
-- **Key changes** - What are the most significant modifications?
-- **Type of change** - Feature, fix, refactor, chore, docs?
 
-### Step 3: Stage All Changes
+- **Type** — `feat | fix | refactor | perf | chore | docs | test | build | ci | revert`
+- **Scope (optional)** — `api`, `ui`, `db`, `infra`, `auth`, etc. Add when it materially improves clarity.
+- **Themes** — the 2–8 main areas of impact, not files.
 
-**Always stage ALL changes. No exceptions. No asking.**
+For mixed grab-bag changes, default to `chore:` (or pick the dominant type and cover the rest in bullets).
+
+### Step 3 — Stage
 
 ```bash
 git add .
 ```
 
-Never selectively stage. Never ask which files to include. Commit everything.
+### Step 4 — Discover Linear issues (if Linear MCP is available)
 
-### Step 4: Generate Commit Message
+**Always run this when the Linear MCP is connected.** Skip entirely if it isn't.
 
-Create **one commit** with:
+See `{.ai,.claude,.codex}/skills/commit/references/linear-integration.md` for the full discover → confirm flow. It returns either an empty list or a confirmed set of issues, each tagged with a proposed status (`In Progress` or `Done`).
 
-* **Title:** Imperative mood, concise, and scannable (aim ~50–72 chars; not strictly enforced)
-* **Type prefix:** Use `feat|fix|refactor|perf|chore|docs|test|build|ci|revert`
-* **Scope (optional):** Add `(scope)` when it materially improves clarity (e.g., `api`, `ui`, `db`, `infra`, `auth`)
-* **Body:** 2–8 bullets capturing the **main themes**; include **why/impact** when it’s not obvious
-* **Mixed commits:** If changes are truly “grab bag,” prefer `chore:` (or pick the dominant type and cover the rest in bullets)
+### Step 5 — Compose & commit
 
-Format:
+Message shape (placeholders in `<...>`):
 
 ```text
-<type>(<scope optional>): <short description>
+<type>(<scope>): <imperative title, ~50–72 chars>
 
-- <primary change 1>
-- <primary change 2>
-- <impact/why (optional but recommended when unclear)>
-- <risk/migration/follow-up (only if needed)>
+- <theme 1>
+- <theme 2>
+- <theme 3>
+- <why/impact when not obvious>
+- <risk/migration/follow-up if any>
+
+Linear Issues:
+- [<KEY-N>] <issue title> → <Done | In Progress> | <issue url>
 ```
 
-Examples:
+Constraints:
+
+- `(<scope>)` is optional — include only when it materially improves clarity.
+- The entire `Linear Issues:` block is omitted when Step 4 returned nothing.
+- Title is imperative mood, roughly 50–72 chars (not strictly enforced).
+- Body is 2–8 themed bullets, not file enumeration.
+
+Concrete example with all optional parts present:
 
 ```text
 feat(api): Add webhook retry logic
 
 - Add retry queue with configurable attempts
 - Implement exponential backoff with jitter
-- Reduce transient failure drops under 5xx responses
+- Reduce transient drops under 5xx responses
+
+Linear Issues:
+- [EMLY-123] Fix webhook retry logic → Done | https://linear.app/issue/EMLY-123
+- [EMLY-456] Improve error handling → In Progress | https://linear.app/issue/EMLY-456
 ```
+
+Same commit if Step 4 returned no Linear matches:
 
 ```text
-chore: Cleanup tooling + CI alignment
+feat(api): Add webhook retry logic
 
-- Remove deprecated tool schema fields
-- Normalize tool snapshot serialization
-- Update CI script ordering to match repo standards
+- Add retry queue with configurable attempts
+- Implement exponential backoff with jitter
+- Reduce transient drops under 5xx responses
 ```
 
-
-### Step 4.5: Linear Issue Discovery (when Linear MCP is available)
-
-**Always run this step if the Linear MCP server is available.** Do not skip it or require the user to ask.
-
-Search Linear for existing issues that may relate to what's being committed:
-
-```
-mcp__linear__list_issues(query: "<key themes from commit>", assignee: "me")
-```
-
-Run 1–2 targeted searches based on the primary themes identified in Step 2. Look for issues that are **not already in a completed/cancelled state** — only surface active or backlog issues.
-
-**For each potentially matching issue**, determine a proposed status based on what the commit actually does:
-- **"In Progress"** — the commit is partial work toward the issue (addresses part of it, sets up scaffolding, etc.)
-- **"Done"** — the commit fully resolves or completes the issue
-
-**Confidence threshold:** Only surface issues you are reasonably confident (>60%) are related. Don't include long-shot matches.
-
-**If no relevant issues are found**, skip the rest of this step and proceed to Step 5 as normal.
-
-**If relevant issues are found**, present them to the user in a single message like this:
-
-> I found Linear issues that seem related to this commit. Do you want me to link them in the commit description and update their status?
->
-> - **[EMLY-123] Fix webhook retry logic** → mark as **Done** *(commit fully resolves this)*
-> - **[EMLY-456] Improve error handling in API** → mark as **In Progress** *(partial work)*
->
-> Yes / No
-
-Wait for the user's response before proceeding.
-
-- **If the user says no** — proceed to Step 5 with the original commit message, no Linear changes.
-- **If the user says yes** — include all confirmed issues in the commit body as `Linear: <url>` lines (one per issue), then after the commit is created, update each issue's status to the proposed state using `mcp__linear__save_issue`.
-
-### Step 5: Create Commit
-
-Use a single message payload. **Do not** pass each bullet as a separate `-m` flag—Git treats each `-m` as a new paragraph and inserts blank lines between bullets.
-
-Preferred:
+Commit using a heredoc — **never** stack multiple `-m` flags. Git treats each `-m` as a new paragraph and inserts blank lines between every bullet, breaking the list.
 
 ```bash
 cat <<'EOF' | git commit -F -
-<type>(<scope optional>): <short description>
-
-- <primary change 1>
-- <primary change 2>
-- <impact/why (optional but recommended when unclear)>
-- <risk/migration/follow-up (only if needed)>
-
-Linear: <issue_url_1>
-Linear: <issue_url_2>
+<full message>
 EOF
 ```
 
-Omit the `Linear:` lines if no issues were linked in Step 4.5.
+### Step 6 — Back-link Linear (only if Step 4 returned issues)
 
-**Do NOT push to remote.**
+After the commit lands, capture the short SHA:
 
----
+```bash
+git rev-parse --short HEAD
+```
 
-## Important Rules
+Then for each confirmed issue, in one batch:
 
-1. **Commit ALL changes** - Always `git add .` and commit everything. Never ask which files to include. Never selectively stage.
-2. **Testing** - Follow the `$ci` (`/ci`) skill
-3. **Never push to remote** - Only create local commits
-4. **Keep titles concise** - 50 characters or less
-5. **Use imperative mood** - "Add feature" not "Added feature"
-6. **Group related changes** - Bullet points should represent themes, not individual files
-7. **No co-author lines** - Never include "Co-Authored-By" or similar attribution in commit messages
-8. **No blank lines between bullets** - Use a single message payload (not multiple `-m` flags)
+1. Update its status to the proposed state via `mcp__linear__save_issue`.
+2. If unassigned, set `assignee: "me"` on the same call.
+3. Post a back-reference comment via `mcp__linear__save_comment` with body:
+   ```
+   <short-sha> — <commit title>
+
+   <commit body bullets>
+   ```
+
+This phase is silent. Only surface failures.

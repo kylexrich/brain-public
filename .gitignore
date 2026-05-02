@@ -41,7 +41,7 @@ vault/stream-videos/**/*.wav
 vault/stream-videos/**/*.m4a
 
 # BlueBubbles channel downloaded attachments
-system/.dot-claude/channels/bluebubbles/attachments/
+system/custom-mcp/bluebubbles/attachments/
 
 # AI config (symlinked from ~/.claude, ~/.codex — only curated files live here)
 system/.dot-*/**/.DS_Store

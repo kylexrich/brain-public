@@ -30,7 +30,8 @@ function claudebbemly() {
 
 function claudecron() {
   command claude --dangerously-skip-permissions \
-    --dangerously-load-development-channels server:scheduler\
+    --dangerously-load-development-channels server:scheduler \
+    --resume "scheduler-main" \
     "$@"
 }
 

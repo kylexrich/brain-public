@@ -41,32 +41,32 @@ vault/stream-videos/**/*.wav
 vault/stream-videos/**/*.m4a
 
 # BlueBubbles channel downloaded attachments
-system/ai-config/claude-config/channels/bluebubbles/attachments/
+system/.dot-claude/channels/bluebubbles/attachments/
 
 # AI config (symlinked from ~/.claude, ~/.codex — only curated files live here)
-system/ai-config/**/.DS_Store
-system/ai-config/claude-config/backups/
-system/ai-config/**/*.backup.*
-system/ai-config/**/*.bak
-system/ai-config/**/sessions/
+system/.dot-*/**/.DS_Store
+system/.dot-claude/backups/
+system/.dot-*/**/*.backup.*
+system/.dot-*/**/*.bak
+system/.dot-*/**/sessions/
 
 # Claude Code projects — ignore conversation data, keep memory/ subdirs
-system/ai-config/claude-config/projects/**
-!system/ai-config/claude-config/projects/*/
-!system/ai-config/claude-config/projects/*/memory/
-!system/ai-config/claude-config/projects/*/memory/**
+system/.dot-claude/projects/**
+!system/.dot-claude/projects/*/
+!system/.dot-claude/projects/*/memory/
+!system/.dot-claude/projects/*/memory/**
 oclif.manifest.json
 
 deprecated/openclaw/**/cron/runs/
 
 .claude/worktrees/
 
-system/ai-config/claude-config/plugins/known_marketplaces.json
-system/ai-config/claude-config/claude.json
-system/ai-config/claude-config/claude-desktop-config.json
-system/ai-config/claude-config/plans/
+system/.dot-claude/plugins/known_marketplaces.json
+system/.dot-claude/claude.json
+system/.dot-claude/claude-desktop-config.json
+system/.dot-claude/plans/
 
-system/ai-config/claude-config/plugins/cache/claude-plugins-official/superpowers/5.0.7
+system/.dot-claude/plugins/cache/claude-plugins-official/superpowers/5.0.7
 **/temp_git_*/
 
 .memsearch/.index.pid

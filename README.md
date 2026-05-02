@@ -18,7 +18,8 @@ emily-repo-resources/ — Public-only generated Emily AGENTS snapshots + skills
 deprecated/
   openclaw/        — Legacy OpenClaw runtime archive (not actively used)
 system/            — Machine config (AI config, shell, bootstrap, symlinks)
-  ai-config/       — Configuration for Claude Code, Claude Desktop, Codex
+  .dot-claude/     — Configuration for Claude Code and Claude Desktop
+  .dot-codex/      — Configuration for OpenAI Codex
   bootstrap-system.md — macOS setup guide
   credentials/     — Private local OAuth/client credential storage (excluded)
   symlinks/        — Per-machine symlink manifests + apply scripts
@@ -47,10 +48,10 @@ External tools needed: `ffmpeg`, `ffprobe`, `whisper-cli` (whisper.cpp, `brew in
 
 ## AI configuration
 
-`system/ai-config/` is the real AI configs symlinked out to `~/.claude`, `~/.codex`, etc.
+`system/.dot-claude/` and `system/.dot-codex/` are the real AI configs symlinked out to `~/.claude`, `~/.codex`, etc.
 
-- **Codex config** (`codex-config/`) — For OpenAI Codex.
-- **Claude config** (`codex-config/`) — For Claude.
+- **Codex config** (`system/.dot-codex/`) — For OpenAI Codex.
+- **Claude config** (`system/.dot-claude/`) — For Claude.
 - **Skills** (`/skills/`) — Apple Notes, Reminders, Hue, Sonos, whisper transcription, image gen, video understanding, symlink management, scheduled-job skills, and more.
 - **Subagents** (`/agents/`) — CLI-invoked iMessage handlers for a personal 1:1 and a group chat.
 - **BlueBubbles MCP server** (`/channels/bluebubbles/`) — A self-built HTTP MCP that bridges [BlueBubbles](https://bluebubbles.app/) iMessage into Claude sessions. Webhook-driven; one daemon serves many sessions.
@@ -86,7 +87,7 @@ You will see the *shape* of the real `brain` repo, with some private content hid
 
 Copy the relevant directory or file into your own setup. Many of the skills, agents, mcp servers, configurations, etc. are mostly self-contained by design. 
 
-The BlueBubbles MCP server has its own `package.json` under `system/ai-config/claude-config/channels/bluebubbles/`; `bun install` + wire up the env vars and run it.
+The BlueBubbles MCP server has its own `package.json` under `system/.dot-claude/channels/bluebubbles/`; `bun install` + wire up the env vars and run it.
 
 ### Forking the whole thing
 

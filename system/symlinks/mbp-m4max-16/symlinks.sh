@@ -69,6 +69,15 @@ cmd_setup() {
       continue
     fi
 
+    # If an old or incorrect symlink exists, replace it in place.
+    if [[ -L "$link_abs" ]]; then
+      _cmd "$link_abs" rm "$link_abs"
+      _cmd "$link_abs" ln -s "$brain_abs" "$link_abs"
+      printf "${GREEN}  relink${NC}  %s → %s\n" "$link_disp" "$brain_disp"
+      created=$((created + 1))
+      continue
+    fi
+
     # If something else exists at link path, we need to move it to brain first
     if [[ -e "$link_abs" ]] && [[ ! -e "$brain_abs" ]]; then
       mkdir -p "$(dirname "$brain_abs")"

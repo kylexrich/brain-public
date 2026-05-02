@@ -1,12 +1,12 @@
 ---
 name: commit
-description: Create git commits with validation. Runs CI checks, generates descriptive commit messages, and optionally integrates with Linear for issue tracking.
+description: Create git commits with validation. Runs CI checks, generates descriptive commit messages, and proactively discovers related Linear issues to link and update.
 allowed-tools: Bash, Read, Glob, Grep, mcp__linear__*
 ---
 
 # Git Commit Skill
 
-Create validated git commits with clear, descriptive messages. Optionally integrates with Linear for issue tracking.
+Create validated git commits with clear, descriptive messages. Proactively searches Linear for related issues and asks to link them in the commit description.
 
 ## Trigger Phrases
 
@@ -14,7 +14,6 @@ Activate when the user says:
 - "commit" or `$commit` (`/commit`)
 - "create a commit"
 - "commit my changes"
-- "commit with linear" (enables Linear integration)
 
 ## Workflow
 
@@ -99,6 +98,40 @@ chore: Cleanup tooling + CI alignment
 ```
 
 
+### Step 4.5: Linear Issue Discovery (when Linear MCP is available)
+
+**Always run this step if the Linear MCP server is available.** Do not skip it or require the user to ask.
+
+Search Linear for existing issues that may relate to what's being committed:
+
+```
+mcp__linear__list_issues(query: "<key themes from commit>", assignee: "me")
+```
+
+Run 1–2 targeted searches based on the primary themes identified in Step 2. Look for issues that are **not already in a completed/cancelled state** — only surface active or backlog issues.
+
+**For each potentially matching issue**, determine a proposed status based on what the commit actually does:
+- **"In Progress"** — the commit is partial work toward the issue (addresses part of it, sets up scaffolding, etc.)
+- **"Done"** — the commit fully resolves or completes the issue
+
+**Confidence threshold:** Only surface issues you are reasonably confident (>60%) are related. Don't include long-shot matches.
+
+**If no relevant issues are found**, skip the rest of this step and proceed to Step 5 as normal.
+
+**If relevant issues are found**, present them to the user in a single message like this:
+
+> I found Linear issues that seem related to this commit. Do you want me to link them in the commit description and update their status?
+>
+> - **[EMLY-123] Fix webhook retry logic** → mark as **Done** *(commit fully resolves this)*
+> - **[EMLY-456] Improve error handling in API** → mark as **In Progress** *(partial work)*
+>
+> Yes / No
+
+Wait for the user's response before proceeding.
+
+- **If the user says no** — proceed to Step 5 with the original commit message, no Linear changes.
+- **If the user says yes** — include all confirmed issues in the commit body as `Linear: <url>` lines (one per issue), then after the commit is created, update each issue's status to the proposed state using `mcp__linear__save_issue`.
+
 ### Step 5: Create Commit
 
 Use a single message payload. **Do not** pass each bullet as a separate `-m` flag—Git treats each `-m` as a new paragraph and inserts blank lines between bullets.
@@ -113,75 +146,15 @@ cat <<'EOF' | git commit -F -
 - <primary change 2>
 - <impact/why (optional but recommended when unclear)>
 - <risk/migration/follow-up (only if needed)>
+
+Linear: <issue_url_1>
+Linear: <issue_url_2>
 EOF
 ```
 
+Omit the `Linear:` lines if no issues were linked in Step 4.5.
+
 **Do NOT push to remote.**
-
----
-
-## Linear Integration
-
-When the user mentions "linear" (e.g., "commit with linear", "linear commit"). Still follow Steps 1-4 as normal above. But then also:
-
-### Step 1: Find or Create Linear Issue
-
-Use the Linear MCP server to search for a relevant issue:
-
-```
-mcp__linear__list_issues(query: "<search based on commit content>", assignee: "me")
-```
-
-**If no matching issue exists**, create one:
-
-```
-mcp__linear__create_issue(
-  title: "<descriptive title>",
-  description: "<plain english description with bullet points>",
-  team: "EMLYAI",
-  assignee: "me",
-  labels: ["Dev"]
-)
-```
-
-The issue description should be:
-- Written in plain English
-- Include bullet points for key items
-- Describe the work being done
-- Reference relevant context
-
-### Step 2: Ensure Issue Configuration
-
-Verify/update the issue:
-
-1. **Assigned to user:**
-   ```
-   mcp__linear__update_issue(id: "<issue_id>", assignee: "me")
-   ```
-
-2. **In current cycle:**
-   ```
-   mcp__linear__list_cycles(teamId: "<team_id>", type: "current")
-   mcp__linear__update_issue(id: "<issue_id>", cycle: "<current_cycle_id>")
-   ```
-
-3. **Has "Dev" label:**
-   ```
-   mcp__linear__update_issue(id: "<issue_id>", labels: ["Dev"])
-   ```
-
-### Step 3: Commit with Issue Link
-
-Include the Linear issue URL in the commit body:
-
-```
-<type>: <short description>
-
-- <primary change 1>
-- <primary change 2>
-
-Linear: <issue_url>
-```
 
 ---
 

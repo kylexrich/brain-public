@@ -41,13 +41,15 @@ Sync AI config into `~/Developer/brain/`, commit the private repo, export the pu
 8. Export the public mirror: `brain repo export-public`
 9. Run `git -C ~/Developer/brain-public status` to see whether the public mirror changed.
 10. If `brain-public` has no changes, confirm the private commit to Kyle and stop.
-11. **Leak audit — review what's going public BEFORE staging.** Run `git -C ~/Developer/brain-public status` and `git -C ~/Developer/brain-public diff` and walk every changed file (especially new files and unfamiliar paths). For each one, ask: *would Kyle hand this file to a stranger?* Treat these as red flags requiring a human-readable justification before they're allowed through:
-    - Anything in a folder named `state/`, `memory/`, `cache/`, `logs/`, `tmp/`, `.local/`, `attachments/`, or `secrets/`
-    - Files with names like `*-history.json`, `*-state.json`, `<chat>.json`, `MEMORY.md`, `*.log`, `*.env`, `credentials.*`, `tts-settings.json`, `jobs.json`
-    - Files containing chat IDs, phone numbers, real email addresses (other than `kyle@emlyai.ca` or `kylexrich@gmail.com` in canonical config), iMessage GUIDs, API keys, OAuth tokens, names of private contacts, verbatim message text
-    - New skill subdirs added by skills you don't recognize — open the SKILL.md and check whether any of its referenced files contain runtime state
-    - Verbatim transcripts, meeting notes, or anything that names third parties
-12. **If anything in step 11 shouldn't be public**, do NOT stage. Instead:
+11. **Leak audit — what's actually private?** Run `git -C ~/Developer/brain-public status` and `git -C ~/Developer/brain-public diff`, then walk the changed files. The brain repo is intentionally public; default is openness. Flag a file only if publishing it would expose something Kyle hasn't already chosen to publish, or third-party data he has no right to share. The bar is "actually exploitable or genuinely private," not "anything that looks like an identifier." Concretely:
+    - **Secrets and credentials.** `.env`, `credentials.*`, API keys, OAuth tokens, refresh tokens, anything that grants access to a system if it leaks. Always private.
+    - **Memory and agent-memory contents.** Top-level `MEMORY.md`, per-agent memory dirs, memsearch snapshots. Always private — they record what Kyle said in past sessions and what Marvin learned about people.
+    - **Runtime state with third-party content.** A per-chat state file that captures who replied, what they said, or quotes message bodies — private. Generic Kyle-only state (his music listening history, his own preferences) — fine.
+    - **Detailed profiles of specific third parties.** Personality write-ups, ethnicity, addresses, incidents involving named individuals, message-by-message dossiers. Names alone are fine; *who someone is* and *what they did* isn't.
+    - **Verbatim conversation content.** iMessage transcripts, meeting transcripts, Fathom recordings, email bodies — anything that quotes a third party. Skill prose that uses first names in illustrative examples is fine; real captured exchanges aren't.
+    - **What is NOT a red flag.** Chat IDs, BlueBubbles GUIDs, Messages.app GUIDs, SQLite ROWIDs (local pointers, not exploitable without Kyle's machine). Kyle's own phone number and emails (already canonical and intentional in skill descriptions). First names of friends/coworkers used in examples. Kyle's own listening/usage history. Don't waste audit cycles on these.
+    - **When in doubt, ask:** "if a stranger had this file, what could they actually do with it, or what would they learn about a third party that Kyle hasn't chosen to publish?" If the answer is "nothing meaningful," let it through.
+12. **If anything in step 11 is genuinely private**, do NOT stage. Instead:
     1. Update `.public-export.json` in the private repo — add an `exclude` glob, a `sanitize` rule (with a matching `verify` rule), or move the file under a path that the existing convention already excludes (e.g. `system/.dot-claude/skills/<name>/state/...` is excluded by the `skills/*/state/**` rule).
     2. If you moved/renamed source files, commit that fix to the private repo first (a follow-up `chore(config): tighten public export` commit is fine, or amend by creating a new commit on top — never `--amend`).
     3. Re-run `brain repo export-public`.

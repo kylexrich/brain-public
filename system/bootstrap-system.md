@@ -100,7 +100,7 @@ brew install autojump
 # ── npm globals ────────────────────────────────────────────────
 
 # openclaw — https://docs.openclaw.ai/install
-npm install -g openclaw
+# npm install -g openclaw
 
 # mcporter — https://github.com/steipete/mcporter
 npm install -g mcporter

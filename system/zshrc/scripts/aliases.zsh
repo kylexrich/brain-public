@@ -6,7 +6,7 @@ alias dev='npm run dev'
 # Claude Code — start with BlueBubbles iMessage channel (kyledvrich@gmail.com via claw user)
 function claudebb() {
   command claude --dangerously-skip-permissions \
-    --dangerously-load-development-channels server:bluebubbles-personal\
+    --dangerously-load-development-channels server:bluebubbles-personal \
     --agent marv-imsg-personal \
     --resume "bluebubbles-personal"
     "$@"
@@ -15,6 +15,7 @@ function claudebb() {
 function claudebbmarvsucks() {
   command claude --dangerously-skip-permissions \
     --dangerously-load-development-channels server:bluebubbles-marv-sucks \
+    --dangerously-load-development-channels server:scheduler-proactive-marv-sucks \
     --agent marv-imsg-marv-sucks \
     --resume "bluebubbles-marv-sucks"
     "$@"

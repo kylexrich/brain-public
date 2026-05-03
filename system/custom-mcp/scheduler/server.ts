@@ -18,7 +18,16 @@
  *   /mcp                Streamable HTTP MCP — session subscription via query params:
  *                          ?subscribe=tag1,tag2   only receive notify-jobs tagged with
  *                                                 at least one of these tags
- *                          (no param = subscribe to all notify-jobs)
+ *                          ?subscribe=            (explicit empty) subscribe to NOTHING —
+ *                                                 use this when a session needs scheduler
+ *                                                 tool access but no notify spam
+ *                          ?exclude=tag1,tag2     receive everything EXCEPT notify-jobs
+ *                                                 tagged with these tags. Exclude takes
+ *                                                 priority over subscribe and is the right
+ *                                                 way to say "everything except this one
+ *                                                 chat-specific tag." Combinable with
+ *                                                 ?subscribe=.
+ *                          (no param = subscribe to all notify-jobs, back-compat default)
  *   /health             JSON health: { jobs, tickIntervalMs, sessions, ... }
  *
  * Config (env vars):
@@ -44,6 +53,7 @@ import { homedir } from 'os'
 import { join } from 'path'
 import http from 'node:http'
 import cronParser from 'cron-parser'
+import { z } from 'zod'
 
 // --- Config ------------------------------------------------------------------
 
@@ -199,6 +209,44 @@ function persist(): void {
   writeJobs(JOBS)
 }
 
+// --- Tag allowlist -----------------------------------------------------------
+
+const TAGS_FILE = join(import.meta.dirname, 'tags.json')
+const TagsFileSchema = z.object({
+  version: z.literal(1),
+  tags: z.array(z.object({
+    name: z.string().min(1),
+    description: z.string().min(1),
+  })),
+})
+type TagEntry = z.infer<typeof TagsFileSchema>['tags'][number]
+
+function loadAllowlist(): { entries: TagEntry[]; set: Set<string> } | null {
+  if (!existsSync(TAGS_FILE)) {
+    logger.warn('tags.json missing — allowlist disabled')
+    return null
+  }
+  try {
+    const parsed = TagsFileSchema.parse(JSON.parse(readFileSync(TAGS_FILE, 'utf8')))
+    return { entries: parsed.tags, set: new Set(parsed.tags.map(t => t.name)) }
+  } catch (err) {
+    logger.error('tags.json parse failed — allowlist disabled', { err: String(err) })
+    return null
+  }
+}
+
+const ALLOWLIST = loadAllowlist()
+
+function validateTags(tags: string[] | undefined): void {
+  if (!tags || tags.length === 0) return
+  if (ALLOWLIST === null) return
+  const unknown = tags.filter(t => !ALLOWLIST.set.has(t))
+  if (unknown.length > 0) {
+    const known = [...ALLOWLIST.set].sort().join(', ')
+    throw new Error(`unknown tag(s): ${unknown.join(', ')} — known tags: ${known}. Use list_tags or edit tags.json.`)
+  }
+}
+
 function findJob(id: string): Job | undefined {
   return JOBS.find(j => j.id === id)
 }
@@ -235,7 +283,8 @@ function refreshNextRun(job: Job, fromMs: number = Date.now()): void {
 // --- Tag filter parsing ------------------------------------------------------
 
 interface SessionFilter {
-  subscribeTags: Set<string> | null  // null = subscribe to everything
+  subscribeTags: Set<string> | null  // null = subscribe to everything (subject to excludeTags)
+  excludeTags: Set<string> | null    // null = exclude nothing; if set, jobs whose tags intersect are dropped before subscribe is checked
 }
 
 function parseRawQueryParams(search: string): Record<string, string> {
@@ -255,16 +304,40 @@ function parseRawQueryParams(search: string): Record<string, string> {
 function parseFilter(url: URL): SessionFilter {
   const params = parseRawQueryParams(url.search)
   const sub = params['subscribe']
-  if (!sub) return { subscribeTags: null }
-  const tags = sub.split(',').map(s => s.trim()).filter(Boolean)
-  return { subscribeTags: tags.length > 0 ? new Set(tags) : null }
+  const excl = params['exclude']
+
+  // Exclude: if param is present and non-empty, build the set; otherwise null (no exclusions).
+  let excludeTags: Set<string> | null = null
+  if (excl !== undefined && excl !== '') {
+    const tags = excl.split(',').map(s => s.trim()).filter(Boolean)
+    if (tags.length > 0) excludeTags = new Set(tags)
+  }
+
+  // Subscribe: distinguish "no param at all" (back-compat: subscribe to all) from "explicit
+  // empty" (subscribe to nothing). The empty case is what lets a session connect for tool
+  // access without receiving notify spam from every untagged job that fires.
+  let subscribeTags: Set<string> | null
+  if (sub === undefined) subscribeTags = null
+  else if (sub === '') subscribeTags = new Set()
+  else {
+    const tags = sub.split(',').map(s => s.trim()).filter(Boolean)
+    subscribeTags = tags.length > 0 ? new Set(tags) : new Set()
+  }
+
+  return { subscribeTags, excludeTags }
 }
 
 function jobMatchesFilter(job: Job, filter: SessionFilter): boolean {
+  const jobTags = job.tags ?? []
+  // Exclude takes priority — if any of the job's tags is in the exclude list, drop the job.
+  // Untagged jobs can never match an exclude filter (nothing to intersect against), so they
+  // continue to broadcast under back-compat.
+  if (filter.excludeTags !== null && jobTags.some(t => filter.excludeTags!.has(t))) {
+    return false
+  }
   if (filter.subscribeTags === null) return true
-  const tags = job.tags ?? []
-  if (tags.length === 0) return true  // untagged jobs broadcast to all subscribers
-  return tags.some(t => filter.subscribeTags!.has(t))
+  if (jobTags.length === 0) return true  // untagged jobs broadcast to all subscribers
+  return jobTags.some(t => filter.subscribeTags!.has(t))
 }
 
 // --- Per-session tracking + notification routing -----------------------------
@@ -569,15 +642,24 @@ const TOOL_LIST = [
       required: ['id'],
     },
   },
+  {
+    name: 'list_tags',
+    description: 'List the canonical tag allowlist. Use to discover valid tags for create_job/update_job and ?subscribe= filtering.',
+    inputSchema: {
+      type: 'object' as const,
+      properties: {},
+    },
+  },
 ]
 
 const INSTRUCTIONS = [
   'Scheduler events arrive as <channel source="scheduler" job_id="..." job_name="..." kind="cron|once">.',
   'When you receive a scheduler notification, treat the content as your prompt for this turn — execute it, then stop.',
-  'Tools (this server): list_jobs, get_job, create_job, update_job, cancel_job, run_now.',
+  'Tools (this server): list_jobs, get_job, create_job, update_job, cancel_job, run_now, list_tags.',
   'Schedule shape: cron uses 5-field expressions ("min hr dom mon dow") with optional IANA tz; one-shots use an ISO 8601 timestamp and are deleted on successful firing (or disabled if the run errored).',
   'Delivery modes: "notify" pushes the prompt into any live Claude Code session subscribed to the scheduler MCP (filtered by tags). "spawn" runs `claude -p <prompt> --dangerously-skip-permissions --model <spawnModel>` as a fresh headless process — use this for unattended cron-style automation. spawnModel is required for spawn jobs (no implicit default). Spawn jobs inherit the user\'s normal MCP config; if claude exits with "Prompt is too long", trim the user\'s `~/.claude.json` mcpServers (or this project\'s `disabledMcpServers`) or pass `spawnMcpConfig` to pin a smaller MCP set.',
-  'Tag filtering: jobs with no tags broadcast to every subscriber; tagged jobs only reach sessions whose ?subscribe= query param includes at least one matching tag.',
+  'Tag filtering: sessions can opt in with ?subscribe=tag1,tag2 (only matching tags) and/or opt out with ?exclude=tag1,tag2 (drop matching tags). Untagged jobs broadcast to all subscribers. Exclude takes priority over subscribe — use ?exclude= to keep a session listening to everything except a specific chat-targeted tag.',
+  'Use list_tags to see the canonical tag allowlist; create_job/update_job reject unknown tags when the allowlist is enabled.',
 ].join('\n')
 
 function jobView(job: Job): Record<string, unknown> {
@@ -650,6 +732,7 @@ function createMcpServer(): Server {
       if (a.delivery === 'spawn' && !a.spawnModel) {
         throw new Error('spawnModel is required when delivery is "spawn" — pick an explicit model (e.g. "claude-sonnet-4-6", "claude-haiku-4-5")')
       }
+      validateTags(a.tags)
       const now = Date.now()
       const job: Job = {
         id: randomUUID(),
@@ -697,7 +780,10 @@ function createMcpServer(): Server {
       if (a.spawnModel !== undefined) job.spawnModel = a.spawnModel
       if (a.spawnTimeoutMs !== undefined) job.spawnTimeoutMs = a.spawnTimeoutMs
       if (a.spawnMcpConfig !== undefined) job.spawnMcpConfig = a.spawnMcpConfig
-      if (a.tags !== undefined) job.tags = a.tags
+      if (a.tags !== undefined) {
+        validateTags(a.tags)
+        job.tags = a.tags
+      }
       if (job.delivery === 'spawn' && !job.spawnModel) {
         throw new Error('spawnModel is required when delivery is "spawn" — set spawnModel to an explicit model name')
       }
@@ -728,6 +814,13 @@ function createMcpServer(): Server {
       return { content: [{ type: 'text', text: `fired ${job.name} (${id})` }] }
     }
 
+    if (req.params.name === 'list_tags') {
+      const payload = ALLOWLIST === null
+        ? { allowlistEnabled: false, tags: [] }
+        : { allowlistEnabled: true, tags: ALLOWLIST.entries }
+      return { content: [{ type: 'text', text: JSON.stringify(payload, null, 2) }] }
+    }
+
     throw new Error(`unknown tool: ${req.params.name}`)
   })
 
@@ -749,6 +842,8 @@ const httpServer = http.createServer(async (req, res) => {
       enabledJobs: JOBS.filter(j => j.enabled).length,
       activeSessions: sessions.size,
       uptimeS: Math.floor(process.uptime()),
+      allowlistEnabled: ALLOWLIST !== null,
+      allowlistSize: ALLOWLIST?.entries.length ?? 0,
     }
     res.writeHead(200, { 'Content-Type': 'application/json' })
     res.end(JSON.stringify(body, null, 2))
@@ -774,7 +869,9 @@ const httpServer = http.createServer(async (req, res) => {
 
   // No existing session — must be a POST initialize. Create a new transport+server.
   const filter = parseFilter(url)
-  const filterDesc = filter.subscribeTags ? `subscribe:${[...filter.subscribeTags].join(',')}` : 'subscribe:*'
+  const subscribePart = filter.subscribeTags ? `subscribe:${[...filter.subscribeTags].join(',')}` : 'subscribe:*'
+  const excludePart = filter.excludeTags ? ` exclude:${[...filter.excludeTags].join(',')}` : ''
+  const filterDesc = subscribePart + excludePart
   const newSid = randomUUID()
   const transport = new StreamableHTTPServerTransport({
     sessionIdGenerator: () => newSid,
@@ -802,6 +899,10 @@ httpServer.on('error', err => {
 const startupNow = Date.now()
 for (const job of JOBS) {
   refreshNextRun(job, startupNow)
+  if (ALLOWLIST !== null && job.tags?.length) {
+    const unknown = job.tags.filter(t => !ALLOWLIST.set.has(t))
+    if (unknown.length) logger.warn('persisted job has unknown tags', { jobId: job.id, name: job.name, unknown })
+  }
 }
 persist()
 

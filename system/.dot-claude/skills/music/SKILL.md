@@ -35,7 +35,7 @@ Apply when Kyle doesn't specify. Use `session_status` or current time for time-o
 
 ## Play History
 
-State file: `~/Developer/brain/system/.dot-claude/skills/music/music-history.json`
+State file: `~/Developer/brain/system/.dot-claude/skills/music/state/music-history.json`
 
 This is a JSON array of recent picks. Each entry has: `timestamp`, `request` (what Kyle asked), `picked` (what you chose), `type` (album/library-playlist/artist/catalog-playlist), `id` (Apple Music ID).
 
@@ -123,11 +123,35 @@ sonos-pr3 prev --name "<Room>"
 
 ```
 sonos-pr3 volume get --name "<Room>"
-sonos-pr3 volume set --name "<Room>" <0-100>          # single speaker only (coordinator by default)
+sonos-pr3 volume set --name "<Room>" <0-100>          # WARNING: always sets coordinator, ignores --name
 brain music volume-set <0-100> --name "<Room>"        # set ALL grouped speakers to exact same level
 ```
 
-⚠️ `sonos-pr3 volume set` only sets the coordinator. `sonos-pr3 group volume set` does proportional scaling, not absolute set. Use `brain music volume-set` whenever targeting a party group.
+⚠️ `sonos-pr3 volume set` **ignores `--name` entirely** — it always sets the coordinator's volume regardless of which room you name. `sonos-pr3 volume get` has the same limitation: it returns the coordinator's volume, not the named speaker's. Use `brain music volume-set` to set all grouped speakers uniformly.
+
+**To set one speaker to a different volume from the rest of the group**, use UPnP RenderingControl directly on that speaker's IP:
+
+```bash
+# Workflow: all at base volume, one speaker louder
+brain music volume-set 4 --name "Sonos"   # set everyone to base
+
+# Then target the individual speaker directly by IP:
+curl -s "http://<speaker-ip>:1400/MediaRenderer/RenderingControl/Control" \
+  -X POST \
+  -H "Content-Type: text/xml; charset=utf-8" \
+  -H 'SOAPACTION: "urn:schemas-upnp-org:service:RenderingControl:1#SetVolume"' \
+  -d '<?xml version="1.0" encoding="utf-8"?><s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/encoding/"><s:Body><u:SetVolume xmlns:u="urn:schemas-upnp-org:service:RenderingControl:1"><InstanceID>0</InstanceID><Channel>Master</Channel><DesiredVolume>40</DesiredVolume></u:SetVolume></s:Body></s:Envelope>'
+
+# Verify via RenderingControl GetVolume (returns actual speaker volume, not coordinator):
+curl -s "http://<speaker-ip>:1400/MediaRenderer/RenderingControl/Control" \
+  -X POST \
+  -H "Content-Type: text/xml; charset=utf-8" \
+  -H 'SOAPACTION: "urn:schemas-upnp-org:service:RenderingControl:1#GetVolume"' \
+  -d '<?xml version="1.0" encoding="utf-8"?><s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/encoding/"><s:Body><u:GetVolume xmlns:u="urn:schemas-upnp-org:service:RenderingControl:1"><InstanceID>0</InstanceID><Channel>Master</Channel></u:GetVolume></s:Body></s:Envelope>' \
+  | grep -o '<CurrentVolume>[^<]*</CurrentVolume>'
+```
+
+Speaker IPs: Bathroom `192.168.50.236`, Bedroom `192.168.50.39`, Kitchen `192.168.50.244`, Sonos `192.168.50.114`.
 
 ### Grouping
 
@@ -345,6 +369,14 @@ sonos-pr3 status --ip "$COORD_IP" --format json
 | Sonos | 192.168.50.114 | RINCON_F0F6C1641FFA01400 |
 
 **Volume on grouped speakers after recovery:** `sonos-pr3 volume set` only sets the coordinator's volume. Use `brain music volume-set <level> --name "<coordinator>"` to set every group member to the exact same absolute level via RenderingControl UPnP.
+
+### 8. `sonos-pr3 volume set/get` ignores `--name` — always targets coordinator
+
+`sonos-pr3 volume set --name "Bathroom" 40` does NOT set the Bathroom's volume. It sets the group coordinator's volume, regardless of what `--name` you pass. `sonos-pr3 volume get` has the same bug — it returns the coordinator's volume, not the named speaker's.
+
+**Root cause:** The CLI routes all volume operations through the ZoneGroupTopology coordinator. Individual group member volume is controlled via each speaker's own RenderingControl service, which `sonos-pr3` doesn't expose per-member.
+
+**Fix:** When you need different volumes across grouped speakers, use `brain music volume-set` for the uniform base, then UPnP RenderingControl directly on each speaker's IP for the outliers. See the Volume commands section above for the full curl template and verification command.
 
 ## Workflows
 

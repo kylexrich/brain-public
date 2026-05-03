@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "tags": [
+    { "name": "lighting",       "description": "Smart-light automation (Elgato ring, Hue scenes)." },
+    { "name": "ring-light",     "description": "Elgato ring light only — narrower opt-in than 'lighting'." },
+    { "name": "daily-brief",    "description": "Morning brief preparation and delivery." },
+    { "name": "health-nag",     "description": "Apple Health workout reminders across the day." },
+    { "name": "video-pipeline", "description": "YouTube VOD discovery + per-video processing." },
+    { "name": "youtube",        "description": "YouTube auth + maintenance (token refresh, quota)." },
+    { "name": "crm-sync",       "description": "Outbound sync to Attio (Fathom→Attio meeting log, etc.)." },
+    { "name": "notify-only",    "description": "Soft-tag for jobs that exist purely to push prompts into a live session." },
+    { "name": "experimental",   "description": "Jobs in shakedown — only sessions explicitly subscribing get them." },
+    { "name": "proactive-marv-sucks", "description": "Proactive reach-out trigger for the Marv-Sucks group chat (delivered only to the marv-imsg-marv-sucks BlueBubbles session)." }
+  ]
+}

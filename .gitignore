@@ -39,6 +39,10 @@ vault/stream-videos/**/*.mov
 vault/stream-videos/**/*.mp4
 vault/stream-videos/**/*.wav
 vault/stream-videos/**/*.m4a
+vault/youtube-videos/**/*.mov
+vault/youtube-videos/**/*.mp4
+vault/youtube-videos/**/*.wav
+vault/youtube-videos/**/*.m4a
 
 # BlueBubbles channel downloaded attachments
 system/custom-mcp/bluebubbles/attachments/

@@ -119,7 +119,15 @@ gog gmail drafts create \
 
 ## Booking / scheduling links
 
-Whenever a draft includes a "book a call", "schedule a meeting", "find a time", reschedule, or rebooking CTA, follow these rules.
+**This rule is non-negotiable: any time the email body mentions meeting, chatting, connecting, syncing, jumping on a call, hopping on Zoom, or any other phrase that implies a future conversation, the personalized cal.com link goes in the body.** No exceptions. This applies equally to:
+
+- Explicit booking CTAs ("book a call", "schedule a meeting", "find a time", reschedule, rebook).
+- Soft / open-ended invitations ("would love to chat", "happy to jump on a call", "let's connect", "open to setting up time", "looking forward to hearing back").
+- Partnership intros, investor follow-ups, customer follow-ups, anything where the next step is a conversation.
+
+Leaving the recipient to figure out how to schedule = friction = lost conversion. The link goes in even when it feels redundant. If your draft mentions a future conversation and doesn't contain a cal.com URL, you have not finished the draft.
+
+The only emails that legitimately omit a cal link are ones where no future conversation is implied at all (transactional confirmations, decline replies, recap-only follow-ups for already-scheduled meetings, etc.). When in doubt, include the link.
 
 ### Pick the right URL
 

@@ -19,7 +19,7 @@ Four CLIs, all on PATH:
 | Bathroom | 192.168.50.236 |
 | Bedroom | 192.168.50.39 |
 | Kitchen | 192.168.50.244 |
-| Sonos | 192.168.50.114 |
+| Living Room | 192.168.50.114 |
 
 Target with `--name "<Room>"`. IPs rarely needed — `--name` handles discovery.
 
@@ -29,7 +29,7 @@ Apply when Kyle doesn't specify. Use `session_status` or current time for time-o
 
 | Parameter | Default                                                                                 |
 |-----------|-----------------------------------------------------------------------------------------|
-| **Room** | All speakers — `sonos-pr3 group party --to "Sonos"` then target `--name "Sonos"` |
+| **Room** | All speakers — `sonos-pr3 group party --to "Living Room"` then target `--name "Living Room"` |
 | **Volume** | All times are **Kyle's local time (Pacific Time — PST/PDT)**. Run `date` to get current local time before applying. 08:00–18:00 → `20`. 18:00–21:00 → `15`. 21:00–23:00 → `8`. 23:00–08:00 → `4`. |
 | **Mode** | Album → `repeat` (front-to-back, repeat all). Artist/playlist/vague → `shuffle` (shuffle + repeat all). |
 
@@ -133,7 +133,7 @@ brain music volume-set <0-100> --name "<Room>"        # set ALL grouped speakers
 
 ```bash
 # Workflow: all at base volume, one speaker louder
-brain music volume-set 4 --name "Sonos"   # set everyone to base
+brain music volume-set 4 --name "Living Room"   # set everyone to base
 
 # Then target the individual speaker directly by IP:
 curl -s "http://<speaker-ip>:1400/MediaRenderer/RenderingControl/Control" \
@@ -366,7 +366,7 @@ sonos-pr3 status --ip "$COORD_IP" --format json
 | Bathroom | 192.168.50.236 | RINCON_804AF295E39201400 |
 | Bedroom | 192.168.50.39 | RINCON_804AF28C931801400 |
 | Kitchen | 192.168.50.244 | RINCON_804AF299AA2601400 |
-| Sonos | 192.168.50.114 | RINCON_F0F6C1641FFA01400 |
+| Living Room | 192.168.50.114 | RINCON_F0F6C1641FFA01400 |
 
 **Volume on grouped speakers after recovery:** `sonos-pr3 volume set` only sets the coordinator's volume. Use `brain music volume-set <level> --name "<coordinator>"` to set every group member to the exact same absolute level via RenderingControl UPnP.
 
@@ -388,11 +388,19 @@ Infer `--category` from intent. For artists, use `brain music play-artist` inste
 # 1. Always clear queue first
 sonos-pr3 queue clear --name "<Room>"
 
-# 2. Resolve and play based on content type:
+# 2. Set mode BEFORE play — shuffle from the previous session bleeds in if you do this after
+sonos-pr3 mode repeat --name "<Room>"    # for albums
+# sonos-pr3 mode shuffle --name "<Room>" # for artists / playlists
 
-# For albums/songs/catalog playlists:
-sonos-pr3 search applemusic "<query>" --category <albums|playlists|songs> --limit 5 --format json  # disambiguate
-sonos-pr3 play applemusic "<query>" --category <inferred> --index <n> --name "<Room>"
+# 3. Resolve and play based on content type:
+
+# For albums:
+sonos-pr3 search applemusic "<query>" --category albums --limit 5 --format json  # disambiguate versions
+sonos-pr3 play applemusic "<query>" --category albums --index <n> --name "<Room>"
+sonos-pr3 queue play 1 --name "<Room>"   # ALWAYS seek to track 1 — non-negotiable for albums
+
+# For songs/catalog playlists:
+sonos-pr3 play applemusic "<query>" --category <songs|playlists> --name "<Room>"
 
 # For artists:
 sonos-pr3 search applemusic "<query>" --category artists --format json  # get artist ID
@@ -404,12 +412,8 @@ brain music applemusic playlists --format json  # get playlist ID
 brain music play-playlist <playlist-id> --name "<Room>" --title "<name>"
 sonos-pr3 play --name "<Room>"
 
-# 3. Set mode BEFORE starting playback (otherwise shuffle from previous session bleeds in)
-sonos-pr3 mode <per defaults> --name "<Room>"
-brain music volume-set <per defaults> --name "<Room>"  # only if nothing was already playing; sets all grouped speakers
-
-# 4. For albums (front-to-back), ensure track 1:
-sonos-pr3 queue play 1 --name "<Room>"                 # seek to track 1 after mode is set
+# 4. Set volume
+brain music volume-set <per defaults> --name "<Room>"  # sets all grouped speakers uniformly
 
 # 5. Verify
 sonos-pr3 status --name "<Room>" --format json
@@ -420,6 +424,10 @@ sonos-pr3 status --name "<Room>" --format json
 - **Artist request** → `shuffle` (all their albums queued, shuffled across the discography, repeats)
 - **Playlist request** → `shuffle` (shuffle + repeat)
 - **Mood/vibe request** → follow the resolved content type: if it resolves to an album, use `repeat`; if playlist/artist, use `shuffle`
+
+**Album non-negotiables (violations will play the wrong track):**
+- Mode MUST be set before `sonos-pr3 play applemusic` — not after. Shuffle bleeds in from the previous session's mode if you reverse the order.
+- `sonos-pr3 queue play 1` MUST follow every album play. Without it, playback starts at whatever track the queue cursor was at — not track 1.
 
 ### Play from personal library (recent, my playlists, heavy rotation)
 
@@ -481,7 +489,8 @@ Use group commands. "Play everywhere" = `group party`. "Just in the bedroom" = `
 - **Always run the speaker health check first (Step 0).** If a speaker is down and was the group coordinator, all `sonos-pr3` commands will fail silently or timeout. Run the UPnP recovery procedure before attempting anything else. This takes priority over everything.
 - **After recovery, use `--ip` not `--name`.** Once you've rebuilt the group via raw UPnP, `sonos-pr3`'s cached topology may still point to the dead coordinator. Pass `--ip <coordinator-ip>` explicitly on every command for the rest of the session.
 - **Always clear queue before playing.** This is the single most important step to prevent playback issues.
-- **Set mode before playback starts.** If the previous session was shuffled and you're playing an album front-to-back, set `mode normal` + `queue play 1` to ensure track 1. Otherwise shuffle bleeds into the new content.
+- **Set mode BEFORE `sonos-pr3 play applemusic`.** The play command starts playback immediately — setting mode after it is too late; the previous session's shuffle state bleeds in. Always: clear → set mode → play → seek.
+- **For albums, ALWAYS run `sonos-pr3 queue play 1` after play.** Without this explicit seek, playback starts at whatever queue cursor position was left over. No exceptions.
 - Verify playback changes with `sonos-pr3 status` — check that the `nowPlaying` artist/album matches what you intended.
 - If `sonos-pr3 play applemusic` returns unexpected results, use `sonos-pr3 search applemusic --format json` to preview results and pick with `--index`.
 - When the first result is a deluxe/expanded edition, check for the standard album at a higher index.

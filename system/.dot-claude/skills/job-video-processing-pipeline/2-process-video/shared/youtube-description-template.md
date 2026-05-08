@@ -18,6 +18,7 @@ I quit Amazon with a near-double salary offer on the table and no startup idea. 
 • EMLY AI: https://emlyai.ca/
 • LinkedIn: https://www.linkedin.com/in/kylexrich/
 • GitHub: https://github.com/kylexrich
+• Brain repo (public mirror): https://github.com/kylexrich/brain-public
 • Chess.com: https://www.chess.com/member/dreamyduckling
 
 ---

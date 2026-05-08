@@ -4,6 +4,8 @@ Kyle's second brain and AI agent hometown.
 
 This is a public mirror of my private working repo. It holds of my core (non-project-specific) AI configuration, shell setup, CLI tooling, (obsidian-like) knowledge-graph, and macOS bootstrap that powers my (most) of my non-development workflows.
 
+Quick walkthrough: https://youtu.be/ZbXWg_BPrgg
+
 Join my live stream https://www.youtube.com/channel/UCvcUQVJEeLEFpNNpeyWG7cA/, leave a GitHub Issue, or email me at kylexrich@gmail.com if you have any questions.
 
 ## Why this exists

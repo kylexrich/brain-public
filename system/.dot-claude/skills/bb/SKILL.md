@@ -10,10 +10,27 @@ Sync AI config into `~/Developer/brain/`, commit the private repo, export the pu
 ## Workflow
 
 1. Sync AI config: `brain repo sync-ai`
-2. Run `git -C ~/Developer/brain status` to see what changed.
-3. If no changes, tell Kyle and stop.
-4. Stage all changes: `git -C ~/Developer/brain add -A`
-5. Review the diff: `git -C ~/Developer/brain diff --cached --stat`
+2. **Stage everything in the private repo — unconditional. Do this before any status read.**
+
+   ```bash
+   git -C ~/Developer/brain add -A
+   ```
+
+   Never assume a prior session staged what you need. Never read `git status` first and decide staging is unnecessary because content already appears under "Changes to be committed" — that section reflects a snapshot, not the full working tree, and the unstaged + untracked sections come **after** it. Skipping this step has previously caused commits to silently miss work.
+3. **Verify the working tree is fully captured.** Run all three together — they must all succeed:
+
+   ```bash
+   git -C ~/Developer/brain diff --quiet \
+     && [ -z "$(git -C ~/Developer/brain ls-files --others --exclude-standard)" ] \
+     && echo "✓ tree fully staged" \
+     || echo "✗ unstaged or untracked content remains — STOP and investigate"
+   ```
+
+   If you see `✗`, stop. Do not commit. Investigate the leftover paths before continuing.
+4. If `git -C ~/Developer/brain diff --cached --quiet` exits 0 (nothing staged), tell Kyle there's nothing to commit and stop.
+5. **Sanity-scan what's about to be committed:** `git -C ~/Developer/brain diff --cached --stat`
+   - Read the FULL list. Never pipe to `head`/`tail`/`| less | quit-early` — important entries (especially stray dev files surfacing as new additions) can sit anywhere in the diff.
+   - Look for files that don't belong: ad-hoc scripts at the repo root (`mock_*.py`, `scratch.*`, `tmp_*`), debugger output, editor swap files, IDE config, oversized binaries, accidental `node_modules`. If anything looks out of place, unstage it with `git -C ~/Developer/brain restore --staged <path>` and ask Kyle before continuing.
 6. Write a commit message:
    - **Title:** `<type>(<scope optional>): <short description>` — imperative mood, ~50–72 chars
    - **Types:** `add` · `update` · `fix` · `sync` · `remove` · `chore`
@@ -55,14 +72,22 @@ Sync AI config into `~/Developer/brain/`, commit the private repo, export the pu
     3. Re-run `brain repo export-public`.
     4. Re-run `git -C ~/Developer/brain-public status` and confirm the offending paths are gone from the working tree.
     5. Loop back to step 11 until the audit comes up clean.
-13. Stage all public mirror changes: `git -C ~/Developer/brain-public add -A`
-14. Review the public diff: `git -C ~/Developer/brain-public diff --cached --stat`
-15. Write a public-safe commit message based only on the exported diff:
+13. **Stage everything in the public mirror — unconditional, same rule as step 2:** `git -C ~/Developer/brain-public add -A`
+14. **Verify the public working tree is fully captured** (same paired check as step 3, against `~/Developer/brain-public`):
+
+    ```bash
+    git -C ~/Developer/brain-public diff --quiet \
+      && [ -z "$(git -C ~/Developer/brain-public ls-files --others --exclude-standard)" ] \
+      && echo "✓ public tree fully staged" \
+      || echo "✗ unstaged or untracked content remains — STOP and investigate"
+    ```
+15. Review the public diff: `git -C ~/Developer/brain-public diff --cached --stat`
+16. Write a public-safe commit message based only on the exported diff:
     - Use the same title/body format as the private repo.
     - Describe only files that exist in `brain-public`.
     - Never mention private-only files or withheld content.
-16. Commit `brain-public` using the heredoc approach above, swapping the repo path to `~/Developer/brain-public`.
-17. Confirm both commits to Kyle. **Do NOT push unless Kyle explicitly asks.**
+17. Commit `brain-public` using the heredoc approach above, swapping the repo path to `~/Developer/brain-public`.
+18. Confirm both commits to Kyle. **Do NOT push unless Kyle explicitly asks.**
 
 ## Pushing
 

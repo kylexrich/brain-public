@@ -79,3 +79,5 @@ system/.dot-claude/plugins/cache/claude-plugins-official/superpowers/5.0.7
 *.log
 
 .claude/scheduled_tasks.lock
+
+system/.dot-claude/plugins/

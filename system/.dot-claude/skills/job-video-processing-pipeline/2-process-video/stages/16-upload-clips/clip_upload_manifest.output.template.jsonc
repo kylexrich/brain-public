@@ -1,0 +1,25 @@
+// clip_upload_manifest.json — output artifact written by stage 16-upload-clips
+// Written to: <stream_dir>/meta/outputs/clip_upload_manifest.json
+{
+  "generated_at": "ISO8601",
+  "source_clip_manifest": "/absolute/path/to/clip_production_manifest.json",
+  "source_stream_url": "https://youtube.com/watch?v=...",
+  "default_privacy_status": "private | unlisted | public",
+  "clip_count": 6,
+  "clips": [
+    {
+      "filename": "01-clip-title.mp4",
+      "title": "Clip Title",
+      "vibe_tier": "FAILURE_AND_RECOVERY | CHESS_CODE_FUSION | ENGINEERING_OPINION | AI_ORCHESTRATION_MOMENT | LIVE_INCIDENT | CHESS_INSIGHT | FOUNDER_LIFE",
+      "format": "HIGHLIGHT | TUTORIAL | STORY",
+      "privacy_status": "private | unlisted | public",
+      "video_id": "11-char-youtube-id",
+      "url": "https://youtube.com/watch?v=<video_id>",
+      "uploaded_at": "ISO8601",
+      "category_id": "28",
+      "contains_synthetic_media": false,
+      "status": "success | error",
+      "error": "string | null"
+    }
+  ]
+}

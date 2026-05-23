@@ -1,0 +1,26 @@
+// composite_clip_upload_manifest.json — output artifact written by stage 17-upload-composites
+// Written to: <stream_dir>/meta/outputs/composite_clip_upload_manifest.json
+{
+  "generated_at": "ISO8601",
+  "source_composite_manifest": "/absolute/path/to/composite_clip_production_manifest.json",
+  "source_stream_url": "https://youtube.com/watch?v=...",
+  "default_privacy_status": "private | unlisted | public",
+  "composite_count": 3,
+  "composites": [
+    {
+      "filename": "01-composite-title.mp4",
+      "title": "Composite Title",
+      "vibe_tier": "FAILURE_AND_RECOVERY | CHESS_CODE_FUSION | ENGINEERING_OPINION | AI_ORCHESTRATION_MOMENT | LIVE_INCIDENT | CHESS_INSIGHT | FOUNDER_LIFE",
+      "format_category": "GAME_RECAP | TOPIC_DEEP_DIVE | JOURNEY_ARC | LIVE_INCIDENT_ARC",
+      "chapter_count": 3,
+      "privacy_status": "private | unlisted | public",
+      "video_id": "11-char-youtube-id",
+      "url": "https://youtube.com/watch?v=<video_id>",
+      "uploaded_at": "ISO8601",
+      "category_id": "28",
+      "contains_synthetic_media": false,
+      "status": "success | error",
+      "error": "string | null"
+    }
+  ]
+}

@@ -128,7 +128,7 @@ For each suggestion (indexed from 1):
    - `-t`: duration in seconds (since `-ss` before `-i` resets timestamp origin)
    - `-c copy`: stream copy, no re-encoding
    - `-movflags +faststart`: move moov atom for web-compatible playback
-3. **Record result:** On success, record `status: "success"` and capture `file_size_bytes` (via `stat` or `ls -l`). On failure, record `status: "error"` with the ffmpeg error message.
+3. **Record result:** On success, record `status: "success"` and capture `file_size_bytes` (via `stat` or `ls -l`). Carry through the `title`, `description`, `format`, `vibe_tier`, and `confidence` fields from the source suggestion so the downstream upload stage has everything it needs without re-reading `clip_suggestions.json`. On failure, record `status: "error"` with the ffmpeg error message.
 
 ### 5. Write manifest
 
@@ -144,7 +144,8 @@ For each suggestion (indexed from 1):
 - [ ] `manifest_file` exists and is non-empty
 - [ ] Top-level keys `generated_at`, `source_vod`, `clips_dir`, `clip_count`, and `clips` are present
 - [ ] `clip_count` matches `clips` array length
-- [ ] Every clip entry has populated `filename`, `title`, `start_seconds`, `end_seconds`, `duration_sec`, `format`, `status`
+- [ ] Every clip entry has populated `filename`, `title`, `description`, `format`, `vibe_tier`, `start_seconds`, `end_seconds`, `duration_sec`, `confidence`, `status`
+- [ ] No clip entry has `format = "SHORT"` (intentionally unsupported on this channel)
 - [ ] For every clip with `status: "success"`, the corresponding file exists on disk in `output_dir`
 - [ ] At least one clip has `status: "success"`
 

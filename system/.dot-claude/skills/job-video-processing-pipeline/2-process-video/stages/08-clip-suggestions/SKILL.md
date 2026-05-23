@@ -95,10 +95,11 @@ Pass each worker:
 | `chunk_file`         | Filename (e.g., `chunk_003.txt`)                                                                                                          |
 | `chunk_file_path`    | Absolute path to the chunk file                                                                                                           |
 | `criteria_path`      | Absolute path to `system/.dot-claude/skills/job-video-processing-pipeline/2-process-video/stages/08-clip-suggestions/criteria.md` |
+| `vibe_context_path`  | Absolute path to `system/.dot-claude/skills/job-video-processing-pipeline/2-process-video/shared/vibe-context.md`                 |
 | `privacy_rules_path` | Absolute path to `system/.dot-claude/skills/job-video-processing-pipeline/2-process-video/shared/privacy-rules.md`                |
 | `candidates_dir`     | Absolute path to `<parent(output_file)>/candidates/`                                                                                       |
 
-Each worker writes `<candidates_dir>/<chunk_name>_clips.json` with its suggestions array.
+Each worker MUST read `vibe_context_path` BEFORE applying criteria — it encodes channel voice that overrides any generic editorial defaults the model would otherwise apply. Each worker writes `<candidates_dir>/<chunk_name>_clips.json` with its suggestions array. Per-chunk output should be honest, not padded — if a chunk has no candidates that pass all eight hard gates, the worker writes an empty `suggestions` array.
 
 **Expect:** One `<chunk_name>_clips.json` file per chunk in `candidates_dir`.
 
@@ -116,6 +117,7 @@ Pass the analyst:
 | `candidates_dir`     | Absolute path to `<parent(output_file)>/candidates/`                                                                                      |
 | `output_dir`         | Absolute path to `<parent(output_file)>/wide-view-clips/`                                                                                 |
 | `criteria_path`      | Absolute path to `system/.dot-claude/skills/job-video-processing-pipeline/2-process-video/stages/08-clip-suggestions/criteria.md` |
+| `vibe_context_path`  | Absolute path to `system/.dot-claude/skills/job-video-processing-pipeline/2-process-video/shared/vibe-context.md`                 |
 | `privacy_rules_path` | Absolute path to `system/.dot-claude/skills/job-video-processing-pipeline/2-process-video/shared/privacy-rules.md`                |
 
 The analyst reads all chunks chronologically, spawns range sub-agents, and writes:
@@ -140,15 +142,28 @@ The worker:
 3. If `<parent(output_file)>/wide-view-clips/chunk_*_extensions.json` files exist, applies augmentations to the corresponding chunk
    candidates: override confidence if `elevated_confidence` is non-null, attach `cross_references` and `extended_context` as metadata.
 4. Flattens all `suggestions` arrays, sorts by `start_seconds` ascending.
-5. Deduplicates overlapping time ranges: keeps the higher-confidence suggestion; breaks ties by preferring shorter duration.
-6. Writes `output_file` conforming to `clip_suggestions.output.template.jsonc` with `generated_at`, `suggestion_count`, and the deduplicated `suggestions` array.
+5. **Re-validates hard gates.** Any candidate missing a populated `gates_passed` block, or with any gate marked `false`, is dropped. Any
+   candidate with `format = "SHORT"` is dropped (SHORT is intentionally unsupported on this channel). Any candidate missing a `vibe_tier`
+   or with `vibe_tier` not in the seven allowed tiers is dropped.
+6. Deduplicates overlapping time ranges: keeps the higher-confidence suggestion; breaks ties by preferring tighter duration (the one with
+   payoff closer to the end is usually the stronger cut).
+7. **Hard-cap output at 6 suggestions per stream.** Rank by confidence (`high` before `medium`), then by vibe-tier diversity (prefer a mix
+   of tiers over six of the same), then by clip-density (tighter clips before sprawling ones). Drop the rest. If fewer than 6 candidates
+   survive validation, return what remains — never pad.
+8. Writes `output_file` conforming to `clip_suggestions.output.template.jsonc` with `generated_at`, `suggestion_count`, and the
+   deduplicated, gate-validated, hard-capped `suggestions` array.
 
 ### 6. Verify
 
 - [ ] `output_file` exists and is non-empty
 - [ ] Top-level keys `generated_at`, `suggestion_count`, and `suggestions` are present
 - [ ] `suggestion_count` matches `suggestions` array length
-- [ ] Every suggestion has populated `start_seconds`, `end_seconds`, `format`, and `confidence`
+- [ ] `suggestion_count <= 6` (hard cap — quality > volume)
+- [ ] Every suggestion has populated `title`, `description`, `vibe_tier`, `format`, `thesis`, `payoff`, `gates_passed`, `start_seconds`, `end_seconds`, and `confidence`
+- [ ] Every suggestion's `format` is one of `HIGHLIGHT | TUTORIAL | STORY` (no `SHORT`)
+- [ ] Every suggestion's `vibe_tier` is one of `FAILURE_AND_RECOVERY | CHESS_CODE_FUSION | ENGINEERING_OPINION | AI_ORCHESTRATION_MOMENT | LIVE_INCIDENT | CHESS_INSIGHT | FOUNDER_LIFE`
+- [ ] Every suggestion's `gates_passed` block has all eight fields set to `true`
+- [ ] Every suggestion's `description` contains the AI-disclosure line and the `{source_stream_url}` placeholder
 - [ ] No overlapping time ranges remain after deduplication
 - [ ] If `wide-view-clips/` directory exists: `wide_view_candidates.json` is valid JSON with `candidate_count` matching `candidates` array length
 - [ ] If wide-view candidates exist: every candidate has a `cross_chunk_sources` array with at least 2 entries

@@ -112,6 +112,20 @@
       "completed_at": "ISO8601 | null",
       "error": "string | null",
       "result": {}
+    },
+    "upload_clips": {
+      "status": "pending | success | error | skipped",
+      "started_at": "ISO8601 | null",
+      "completed_at": "ISO8601 | null",
+      "error": "string | null",
+      "result": {}
+    },
+    "upload_composites": {
+      "status": "pending | success | error | skipped",
+      "started_at": "ISO8601 | null",
+      "completed_at": "ISO8601 | null",
+      "error": "string | null",
+      "result": {}
     }
   }
 }

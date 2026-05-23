@@ -96,8 +96,11 @@ Each worker receives:
 | `chunk_file`         | Filename (e.g., `chunk_003.txt`)                                                                                                                    |
 | `chunk_file_path`    | Absolute path to the chunk file                                                                                                                     |
 | `criteria_path`      | Absolute path to `system/.dot-claude/skills/job-video-processing-pipeline/2-process-video/stages/09-composite-clip-suggestions/criteria.md` |
+| `vibe_context_path`  | Absolute path to `system/.dot-claude/skills/job-video-processing-pipeline/2-process-video/shared/vibe-context.md`                           |
 | `privacy_rules_path` | Absolute path to `system/.dot-claude/skills/job-video-processing-pipeline/2-process-video/shared/privacy-rules.md`                          |
 | `candidates_dir`     | Absolute path to `<parent(output_file)>/candidates/`                                                                                                 |
+
+Workers MUST read `vibe_context_path` BEFORE applying criteria.
 
 Each worker:
 
@@ -122,6 +125,7 @@ Pass the analyst:
 | `candidates_dir`     | Absolute path to `<parent(output_file)>/candidates/`                                                                                                |
 | `output_dir`         | Absolute path to `<parent(output_file)>/wide-view-composites/`                                                                                      |
 | `criteria_path`      | Absolute path to `system/.dot-claude/skills/job-video-processing-pipeline/2-process-video/stages/09-composite-clip-suggestions/criteria.md` |
+| `vibe_context_path`  | Absolute path to `system/.dot-claude/skills/job-video-processing-pipeline/2-process-video/shared/vibe-context.md`                           |
 | `privacy_rules_path` | Absolute path to `system/.dot-claude/skills/job-video-processing-pipeline/2-process-video/shared/privacy-rules.md`                          |
 
 The analyst reads all chunks chronologically, spawns range sub-agents, and writes:
@@ -145,20 +149,34 @@ The worker:
    worker candidates.
 3. If `<parent(output_file)>/wide-view-composites/chunk_*_extensions.json` files exist, applies augmentations to the corresponding chunk
    candidates: override confidence if `elevated_confidence` is non-null, attach `cross_references` and `extended_context` as metadata.
-4. Groups candidates by compatible `candidate_theme` and `format_category` to form full composite suggestions.
+4. Groups candidates by compatible binding into composite suggestions.
 5. Within each composite, orders segments by `start_seconds` ascending and assigns roles (`INTRO` → first, `PAYOFF` → last, `BODY` → middle).
-6. Deduplicates overlapping arcs: when two composites share more than half their segments, keeps the higher-confidence one; breaks ties by preferring longer estimated duration.
-7. Computes `estimated_duration_sec` for each composite as the sum of its segment `duration_sec` values.
-8. Writes `output_file` conforming to `composite_clip_suggestions.output.template.jsonc` with `generated_at`, `composite_count`, and the grouped `composites` array.
+6. **Re-validates hard gates.** Drops any composite missing a populated `gates_passed` block, any with any gate marked `false`, any
+   missing `binding_thesis`, any with `editorial_effort = "HIGH"`, any with `format_category` not in `GAME_RECAP | TOPIC_DEEP_DIVE |
+   JOURNEY_ARC | LIVE_INCIDENT_ARC`, any with `vibe_tier` not in the seven allowed tiers, and any with `estimated_duration_sec` outside
+   `[120, 900]`. Also drops composites without exactly one `INTRO` and one `PAYOFF` segment.
+7. Deduplicates overlapping arcs: when two composites share more than half their segments, keeps the higher-confidence one; breaks ties by preferring tighter binding (composite with the more specific thesis).
+8. Computes `estimated_duration_sec` for each composite as the sum of its segment `duration_sec` values (recomputes after gate validation).
+9. **Hard-cap output at 3 composites per stream.** Rank by confidence (`high` before `medium`), then by tier diversity, then by editorial
+   effort (`LOW` before `MEDIUM`). Drop the rest. If fewer than 3 survive validation, return what remains — never pad.
+10. Writes `output_file` conforming to `composite_clip_suggestions.output.template.jsonc` with `generated_at`, `composite_count`, and the
+    deduplicated, gate-validated, hard-capped `composites` array.
 
 ### 6. Verify
 
 - [ ] `output_file` exists and is non-empty
 - [ ] Top-level keys `generated_at`, `composite_count`, and `composites` are present
 - [ ] `composite_count` matches `composites` array length
-- [ ] Every composite has populated `title`, `hook`, `format_category`, `narrative_thread`, `editorial_effort`, `confidence`, and at least
-  one segment
-- [ ] Every segment has a `role`, `start_seconds`, `end_seconds`, and `duration_sec`
+- [ ] `composite_count <= 3` (hard cap — quality > volume)
+- [ ] Every composite has populated `title`, `description`, `binding_thesis`, `vibe_tier`, `format_category`, `narrative_thread`, `editorial_effort`, `gates_passed`, `estimated_duration_sec`, `confidence`, and at least one segment
+- [ ] Every composite's `vibe_tier` is one of the seven allowed tiers
+- [ ] Every composite's `format_category` is one of `GAME_RECAP | TOPIC_DEEP_DIVE | JOURNEY_ARC | LIVE_INCIDENT_ARC`
+- [ ] Every composite's `editorial_effort` is `LOW` or `MEDIUM` (never `HIGH`)
+- [ ] Every composite's `gates_passed` block has all eight fields set to `true`
+- [ ] Every composite has exactly one segment with role `INTRO` and exactly one with role `PAYOFF`
+- [ ] Every composite's `estimated_duration_sec` is `>= 120` and `<= 900`
+- [ ] Every composite's `description` contains the `{chapters}` placeholder, the AI-disclosure line, and the `{source_stream_url}` placeholder
+- [ ] Every segment has a `role`, `title`, `start_seconds`, `end_seconds`, and `duration_sec`
 - [ ] No two composites share more than half their segments after deduplication
 - [ ] If `wide-view-composites/` directory exists: `wide_view_candidates.json` is valid JSON with `candidate_count` matching `candidates` array length
 - [ ] If wide-view candidates exist: every candidate has a `cross_chunk_sources` array with at least 2 entries

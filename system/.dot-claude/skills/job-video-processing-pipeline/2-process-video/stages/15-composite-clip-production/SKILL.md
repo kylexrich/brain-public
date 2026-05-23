@@ -145,7 +145,7 @@ For each composite (indexed from 1):
 
 6. **Clean up temp directory:** Remove `{temp_dir}` and all its contents.
 
-7. **Record result:** On success, record `status: "success"` and capture `file_size_bytes`. On failure, record `status: "error"` with the ffmpeg error message. Always clean up the temp directory regardless of success or failure.
+7. **Record result:** On success, record `status: "success"` and capture `file_size_bytes`. Carry through the `title`, `description`, `format_category`, `vibe_tier`, `estimated_duration_sec`, and `confidence` fields from the source composite. Also record a per-segment array under `segments`, with each entry containing `role`, `title`, `local_start_sec` (cumulative duration of preceding segments — first segment starts at 0), `local_end_sec` (`local_start_sec + segment.duration_sec`), and `duration_sec`. These local timings let the upload stage build YouTube chapter markers without re-reading the suggestions file. On failure, record `status: "error"` with the ffmpeg error message. Always clean up the temp directory regardless of success or failure.
 
 ### 5. Write manifest
 
@@ -161,7 +161,9 @@ For each composite (indexed from 1):
 - [ ] `manifest_file` exists and is non-empty
 - [ ] Top-level keys `generated_at`, `source_vod`, `composites_dir`, `composite_count`, and `composites` are present
 - [ ] `composite_count` matches `composites` array length
-- [ ] Every composite entry has populated `filename`, `title`, `format_category`, `segment_count`, `status`
+- [ ] Every composite entry has populated `filename`, `title`, `description`, `format_category`, `vibe_tier`, `segment_count`, `segments`, `estimated_duration_sec`, `confidence`, `status`
+- [ ] Every composite's `format_category` is one of `GAME_RECAP | TOPIC_DEEP_DIVE | JOURNEY_ARC | LIVE_INCIDENT_ARC` (no `THEME_COMPILATION`/`TOPIC_MERGE`)
+- [ ] Every composite's `segments` array has `local_start_sec` starting at 0 for the first segment and contiguous timings thereafter
 - [ ] For every composite with `status: "success"`, the corresponding file exists on disk in `output_dir`
 - [ ] At least one composite has `status: "success"`
 - [ ] No leftover temp directories remain

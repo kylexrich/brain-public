@@ -1,4 +1,4 @@
-import { chmodSync } from "node:fs";
+import { chmodSync, createReadStream, statSync } from "node:fs";
 import { createServer } from "node:http";
 import { spawnSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
@@ -506,6 +506,104 @@ export async function publishYoutubeMetadata(options: {
     video_id: options.videoId,
     published_title: hasTitle,
     published_description: hasDescription,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// videos.insert — upload a produced clip/composite MP4 as a new YouTube video
+// ---------------------------------------------------------------------------
+
+export type YoutubePrivacyStatus = "private" | "unlisted" | "public";
+
+export interface YoutubeUploadOptions {
+  filePath: string;
+  title: string;
+  description: string;
+  privacyStatus: YoutubePrivacyStatus;
+  tags?: string[];
+  categoryId?: string;
+  publishAt?: string;
+  tokenPath?: string;
+}
+
+export interface YoutubeUploadResult {
+  video_id: string;
+  url: string;
+  privacy_status: YoutubePrivacyStatus;
+  category_id: string;
+  contains_synthetic_media: false;
+  uploaded_at: string;
+}
+
+export async function uploadYoutubeVideo(options: YoutubeUploadOptions): Promise<YoutubeUploadResult> {
+  const fileStats = statSync(options.filePath);
+  if (!fileStats.isFile()) {
+    throw new Error(`Upload source is not a regular file: ${options.filePath}`);
+  }
+
+  if (options.title.trim().length === 0) {
+    throw new Error("YouTube upload requires a non-empty title");
+  }
+  if (options.title.length > 100) {
+    throw new Error(`YouTube title exceeds 100 characters (${options.title.length}): ${options.title.slice(0, 60)}…`);
+  }
+  if (options.description.length > 5000) {
+    throw new Error(`YouTube description exceeds 5000 characters (${options.description.length})`);
+  }
+
+  const { auth } = await loadYoutubeOAuth({
+    tokenPath: options.tokenPath,
+    scopes: ALL_SCOPES,
+  });
+  const tokenScopes = (auth.credentials.scope ?? "").split(/\s+/);
+  if (!tokenScopes.includes("https://www.googleapis.com/auth/youtube.upload") && !tokenScopes.includes("https://www.googleapis.com/auth/youtube")) {
+    throw new Error("YouTube token is missing the youtube.upload scope. Re-run brain stream youtube-auth.");
+  }
+
+  const youtube = buildYoutubeService(auth);
+  const categoryId = options.categoryId ?? "28"; // Science & Technology — channel default for AI/engineering/chess content. Never fall back to 22 (People & Blogs).
+
+  const response = await youtube.videos.insert(
+    {
+      part: ["snippet", "status"],
+      notifySubscribers: false,
+      requestBody: {
+        snippet: {
+          title: options.title,
+          description: options.description,
+          tags: options.tags,
+          categoryId,
+          defaultLanguage: "en",
+        },
+        status: {
+          privacyStatus: options.privacyStatus,
+          publishAt: options.publishAt,
+          selfDeclaredMadeForKids: false,
+          containsSyntheticMedia: false,
+          embeddable: true,
+          license: "youtube",
+          publicStatsViewable: true,
+        },
+      },
+      media: {
+        mimeType: "video/mp4",
+        body: createReadStream(options.filePath),
+      },
+    },
+  );
+
+  const videoId = response.data.id;
+  if (!videoId) {
+    throw new Error("YouTube videos.insert returned no video id");
+  }
+
+  return {
+    video_id: videoId,
+    url: `https://youtube.com/watch?v=${videoId}`,
+    privacy_status: options.privacyStatus,
+    category_id: categoryId,
+    contains_synthetic_media: false,
+    uploaded_at: new Date().toISOString(),
   };
 }
 

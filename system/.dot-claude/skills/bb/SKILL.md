@@ -59,6 +59,9 @@ Sync AI config into `~/Developer/brain/`, commit the private repo, export the pu
 9. Run `git -C ~/Developer/brain-public status` to see whether the public mirror changed.
 10. If `brain-public` has no changes, confirm the private commit to Kyle and stop.
 11. **Leak audit — what's actually private?** Run `git -C ~/Developer/brain-public status` and `git -C ~/Developer/brain-public diff`, then walk the changed files. The brain repo is intentionally public; default is openness. Flag a file only if publishing it would expose something Kyle hasn't already chosen to publish, or third-party data he has no right to share. The bar is "actually exploitable or genuinely private," not "anything that looks like an identifier." Concretely:
+
+    **First check — net-new paths in the mirror.** Any path appearing in `brain-public` that wasn't there before must be a path you (or Kyle) consciously allowlisted, not an accidental inclusion from a too-broad glob. For every new directory/file: open the source, confirm what it actually contains, and confirm that publishing it is what Kyle would want. If the path was previously **excluded** from the allowlist, treat that as a deliberate decision and do not re-include it without explicit Kyle confirmation — even if the file looks superficially benign. Past exclusions encode privacy intent that grep can't always detect.
+
     - **Secrets and credentials.** `.env`, `credentials.*`, API keys, OAuth tokens, refresh tokens, anything that grants access to a system if it leaks. Always private.
     - **Memory and agent-memory contents.** Top-level `MEMORY.md`, per-agent memory dirs, memsearch snapshots. Always private — they record what Kyle said in past sessions and what Marvin learned about people.
     - **Runtime state with third-party content.** A per-chat state file that captures who replied, what they said, or quotes message bodies — private. Generic Kyle-only state (his music listening history, his own preferences) — fine.
@@ -88,6 +91,21 @@ Sync AI config into `~/Developer/brain/`, commit the private repo, export the pu
     - Never mention private-only files or withheld content.
 17. Commit `brain-public` using the heredoc approach above, swapping the repo path to `~/Developer/brain-public`.
 18. Confirm both commits to Kyle. **Do NOT push unless Kyle explicitly asks.**
+
+## Leak discovered AFTER commit, BEFORE push
+
+**This overrides the global "never `--amend`" rule.** `brain-public` history is publicly visible the moment it's pushed; a forward-fix commit on top of a leaky commit leaves the leak permanently in the public commit graph with a tombstone pointing right at it. Anyone reading the diff between the leaky commit and the fix commit sees exactly what was meant to stay private. **A follow-up "remove the leaky thing" commit is wrong.**
+
+If a leak is identified in `brain-public` (or in the `.public-export.json` allowlist on the `brain` side) after `git commit` but before `git push`, fix history in place:
+
+1. Identify the offending commit and how many commits back it is from `HEAD`.
+2. Confirm `git rev-parse origin/main` is at or behind that commit on the affected repo. If `origin/main` is at or past the leaky commit, **stop** — it's already pushed, and recovery requires a force-push conversation with Kyle. Do not proceed silently.
+3. Fix the underlying allowlist / sanitize / exclude rule in the private repo first if the leak came from `.public-export.json`. Re-run `brain repo export-public`.
+4. Rewrite history on the affected repo. Two safe shapes:
+   - **One leaky commit, no follow-up yet:** `git -C <repo> commit --amend` after restaging the corrected working tree.
+   - **Leaky commit + follow-up "fix" commit already exist:** `git -C <repo> reset --soft HEAD~N` to roll back to the parent of the leaky commit (where N covers both the leaky and any follow-up fix commits), then commit once with a clean message that describes only what should have been there.
+5. Verify the leak is gone from `git log --all -p` for the affected paths.
+6. Apply the same rewrite to the private repo too if it carried a corresponding `.public-export.json` mistake — keeps the two repos' narratives consistent and avoids a stale "fix" commit on the private side referencing a leak that no longer exists publicly.
 
 ## Pushing
 

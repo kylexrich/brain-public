@@ -97,6 +97,8 @@ Each worker receives:
 | `chunk_file_path`    | Absolute path to the chunk file                                                                                                                     |
 | `criteria_path`      | Absolute path to `system/.dot-claude/skills/job-video-processing-pipeline/2-process-video/stages/09-composite-clip-suggestions/criteria.md` |
 | `vibe_context_path`  | Absolute path to `system/.dot-claude/skills/job-video-processing-pipeline/2-process-video/shared/vibe-context.md`                           |
+| `title_rules_path`   | Absolute path to `system/.dot-claude/skills/job-video-processing-pipeline/2-process-video/shared/clip-title-rules.md`                       |
+| `description_template_path` | Absolute path to `system/.dot-claude/skills/job-video-processing-pipeline/2-process-video/shared/clip-description-template.md`       |
 | `privacy_rules_path` | Absolute path to `system/.dot-claude/skills/job-video-processing-pipeline/2-process-video/shared/privacy-rules.md`                          |
 | `candidates_dir`     | Absolute path to `<parent(output_file)>/candidates/`                                                                                                 |
 
@@ -126,6 +128,8 @@ Pass the analyst:
 | `output_dir`         | Absolute path to `<parent(output_file)>/wide-view-composites/`                                                                                      |
 | `criteria_path`      | Absolute path to `system/.dot-claude/skills/job-video-processing-pipeline/2-process-video/stages/09-composite-clip-suggestions/criteria.md` |
 | `vibe_context_path`  | Absolute path to `system/.dot-claude/skills/job-video-processing-pipeline/2-process-video/shared/vibe-context.md`                           |
+| `title_rules_path`   | Absolute path to `system/.dot-claude/skills/job-video-processing-pipeline/2-process-video/shared/clip-title-rules.md`                       |
+| `description_template_path` | Absolute path to `system/.dot-claude/skills/job-video-processing-pipeline/2-process-video/shared/clip-description-template.md`       |
 | `privacy_rules_path` | Absolute path to `system/.dot-claude/skills/job-video-processing-pipeline/2-process-video/shared/privacy-rules.md`                          |
 
 The analyst reads all chunks chronologically, spawns range sub-agents, and writes:
@@ -153,8 +157,9 @@ The worker:
 5. Within each composite, orders segments by `start_seconds` ascending and assigns roles (`INTRO` → first, `PAYOFF` → last, `BODY` → middle).
 6. **Re-validates hard gates.** Drops any composite missing a populated `gates_passed` block, any with any gate marked `false`, any
    missing `binding_thesis`, any with `editorial_effort = "HIGH"`, any with `format_category` not in `GAME_RECAP | TOPIC_DEEP_DIVE |
-   JOURNEY_ARC | LIVE_INCIDENT_ARC`, any with `vibe_tier` not in the seven allowed tiers, and any with `estimated_duration_sec` outside
-   `[120, 900]`. Also drops composites without exactly one `INTRO` and one `PAYOFF` segment.
+   JOURNEY_ARC | LIVE_INCIDENT_ARC`, any with `vibe_tier` not in the seven allowed tiers, and any with `segment_count < 2`. Also drops
+   composites without exactly one `INTRO` and one `PAYOFF` segment. Does NOT impose any duration cap — long composites are explicitly
+   fine when the binding thesis supports them.
 7. Deduplicates overlapping arcs: when two composites share more than half their segments, keeps the higher-confidence one; breaks ties by preferring tighter binding (composite with the more specific thesis).
 8. Computes `estimated_duration_sec` for each composite as the sum of its segment `duration_sec` values (recomputes after gate validation).
 9. **Hard-cap output at 3 composites per stream.** Rank by confidence (`high` before `medium`), then by tier diversity, then by editorial

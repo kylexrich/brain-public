@@ -30,40 +30,23 @@ Every stream title is `Building in Public — Day N | <vivid moment>, <chess mom
 
 Notice: no clickbait, no "you won't believe", no power-emoji. Specificity. Mixed registers (technical + chess + self-deprecating). Lists of concrete moments separated by commas.
 
-## Clip titles must mirror this voice
+## Clip titles
 
-**Good clip title examples** (from actual high-confidence outputs):
-
-- `I was sure I had mate in 5 — then the opponent showed me I didn't`
-- `Test calls should never touch real data — a founder catches a bug live`
-- `Dynamic variables vs metadata — stop making it hacky`
-- `Hats off — when your 1100 opponent refuses to be mated`
-- `Codex one-shotted the UI change I thought it would struggle with`
-
-Notice: thesis present in title, often with an em-dash holding two halves together. Specific. Self-aware. The viewer knows what they're getting.
-
-**Bad clip title patterns to reject:**
-
-- "The MOMENT when everything changed" — fake stakes, generic
-- "What I learned from this mistake" — generic, no specifics
-- "AI is changing coding forever" — broad opinion with no anchor
-- "POV: when your code finally works" — TikTok register, off-brand
-- Any title without a named subject, specific tool, or concrete claim
-- Any title with all-caps emphasis or trailing emoji
+Clip titles for produced single clips and composites: see `clip-title-rules.md` (sibling file). That file holds the practical rules and rejection patterns; this file holds the channel voice they presume.
 
 ## Vibe tiers — the only acceptable clip categories
 
 Every clip suggestion MUST fit one of these tiers. If a candidate moment doesn't fit a tier, it is not a clip. There is no "miscellaneous" bucket.
 
-| Tier                       | What it is                                                                                                                                | Example                                                                          |
-|----------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------|
-| `FAILURE_AND_RECOVERY`     | Kyle confidently announces something, gets punished, sits with it, names the lesson. The arc IS the clip.                                  | "I was sure I had mate in 5 — then the opponent showed me I didn't"              |
-| `CHESS_CODE_FUSION`        | A chess decision and an engineering decision rhyme. The fusion is what makes the clip unique to this channel.                              | Talking about pruning lines while pruning a code branch; cost of seeing-but-not-calculating |
-| `ENGINEERING_OPINION`      | Sharp, contrarian, opinionated take on a specific engineering practice with a clear thesis sentence in the clip.                           | "Dynamic variables vs metadata — stop making it hacky"                           |
-| `AI_ORCHESTRATION_MOMENT`  | Sub-agent / Claude / Codex / OpenClaw / brain-repo moment with a concrete outcome (worked / failed / surprised). Channel-defining content. | "Codex one-shotted the UI change I thought it would struggle with"               |
-| `LIVE_INCIDENT`            | A production fire / migration accident / broken thing fixed live on stream with a clear before-after.                                      | "Test calls should never touch real data — a founder catches a bug live"         |
-| `CHESS_INSIGHT`            | Pure chess content with a teachable moment or principle named explicitly. Not just "I played a game."                                       | "Hats off — when your 1100 opponent refuses to be mated"                         |
-| `FOUNDER_LIFE`             | A founder-specific moment with stakes — runway, decision under pressure, public emotional honesty. Used sparingly; on-brand only when real.| "Six-month runway, two-month TFSA — what I'm cutting"                            |
+| Tier                      | What it is                                                                                                                                  | Example                                                                                     |
+|---------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------|
+| `FAILURE_AND_RECOVERY`    | Kyle confidently announces something, gets punished, sits with it, names the lesson. The arc IS the clip.                                   | "I was sure I had mate in 5 — then the opponent showed me I didn't"                         |
+| `CHESS_CODE_FUSION`       | A chess decision and an engineering decision rhyme. The fusion is what makes the clip unique to this channel.                               | Talking about pruning lines while pruning a code branch; cost of seeing-but-not-calculating |
+| `ENGINEERING_OPINION`     | Sharp, contrarian, opinionated take on a specific engineering practice with a clear thesis sentence in the clip.                            | "Dynamic variables vs metadata — stop making it hacky"                                      |
+| `AI_ORCHESTRATION_MOMENT` | Sub-agent / Claude / Codex / OpenClaw / brain-repo moment with a concrete outcome (worked / failed / surprised). Channel-defining content.  | "Codex one-shotted the UI change I thought it would struggle with"                          |
+| `LIVE_INCIDENT`           | A production fire / migration accident / broken thing fixed live on stream with a clear before-after.                                       | "Test calls should never touch real data — a founder catches a bug live"                    |
+| `CHESS_INSIGHT`           | Pure chess content with a teachable moment or principle named explicitly. Not just "I played a game."                                       | "Hats off — when your 1100 opponent refuses to be mated"                                    |
+| `FOUNDER_LIFE`            | A founder-specific moment with stakes — runway, decision under pressure, public emotional honesty. Used sparingly; on-brand only when real. | "Six-month runway, two-month TFSA — what I'm cutting"                                       |
 
 ## Tone rules
 
@@ -83,14 +66,6 @@ Categories that look like clips but consistently don't work for this channel:
 - Generic banter, ambient narration, "thinking out loud" without a destination
 - Single-claim moments that don't fit any vibe tier — even if punchy, they don't compound the channel's identity
 
-## Description tone
+## Description shape
 
-YouTube description for any clip/composite produced from this stream should:
-
-1. Open with one sentence stating what the clip is, in Kyle's voice
-2. Optional second sentence with the specific detail (the chess line, the bug, the tool)
-3. AI-disclosure line: `📝 This clip was assembled from livestream footage by an automated AI editor; commentary and analysis are Kyle's.`
-4. Link to the source full stream by URL
-5. Standard channel-level links footer (copy from `youtube-description-template.md`)
-
-Descriptions must NOT include hashtag spam, fake calls-to-action, or generic "if you enjoyed, smash that like button" closers.
+Clip and composite description scaffolds: see `clip-description-template.md` (sibling file). The source-stream description is governed separately by `stream-youtube-description-template.md`.

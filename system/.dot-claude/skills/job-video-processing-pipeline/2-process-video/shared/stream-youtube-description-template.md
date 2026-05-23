@@ -1,8 +1,8 @@
-# YouTube Description Template
+# Stream YouTube Description Template
 
-Defines how the YouTube video description is assembled from generated artifacts.
+Defines how the **source-stream** YouTube video description is assembled from generated artifacts. For descriptions of produced clips and composite clips (the AI-cut outputs), see `clip-description-template.md` instead.
 
-**Used by:** stream-chapters, stream-summary (each updates its section of `youtube-metadata.json` using this template).
+**Used by:** stream-chapters (stage 10), stream-summary (stage 11). Each updates its section of `youtube-metadata.json` using this template.
 
 ## Template
 

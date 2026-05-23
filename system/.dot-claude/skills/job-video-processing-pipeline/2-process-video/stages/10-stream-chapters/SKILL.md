@@ -69,7 +69,7 @@ youtube_metadata:
   path: "{youtube_metadata_file}"
   count: 1
   description: Chapters section of description field updated.
-  template: system/.dot-claude/skills/job-video-processing-pipeline/2-process-video/shared/youtube-description-template.md
+  template: system/.dot-claude/skills/job-video-processing-pipeline/2-process-video/shared/stream-youtube-description-template.md
 ```
 
 ### Response Format
@@ -126,7 +126,7 @@ The worker:
 2. Merges and deduplicates boundary candidates following the merge rules in `chapter-rules.md`.
 3. Writes the finalized chapters to `output_file` (`stream_chapters.json`) conforming to `stream_chapters.output.template.jsonc`.
 4. Updates the chapters section of `youtube_metadata_file` (`youtube-metadata.json`)
-   per `system/.dot-claude/skills/job-video-processing-pipeline/2-process-video/shared/youtube-description-template.md`.
+   per `system/.dot-claude/skills/job-video-processing-pipeline/2-process-video/shared/stream-youtube-description-template.md`.
 
 ### 6. Verify
 

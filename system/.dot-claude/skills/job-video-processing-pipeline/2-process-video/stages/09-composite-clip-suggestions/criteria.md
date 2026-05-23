@@ -17,7 +17,7 @@ A composite is rejected unless every gate holds. A composite that "shares a topi
 5. **No required external context.** Every segment must be intelligible in the composite without prior-stream context. Pronouns and callbacks resolve inside the composite. (Within a segment, references can resolve to earlier segments in the same composite.)
 6. **Single-stream sourcing.** All segments come from the same stream chunks. No cross-stream composites in this stage.
 7. **Editorial effort = LOW or MEDIUM.** Reject any composite that would need `HIGH` editorial effort — heavy narration bridges, context cards, or transition voiceovers. Pure AI assembly of "needs bridges to make sense" content produces slop. If the segments don't bind with minor cuts only, the composite fails.
-8. **Length sanity.** Estimated total duration `>= 120s` and `<= 900s` (2–15 min). Below 120s is just a clip — reject and let stage 08 handle it. Above 900s is too long for AI-assembled content without human polish.
+8. **Composite, not a clip.** Has at least 2 segments AND a total estimated duration that's meaningfully longer than any individual segment could be (rough floor ~90s — below that it's typically just a single clip with extra cuts). **There is no upper limit.** A composite that runs 20+ minutes is fine when the binding thesis genuinely supports it — a full chess game recap with analysis, an end-to-end incident postmortem, a multi-hour debugging arc. The audience watches build-in-public content for substance, not for retention-optimized length. Trust the binding-thesis and escalation gates to police quality; do not police it with duration caps.
 
 Per-stream hard cap: **maximum 3 composites per stream**. If fewer pass all gates, return fewer.
 
@@ -44,41 +44,11 @@ A composite MUST have exactly one INTRO and exactly one PAYOFF. BODY segments ar
 
 ## Title rules
 
-Same as stage 08 — read `vibe-context.md`. A composite title typically:
-
-- Names the binding arc, not just the topic (`"From hung piece to passed pawn — clawing back from 1080"` not `"Day 38 chess games"`)
-- Uses em-dash to fuse the binding thesis with the specific
-- 40–90 chars, no clickbait, no all-caps, no trailing emoji
+See `system/.dot-claude/skills/job-video-processing-pipeline/2-process-video/shared/clip-title-rules.md` (the "Composite-specific" section in particular). Do not duplicate them here.
 
 ## Description per composite
 
-Each composite produces a `description` that becomes the YouTube description. Structure:
-
-```
-<one-sentence statement of the binding thesis>
-
-<one optional sentence with the specific detail — the chess line, the incident name, the tool>
-
-⏱️ Chapters
-{chapters}
-
-📝 This compilation was assembled from livestream footage by an automated AI editor; commentary and analysis are Kyle's.
-
-🎥 Watch the full Day {N} stream: {source_stream_url}
-
-—
-
-🔗 Links
-• EMLY AI: https://emlyai.ca/
-• LinkedIn: https://www.linkedin.com/in/kylexrich/
-• GitHub: https://github.com/kylexrich
-• Brain repo (public mirror): https://github.com/kylexrich/brain-public
-• Chess.com: https://www.chess.com/member/dreamyduckling
-```
-
-`{chapters}` is filled in by the upload stage from the segment list — first chapter must start at `0:00` (the composite's local timeline, not the source stream timeline), each chapter must be at least 10 seconds, and each chapter title comes from the segment's title field. Composites with fewer than 3 segments skip the chapters section entirely.
-
-`{source_stream_url}` is filled in by the upload stage from `source_stream.json`.
+Each composite produces a `description` field. Use the **composite variant** in `system/.dot-claude/skills/job-video-processing-pipeline/2-process-video/shared/clip-description-template.md`. Leave the `{chapters}` and `{source_stream_url}` placeholders intact — the upload stage substitutes them and may strip the chapters block if YouTube's chapter rules don't hold.
 
 ## Hard-rejection patterns
 

@@ -96,6 +96,8 @@ Pass each worker:
 | `chunk_file_path`    | Absolute path to the chunk file                                                                                                           |
 | `criteria_path`      | Absolute path to `system/.dot-claude/skills/job-video-processing-pipeline/2-process-video/stages/08-clip-suggestions/criteria.md` |
 | `vibe_context_path`  | Absolute path to `system/.dot-claude/skills/job-video-processing-pipeline/2-process-video/shared/vibe-context.md`                 |
+| `title_rules_path`   | Absolute path to `system/.dot-claude/skills/job-video-processing-pipeline/2-process-video/shared/clip-title-rules.md`             |
+| `description_template_path` | Absolute path to `system/.dot-claude/skills/job-video-processing-pipeline/2-process-video/shared/clip-description-template.md` |
 | `privacy_rules_path` | Absolute path to `system/.dot-claude/skills/job-video-processing-pipeline/2-process-video/shared/privacy-rules.md`                |
 | `candidates_dir`     | Absolute path to `<parent(output_file)>/candidates/`                                                                                       |
 
@@ -118,6 +120,8 @@ Pass the analyst:
 | `output_dir`         | Absolute path to `<parent(output_file)>/wide-view-clips/`                                                                                 |
 | `criteria_path`      | Absolute path to `system/.dot-claude/skills/job-video-processing-pipeline/2-process-video/stages/08-clip-suggestions/criteria.md` |
 | `vibe_context_path`  | Absolute path to `system/.dot-claude/skills/job-video-processing-pipeline/2-process-video/shared/vibe-context.md`                 |
+| `title_rules_path`   | Absolute path to `system/.dot-claude/skills/job-video-processing-pipeline/2-process-video/shared/clip-title-rules.md`             |
+| `description_template_path` | Absolute path to `system/.dot-claude/skills/job-video-processing-pipeline/2-process-video/shared/clip-description-template.md` |
 | `privacy_rules_path` | Absolute path to `system/.dot-claude/skills/job-video-processing-pipeline/2-process-video/shared/privacy-rules.md`                |
 
 The analyst reads all chunks chronologically, spawns range sub-agents, and writes:

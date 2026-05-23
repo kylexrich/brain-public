@@ -25,23 +25,17 @@ If any gate fails, **do not include the candidate**. Per-stream output is hard-c
 
 `SHORT` is intentionally NOT a supported format. The channel does not produce vertical/Shorts content. Only these three formats are valid:
 
-| Category    | Description                                                                                                                       | Typical duration |
-|-------------|-----------------------------------------------------------------------------------------------------------------------------------|------------------|
-| `HIGHLIGHT` | A standout moment that lands in 1–4 min — a sharp opinion, a reaction, a chess turning point with named insight, a live incident. | 60 – 240 s       |
-| `TUTORIAL`  | A teaching/walkthrough segment with a concrete claim and a worked example. Must include the conclusion, not just the setup.       | 90 – 480 s       |
-| `STORY`     | A narrative with setup → tension → resolution. Failure-and-recovery arcs live here.                                                | 90 – 360 s       |
+| Category    | Description                                                                                                                       |
+|-------------|-----------------------------------------------------------------------------------------------------------------------------------|
+| `HIGHLIGHT` | A standout moment — a sharp opinion, a reaction, a chess turning point with named insight, a live incident.                       |
+| `TUTORIAL`  | A teaching/walkthrough segment with a concrete claim and a worked example. Must include the conclusion, not just the setup.       |
+| `STORY`     | A narrative with setup → tension → resolution. Failure-and-recovery arcs live here.                                                |
 
-Duration is descriptive, not prescriptive — what matters is the gate set above. A 30-second moment that hits all gates is rare but valid; a 6-minute moment with no payoff still fails.
+**There is no duration cap. Longer clips are explicitly fine — and sometimes necessary.** A TUTORIAL that takes 12 minutes to land a real technical point is more valuable than a 90-second one that strips out the substance. A STORY that needs 8 minutes to set up the failure properly is on-brand. The only duration question is "does this length serve the content?" — not "is it within some prescribed window." If a clip naturally lands in 30 seconds, great. If it naturally lands in 15 minutes, also great. The hard gates above (thesis, payoff, self-contained, named subject, clean exit, no prior context, fits tier, substance) are what decide whether something is a clip — duration is a consequence of the content, not a constraint on it.
 
 ## Title rules
 
-Mirror the channel's existing title pattern (see `vibe-context.md`). Specifically:
-
-- **Lead with the thesis or the surprise**, not a generic teaser
-- **Use an em-dash to fuse two halves** when it sharpens the title (e.g. `"I was sure I had mate in 5 — then the opponent showed me I didn't"`)
-- **Name the specific thing** — tool, opponent rating, bug class, code construct
-- **No clickbait registers** — no "you won't believe", no "the MOMENT when…", no all-caps, no trailing emoji
-- **40–80 characters** typically; longer is fine if it's information, not padding
+See `system/.dot-claude/skills/job-video-processing-pipeline/2-process-video/shared/clip-title-rules.md`. Do not duplicate them here.
 
 ## Vibe tier assignment
 
@@ -53,28 +47,7 @@ Pick the SINGLE best-fitting tier per candidate. If two tiers seem to fit, pick 
 
 ## Description per clip
 
-Each suggestion produces a `description` field that becomes the YouTube description. Structure:
-
-```
-<one sentence stating what the clip is, in Kyle's voice>
-
-<optional second sentence naming the specific detail — chess line, bug, tool>
-
-📝 This clip was assembled from livestream footage by an automated AI editor; commentary and analysis are Kyle's.
-
-🎥 Watch the full Day {N} stream: {source_stream_url}
-
-—
-
-🔗 Links
-• EMLY AI: https://emlyai.ca/
-• LinkedIn: https://www.linkedin.com/in/kylexrich/
-• GitHub: https://github.com/kylexrich
-• Brain repo (public mirror): https://github.com/kylexrich/brain-public
-• Chess.com: https://www.chess.com/member/dreamyduckling
-```
-
-Description must NOT include hashtag spam, generic CTAs, or motivational closers. Source stream URL is filled in by the upload stage from `source_stream.json`.
+Each suggestion produces a `description` field. Use the **single-clip variant** in `system/.dot-claude/skills/job-video-processing-pipeline/2-process-video/shared/clip-description-template.md`. Leave the `{source_stream_url}` placeholder intact — the upload stage substitutes it.
 
 ## Hard-rejection patterns (anti-examples)
 

@@ -52,7 +52,7 @@ youtube_metadata:
   path: "{youtube_metadata_file}"
   count: 1
   description: Summary section of description field updated.
-  template: system/.dot-claude/skills/job-video-processing-pipeline/2-process-video/shared/youtube-description-template.md
+  template: system/.dot-claude/skills/job-video-processing-pipeline/2-process-video/shared/stream-youtube-description-template.md
 ```
 
 ### Response Format
@@ -94,7 +94,7 @@ youtube_metadata:
 
 1. Write `output_file` conforming to `stream_summary.output.template.jsonc`.
 2. Update the summary section of `youtube_metadata_file` per
-   `system/.dot-claude/skills/job-video-processing-pipeline/2-process-video/shared/youtube-description-template.md`.
+   `system/.dot-claude/skills/job-video-processing-pipeline/2-process-video/shared/stream-youtube-description-template.md`.
 
 **On fail:** return `{"status": "error", "summary": null}` with the write failure detail.
 

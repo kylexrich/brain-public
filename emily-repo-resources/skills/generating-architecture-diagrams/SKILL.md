@@ -1,6 +1,6 @@
 ---
 name: generating-architecture-diagrams
-description: Generate or update two architecture documents — a runtime-topology flowchart and a tech-stack inventory — as standalone HTML at `docs/reference/runtime-topology.html` and `docs/reference/tech-stack.html`. Use when the user asks to create, regenerate, refresh, update, or audit the architecture diagram(s), system topology, tech-stack inventory, or any "architecture.html"-style document. Grounds every element in IaC, manifests, and source imports; verifies every logo URL before embedding.
+description: Generate or update two architecture documents — a runtime-topology flowchart and a tech-stack inventory — as standalone HTML at `docs/architecture/runtime-topology.html` and `docs/architecture/tech-stack.html`. Use when the user asks to create, regenerate, refresh, update, or audit the architecture diagram(s), system topology, tech-stack inventory, or any "architecture.html"-style document. Grounds every element in IaC, manifests, and source imports; verifies every logo URL before embedding.
 ---
 
 # Generating Architecture Diagrams
@@ -9,14 +9,14 @@ description: Generate or update two architecture documents — a runtime-topolog
 
 Two files:
 
-- `docs/reference/runtime-topology.html` — a Mermaid **flowchart** showing how the system's live components connect at runtime (compute, data, async, edge, security, observability, third-party). Every node carries a real brand/service logo.
-- `docs/reference/tech-stack.html` — a tiled inventory of primary packages, runtimes, and third-party dependencies grouped by layer. Every tile carries a real brand logo. No connections.
+- `docs/architecture/runtime-topology.html` — a Mermaid **flowchart** showing how the system's live components connect at runtime (compute, data, async, edge, security, observability, third-party). Every node carries a real brand/service logo.
+- `docs/architecture/tech-stack.html` — a tiled inventory of primary packages, runtimes, and third-party dependencies grouped by layer. Every tile carries a real brand logo. No connections.
 
 Topology = how things connect. Tech stack = what things exist. Do not merge them.
 
 ## When to use
 
-Triggers: "generate/update/refresh/regenerate/audit the architecture diagram(s)"; "system topology"; "tech stack diagram"; "architecture.html"; "rebuild the docs/reference HTMLs". Also run proactively after large IaC or dependency-topology changes if the user confirms.
+Triggers: "generate/update/refresh/regenerate/audit the architecture diagram(s)"; "system topology"; "tech stack diagram"; "architecture.html"; "rebuild the architecture reference HTMLs". Also run proactively after large IaC or dependency-topology changes if the user confirms.
 
 ## Non-negotiable rules
 
@@ -39,7 +39,7 @@ Work from outside in:
 - **Workspace / monorepo markers** — top-level `package.json` with `workspaces`, `pnpm-workspace.yaml`, `turbo.json`, `nx.json`, `lerna.json`, Bazel `WORKSPACE`, Nx/Turbo caches. Enumerate primary packages; each gets its own layer group.
 - **Infrastructure as Code (IaC)** — `cdk/`, `infrastructure/`, `terraform/` (`*.tf`), `pulumi/` (`Pulumi.yaml`), `serverless.yml`, `sst.config.*`, `k8s/` or `*.yaml` under `manifests/`, `Dockerfile*`, `docker-compose*.yml`, `fly.toml`, `app.json`, `vercel.json`, `render.yaml`, `.github/workflows/*.yml`. IaC is the source of truth for topology — compute units, subnets, queues, secrets, routing.
 - **Entry points** — `main.*`, `index.*`, `src/app.*`, `cmd/*`, `bin/*`, Handler files. Scan for how the process is structured (HTTP server vs worker vs CLI vs scheduled task) and what env vars gate role selection (e.g., `SERVICE_ROLE`, `APP_MODE`).
-- **Source-level integration usage** — grep the source tree (exclude `node_modules/`, `dist/`, `build/`, `.venv/`, `target/`, vendored deps) for actual `import`/`require`/`use`/`include` statements naming each third-party package in the manifests. A package in the manifest that is never imported in code does **not** belong on either diagram.
+- **Source-level integration usage** — search the source tree with `rg` (exclude `node_modules/`, `dist/`, `build/`, `.venv/`, `target/`, vendored deps) for actual `import`/`require`/`use`/`include` statements naming each third-party package in the manifests. A package in the manifest that is never imported in code does **not** belong on either diagram.
 - **Database schemas / migrations** — Prisma schema, SQLAlchemy models, `*.sql` in `migrations/`, Alembic, Ecto, Flyway, Liquibase. Confirms which data stores are real.
 - **Queue / event bindings** — source files matching `SQS|Kafka|RabbitMQ|NATS|Pub/?Sub|EventBridge|Kinesis|Celery|BullMQ|Sidekiq|Resque`.
 - **Secrets / KMS** — IaC for Secrets Manager, Vault, SOPS, SSM Parameter Store, doppler, 1Password Connect; KMS / GCP KMS / Azure Key Vault.
@@ -111,11 +111,11 @@ Keep unchanged:
 
 ### Phase 5 — Parallel validation
 
-Spawn the six validator subagents in parallel, in a single message. Each gets a self-contained prompt that (a) points at the generated file, (b) lists the claims to check, (c) names the exact source files to inspect, (d) demands `✅ / ❌ / ⚠` with file:line citations. Use `references/validators.md` as the canonical prompt set.
+Spawn the six validator subagents in parallel, in a single message. Each gets a self-contained prompt that (a) points at the generated file, (b) lists the claims to check, (c) names the exact source files to inspect, (d) demands `PASS / FAIL / WARN` with file:line citations. Use `references/validators.md` as the canonical prompt set.
 
-Wait for all six, then aggregate findings into a correction list. **Apply every ❌ and every ⚠ the validators can justify.** For disagreements, re-read the cited file; the code is the tiebreaker.
+Wait for all six, then aggregate findings into a correction list. **Apply every FAIL and every WARN the validators can justify.** For disagreements, re-read the cited file; the code is the tiebreaker.
 
-Exit criterion: re-run the validators (or spot-check) and receive zero ❌ across all six slices.
+Exit criterion: re-run the validators (or spot-check) and receive zero FAIL findings across all six slices.
 
 ### Phase 6 — Finalize
 

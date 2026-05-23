@@ -16,17 +16,22 @@ Validate existing task planning documents to ensure they will actually achieve t
 
 ## Required Inputs
 
-1. **Task documents** — Path to existing context and/or steps documents in `.ai/tasks/`
+1. **Task documents** — Path to existing context and/or steps documents in `docs/tasks/`
 2. **Additional context** (optional) — Any new information or objective changes
 
 ## Single Source of Control
 
 - `{.ai,.claude,.codex}/skills/validate-task/CHECKLIST.md` — All validation requirements
 
+## Provider Contract Validation Gate
+
+For any third-party API that the plan calls, parses, or persists, run or verify the `$provider-contract-verification` (`/provider-contract-verification`) skill. Treat missing provider contract evidence as a validation failure.
+
 ## Workflow
 
 1. Read the task documents provided.
 2. Follow the checklist end-to-end.
-3. Use web searches to verify technical approaches and assumptions.
+3. Use source-of-truth docs, FireCrawl/Context7 when available, and web searches to verify technical approaches and assumptions.
 4. Fix any issues directly in the documents.
-5. Summarize what was validated and any changes made.
+5. Run or verify the `$doc-alignment` (`/doc-alignment`) skill for the planned documentation impact; treat missing current-doc updates as validation failures.
+6. Summarize what was validated and any changes made.

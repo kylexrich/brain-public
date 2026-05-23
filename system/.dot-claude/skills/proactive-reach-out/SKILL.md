@@ -9,7 +9,7 @@ description: Decide whether — and how — to initiate a message in a long-runn
 
 You're inside a long-running BlueBubbles agent that normally just *responds* to messages. A scheduler cron has now nudged you with the suggestion: "consider initiating something." That's not the same as "send something" — most invocations end in silence, because the chat is already alive or the random-target window hasn't arrived yet. The skill exists so the *whether* and *how* of initiating are decided consistently, and so per-chat state advances correctly when you do send.
 
-When you do send, the message has to read like a member of the chat decided to say something on their own. Not a bot pinging in. Not "just checking in." Not narration. The whole reason this lives behind a random target window (7–35 days) is so the cadence feels human; if your phrasing breaks that illusion, the cadence work was wasted.
+When you do send, the message has to read like a member of the chat decided to say something on their own. Not a bot pinging in. Not "just checking in." Not narration. The whole reason this lives behind a random target window (4–18 days) is so the cadence feels human; if your phrasing breaks that illusion, the cadence work was wasted.
 
 ## Trigger
 
@@ -89,7 +89,7 @@ If there are no unrated-eligible entries, this step is a no-op cost-wise (just a
 
 If `recent_sends` has unrated entries that are still <24h old, leave them. They'll get rated on a future cron tick once 24h has passed.
 
-### 3. Target gate — random 7–35 day window (cheap; runs first for sends)
+### 3. Target gate — random 4–18 day window (cheap; runs first for sends)
 
 If `now_ms < state.next_target_at_ms`, exit silently. Don't pull chat history, don't do anything else. The randomised target hasn't arrived yet, and ~96% of cron fires will bail here on a small state-file read — that's why this gate is first.
 
@@ -97,7 +97,7 @@ If `now_ms < state.next_target_at_ms`, exit silently. Don't pull chat history, d
 
 **Computing `next_target_at_ms`** (used in this step on first run, and in step 9 after a successful send):
 
-1. Start with `base = now_ms + randomBetween(7d, 35d)`.
+1. Start with `base = now_ms + randomBetween(4d, 18d)`.
 2. With ~30% probability, slide `base` forward to the next Friday or Saturday (i.e. advance one day at a time until `dayOfWeek(base)` is Friday or Saturday in local time). Otherwise leave it alone.
 3. Set the time-of-day on `base` to a random hour in `[19, 22]` and a random minute in `[0, 59]` (local time). The send fires at the next cron tick after the target opens, so this hour-of-day picker is what randomises *when* in the evening the message lands — without it, every send goes out on whatever single hour the cron is hard-coded to.
 4. The result is `next_target_at_ms`.
@@ -124,7 +124,7 @@ The reason: the chat is talking to itself. An LLM-generated icebreaker landing o
 
 Pick one of the eleven categories below. Use judgment — the chat's recent state is the input; the category list is the menu, not a queue. Three soft pressures, in order of strength:
 
-- **Learn from past engagement.** This is the biggest signal. Read `recent_sends[].engagement_level` and `engagement_summary` for every entry that has them. Categories that produced `high` engagement are worth revisiting (with a fresh angle); categories that produced `negative` are strong avoid signals — the chat already told you they didn't like that move. `none` and `low` are weaker negatives ("didn't connect, but no harm done"). The summaries name *what specifically* worked or failed — read them, don't just count levels. If the last send was `negative`, lean toward a noticeably different category and probably a longer next-target offset (closer to the 35d end of the range).
+- **Learn from past engagement.** This is the biggest signal. Read `recent_sends[].engagement_level` and `engagement_summary` for every entry that has them. Categories that produced `high` engagement are worth revisiting (with a fresh angle); categories that produced `negative` are strong avoid signals — the chat already told you they didn't like that move. `none` and `low` are weaker negatives ("didn't connect, but no harm done"). The summaries name *what specifically* worked or failed — read them, don't just count levels. If the last send was `negative`, lean toward a noticeably different category and probably a longer next-target offset (closer to the 18d end of the range).
 - **Bias toward freshness, but don't enforce uniqueness.** Look at `recent_sends` (oldest first; the *end* of the list is the most recent). Categories near the end are stronger "avoid" candidates; categories near the start are mid-tier; categories absent from the list entirely are the best picks. Hard exclusion would force exhaustion — repeating a category is fine if the angle, subject, or named person is genuinely different from the prior send, which is exactly what `recent_sends.message` lets you check.
 - **It has to fit the chat history.** `inside-reference` only works if there's a real running joke to reference; `targeted-checkin` only works if the named person has been off-screen recently. If your preferred category doesn't fit, pick another.
 
@@ -149,7 +149,7 @@ Call the chat's bluebubbles tool from the routing table with the composed text. 
 If the bluebubbles tool returned success:
 
 - Append `{ timestamp: <now as ISO 8601 with offset>, category: <picked>, message: <exact text sent> }` to `recent_sends`. **Leave `engagement_level` and `engagement_summary` unset** — they get filled in by step 2 on a future cron tick once 24h has passed. If the array is now longer than 50, drop the oldest entry.
-- Recompute `next_target_at_ms` using the formula in step 3 (random 7–35 day offset, optional Fri/Sat slide, random evening hour). If the most recent rated entry was `negative`, lean toward the long end of the 7–35d range when picking the offset.
+- Recompute `next_target_at_ms` using the formula in step 3 (random 4–18 day offset, optional Fri/Sat slide, random evening hour). If the most recent rated entry was `negative`, lean toward the long end of the 4–18d range when picking the offset.
 
 Write the file.
 
@@ -177,5 +177,5 @@ A handful of things will silently break this skill if you do them, even when eve
 
 - **Don't send anything to the chat on a no-op.** Failures, gate trips, "hmm, nothing today" — the bluebubbles tool stays unused. Silence is the correct outcome on a no-op; the chat should never see proactive-skill metadata.
 - **Don't advance state on a failed send.** A run that bumped `next_target_at_ms` but didn't actually deliver looks fine on disk while the chat saw nothing — re-attempt on the next tick instead.
-- **Don't shorten the 7–35 day range without Kyle's say-so.** A "feels too long" reaction in the moment is exactly the wrong signal; the range is invisible from inside any one window, which is the whole point.
+- **Don't shorten the 4–18 day range without Kyle's say-so.** A "feels too long" reaction in the moment is exactly the wrong signal; the range is invisible from inside any one window, which is the whole point.
 - **Don't run via spawn-mode delivery.** A `spawn` scheduler job opens a fresh `claude -p` headless session that has no BlueBubbles session continuity, so even a successful send would be detached from the chat the responses come back to. Always `notify`-mode, always inside the existing long-running agent.

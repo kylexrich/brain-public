@@ -19,6 +19,7 @@ Activate when the user asks to execute a step and provides a task document path.
   - A steps doc (`*-steps-<range>.md`)
   - A context doc (`*-context.md`)
   Use the provided path only as a starting point to locate the full task folder and all related task docs.
+  Canonical task docs live under `docs/tasks/`.
 - **Step number or name** (optional) — if not specified, defaults to the first incomplete step in dependency order across the entire plan
 
 **IMPORTANT:** Do NOT ask clarifying questions about which document to use. Always resolve the full task folder from the provided path, load the steps guide if present, and load all steps docs in that folder. If no step is specified, automatically pick the first incomplete step across the entire plan. A specific step is only executed when the user explicitly calls it out. Just proceed to "### Phase 1: Load context and validate prerequisites".
@@ -49,6 +50,15 @@ Internally verify you understand:
 
 **Only ask questions if truly blocked** — e.g., the step references a design decision that wasn't made, or there's a genuine ambiguity that cannot be resolved from context. Routine uncertainty should be resolved using best judgment, not by asking.
 
+### Phase 2B: Provider contract gate
+
+Before implementing any step that calls, parses, maps, or persists a third-party API contract:
+
+1. Confirm the task docs include evidence from the `$provider-contract-verification` (`/provider-contract-verification`) skill.
+2. If response shape or casing is missing, run that skill before writing parser or mapper code.
+3. Add or update a fixture/test that encodes the exact provider response shape before accepting parser or mapper code.
+4. If safe verification is impossible and the implementation depends on unknown provider fields, stop and update the plan or ask for the missing evidence.
+
 ### Phase 3: Execute the step
 
 > **Guiding principle:** Act as a senior engineer.
@@ -61,6 +71,7 @@ Internally verify you understand:
 3. Follow existing patterns and conventions
 4. If required work materially expands the step's objective or conflicts with future steps, stop and ask to update the plan
 5. Complete the step's requirements and checklist items as written, without skipping required work
+6. Run the `$doc-alignment` (`/doc-alignment`) skill for the current step's affected markdown scope before marking the step complete. Include relevant `AGENTS.md`, `.ai/guidance/`, and source skill references when implementation, docs, or agent rules changed. Exclude historical `docs/tasks/` and `docs/rollout/` from current-product alignment unless the active task or rollout artifact itself was edited.
 
 ## Output
 
@@ -68,4 +79,4 @@ Provide:
 - Summary of changes made
 - Step status updates
 - Any remaining blockers or questions
-- Prompt for next action (commit, continue, etc.)
+- Prompt for next action (commit, continue, etc.) — **but when invoked via `$step-loop` (`/step-loop`) or `$phase-loop` (`/phase-loop`), follow the `**OVERRIDE:**` / `**OVERRIDE 2:**` clauses in the step's checklist instead of prompting the user. `$step-loop` commits per step; `$phase-loop` commits per plan phase boundary; both override the prompt.**

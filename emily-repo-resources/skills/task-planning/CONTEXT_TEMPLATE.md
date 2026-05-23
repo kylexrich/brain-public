@@ -61,7 +61,14 @@ Status: Draft | Approved
 
 **Impact and considerations:**
 - [Impacted systems, data, UX, or operations]
-- [Operational or rollout considerations]
+- [Operational considerations]
+
+**Rollout:** [`Single deploy` | `Multi-phase: see steps guide` (rollout doc authored during execution at `docs/rollout/<slug>.md`)]
+
+**Phase shape** (include this subsection only when `Rollout: Multi-phase`; omit it entirely for single-deploy tasks):
+- **Phase 1 — [Name]:** [One-line purpose, e.g., "expand: add nullable column to `users`"]
+- **Phase 2 — [Name]:** [One-line purpose, e.g., "backfill: populate column from legacy source"]
+- **Phase 3 — [Name]:** [One-line purpose, e.g., "contract: drop legacy column"]
 
 ---
 

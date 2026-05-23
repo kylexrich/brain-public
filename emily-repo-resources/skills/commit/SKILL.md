@@ -6,7 +6,7 @@ allowed-tools: Bash, Read, Glob, Grep, mcp__linear__*
 
 # Git Commit Skill
 
-Validate, compose, and create one well-structured local commit. If the Linear MCP is available, discover related issues and back-link them to the commit.
+Validate, compose, and create one well-structured local commit. If Linear tooling is available, discover related issues and back-link them to the commit.
 
 ## Triggers
 
@@ -14,11 +14,12 @@ Validate, compose, and create one well-structured local commit. If the Linear MC
 
 ## Rules
 
-1. **Stage everything.** Always `git add .`. Never selectively stage. Never ask which files to include.
+1. **Use the correct staging mode.** Default mode stages all intended work with `git add .`. Staged-only mode is required when invoked by `$phase-loop` or when unrelated user changes are present; in that mode, preserve the current index and commit only the already-staged intended slice.
 2. **Local only.** Never push to a remote. Never include `Co-Authored-By` or any attribution line.
 3. **Validate first.** No commit without a clean CI pass.
 4. **Single commit.** Group all changes into one commit, not many.
 5. **Themes, not files.** Body bullets describe areas of impact, not enumerated paths.
+6. **No one-line commits.** Never use `git commit -m` for repo work. Every commit uses the full template below and `git commit -F -`.
 
 ## Workflow
 
@@ -57,13 +58,21 @@ For mixed grab-bag changes, default to `chore:` (or pick the dominant type and c
 
 ### Step 3 — Stage
 
+Default mode:
+
 ```bash
 git add .
 ```
 
-### Step 4 — Discover Linear issues (if Linear MCP is available)
+Staged-only mode:
 
-**Always run this when the Linear MCP is connected.** Skip entirely if it isn't.
+- Do not run `git add .`.
+- Confirm `git diff --cached` contains the intended commit slice.
+- Confirm any `git diff` unstaged changes are unrelated user work, future-phase work, or otherwise intentionally excluded.
+
+### Step 4 — Discover Linear issues (if Linear tooling is available)
+
+**Always run this when Linear tooling is connected.** Skip entirely if it isn't.
 
 See `{.ai,.claude,.codex}/skills/commit/references/linear-integration.md` for the full discover → confirm flow. It returns either an empty list or a confirmed set of issues, each tagged with a proposed status (`In Progress` or `Done`).
 

@@ -16,10 +16,10 @@ Four CLIs, all on PATH:
 
 | Name | IP |
 |------|----|
-| Bathroom | 192.168.50.236 |
-| Bedroom | 192.168.50.39 |
+| Bathroom | 192.168.50.237 |
+| Bedroom | 192.168.50.40 |
 | Kitchen | 192.168.50.244 |
-| Living Room | 192.168.50.114 |
+| Living Room | 192.168.50.115 |
 
 Target with `--name "<Room>"`. IPs rarely needed — `--name` handles discovery.
 
@@ -51,6 +51,24 @@ This is a JSON array of recent picks. Each entry has: `timestamp`, `request` (wh
 
 **After every content pick**, append a new entry to the file (include the `category`). Keep the last 20 entries max — trim older ones when writing.
 
+## Room Targeting — Default Behaviour
+
+**When Kyle targets a specific room/speaker without further instruction, all other speakers stay completely untouched** — same content, same volume, same playback state.
+
+This means:
+- Do NOT regroup speakers or touch the party group before acting on the target room.
+- Solo the target room from any existing group using `BecomeCoordinatorOfStandaloneGroup` via direct UPnP (safer than `sonos-pr3 group solo`, which can dissolve the entire group):
+  ```bash
+  curl -s "http://<target-ip>:1400/MediaRenderer/AVTransport/Control" \
+    -X POST -H "Content-Type: text/xml; charset=utf-8" \
+    -H 'SOAPACTION: "urn:schemas-upnp-org:service:AVTransport:1#BecomeCoordinatorOfStandaloneGroup"' \
+    -d '...BecomeCoordinatorOfStandaloneGroup...'
+  ```
+- After soloing, verify the remaining group is still intact and playing before touching the target room.
+- Volume/mode defaults apply only to the target room. Do not adjust other speakers.
+
+Exception: if Kyle explicitly asks to change something across all speakers ("everywhere", "all rooms", "same for all"), apply the party group flow as normal.
+
 ## Execution Model
 
 Four steps, every time:
@@ -68,7 +86,7 @@ Four steps, every time:
 
 ```bash
 # Quick reachability check — curl each speaker's description endpoint
-for ip in 192.168.50.236 192.168.50.39 192.168.50.244 192.168.50.114; do
+for ip in 192.168.50.237 192.168.50.40 192.168.50.244 192.168.50.115; do
   echo -n "$ip: "
   curl -s --connect-timeout 2 "http://$ip:1400/xml/device_description.xml" \
     | grep -o '<roomName>[^<]*</roomName>' || echo "DOWN"
@@ -151,7 +169,7 @@ curl -s "http://<speaker-ip>:1400/MediaRenderer/RenderingControl/Control" \
   | grep -o '<CurrentVolume>[^<]*</CurrentVolume>'
 ```
 
-Speaker IPs: Bathroom `192.168.50.236`, Bedroom `192.168.50.39`, Kitchen `192.168.50.244`, Sonos `192.168.50.114`.
+Speaker IPs: Bathroom `192.168.50.237`, Bedroom `192.168.50.40`, Kitchen `192.168.50.244`, Living Room `192.168.50.115`.
 
 ### Grouping
 
@@ -328,7 +346,7 @@ If the current Sonos group coordinator is unreachable (powered off, network issu
 
 ```bash
 # 1. Identify a reachable speaker IP (from the health check)
-WORKING_IP="192.168.50.114"  # example: Sonos
+WORKING_IP="192.168.50.115"  # example: Living Room
 
 # 2. Make each reachable speaker its own standalone coordinator
 for ip in <all reachable IPs>; do
@@ -363,10 +381,10 @@ sonos-pr3 status --ip "$COORD_IP" --format json
 
 | Name | IP | UUID |
 |------|----|------|
-| Bathroom | 192.168.50.236 | RINCON_804AF295E39201400 |
-| Bedroom | 192.168.50.39 | RINCON_804AF28C931801400 |
+| Bathroom | 192.168.50.237 | RINCON_804AF295E39201400 |
+| Bedroom | 192.168.50.40 | RINCON_804AF28C931801400 |
 | Kitchen | 192.168.50.244 | RINCON_804AF299AA2601400 |
-| Living Room | 192.168.50.114 | RINCON_F0F6C1641FFA01400 |
+| Living Room | 192.168.50.115 | RINCON_F0F6C1641FFA01400 |
 
 **Volume on grouped speakers after recovery:** `sonos-pr3 volume set` only sets the coordinator's volume. Use `brain music volume-set <level> --name "<coordinator>"` to set every group member to the exact same absolute level via RenderingControl UPnP.
 

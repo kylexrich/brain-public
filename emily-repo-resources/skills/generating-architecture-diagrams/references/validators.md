@@ -1,10 +1,10 @@
 # Parallel Validator Prompts
 
-Run these as six independent subagents in a **single message** (parallel fan-out). Each prompt is self-contained; none assume conversation context. All six return pedantic `✅ / ❌ / ⚠` punch lists with file-and-line citations. Apply every ❌ and every justifiable ⚠ before declaring the task done.
+Run these as six independent subagents in a **single message** (parallel fan-out). Each prompt is self-contained; none assume conversation context. All six return pedantic `PASS / FAIL / WARN` punch lists with file-and-line citations. Apply every FAIL and every justifiable WARN before declaring the task done.
 
 Before dispatching, substitute the two placeholders at the top of each prompt:
 
-- `<TOPOLOGY_PATH>` — always `docs/reference/runtime-topology.html`.
+- `<TOPOLOGY_PATH>` — always `docs/architecture/runtime-topology.html`.
 - `<REPO_ROOT>` — the absolute path to the target project.
 
 Keep each report ≤250 words. Adjust the "Primary files to read" list per project (see §Tailoring below).
@@ -19,7 +19,7 @@ I have an architecture diagram at <TOPOLOGY_PATH>. Verify every claim it makes a
 For each claim:
 1. Name the claim (quote the node label or subgraph title).
 2. Read the underlying IaC (CDK / Terraform / Pulumi / K8s manifests / Serverless / SST / Dockerfiles / compose) and the entry-point source that gates role selection (e.g., SERVICE_ROLE, APP_MODE branches in main/index files).
-3. Report ✅ accurate / ❌ wrong (explain with file:line) / ⚠ ambiguous (explain).
+3. Report PASS accurate / FAIL wrong (explain with file:line) / WARN ambiguous (explain).
 
 Verify at minimum:
 - Count and identity of deployable units.
@@ -44,7 +44,7 @@ Verify:
 4. Each drawn edge (compute→store) — is the direction/origin correct? Does any compute unit touch a store the diagram omits? Does the diagram draw an edge that does not exist in code?
 5. Any claimed properties (multi-AZ, replicas, encryption at rest) match IaC.
 
-Report ✅ / ❌ / ⚠ with file:line citations. ≤250 words.
+Report PASS / FAIL / WARN with file:line citations. ≤250 words.
 ```
 
 ## 3 — Async / events
@@ -54,13 +54,13 @@ I have an architecture diagram at <TOPOLOGY_PATH>. Verify the async plane (queue
 
 Verify:
 1. Exact inventory of queues/topics/streams vs what IaC creates (including DLQs).
-2. Producer edges — which compute units actually enqueue/publish to each, based on source (grep for producers, not just IAM grants).
+2. Producer edges — which compute units actually enqueue/publish to each, based on source (`rg` for producers, not just IAM grants).
 3. Consumer edges — which compute units consume from each.
 4. Scheduler/event-bus fan-out targets.
 5. Alarm/notification pipeline (e.g., CloudWatch alarm → SNS → SQS → handler).
 6. Any queues that were renamed / removed / added but not reflected on the diagram.
 
-Report ✅ / ❌ / ⚠ with file:line citations. ≤250 words.
+Report PASS / FAIL / WARN with file:line citations. ≤250 words.
 ```
 
 ## 4 — Edge / ingress
@@ -76,7 +76,7 @@ Verify:
 5. Webhook ingress paths — do external provider webhooks traverse the same CDN/LB, or do they hit the origin directly? Are there origin-verify / signature-verify hops worth annotating?
 6. Optional/secondary distributions that the diagram may have omitted.
 
-Report ✅ / ❌ / ⚠ with file:line citations. ≤250 words.
+Report PASS / FAIL / WARN with file:line citations. ≤250 words.
 ```
 
 ## 5 — Third-party integrations
@@ -91,7 +91,7 @@ Verify:
 4. Are there integrations in source that the diagram omits? (Slack, Linear, analytics, error tracking, CRM, calendaring, etc.)
 5. Are there installed-but-unused packages that the diagram falsely elevates to an integration?
 
-Report ✅ / ❌ / ⚠ with file:line citations and the correct edge origin when it differs. ≤300 words.
+Report PASS / FAIL / WARN with file:line citations and the correct edge origin when it differs. ≤300 words.
 ```
 
 ## 6 — Security / observability
@@ -107,7 +107,7 @@ Verify:
 5. Metric pipelines (EMF, Prometheus, OTel, etc.).
 6. Alarm → notification → handler fanout; confirm the topic name and subscription wiring.
 
-Report ✅ / ❌ / ⚠ with file:line citations. ≤250 words.
+Report PASS / FAIL / WARN with file:line citations. ≤250 words.
 ```
 
 ---

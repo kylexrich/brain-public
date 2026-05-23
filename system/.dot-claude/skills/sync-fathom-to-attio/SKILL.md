@@ -84,7 +84,7 @@ For each meeting, the people who get notes are: **calendar invitees with `is_ext
 
 If a meeting has zero external attendees, skip it entirely — it's an internal call and doesn't belong in CRM.
 
-If two meetings produce notes for the same person in the same run, that's fine — add both. Don't dedupe across meetings; each meeting is its own record.
+If two meetings produce notes for the same person in the same run, that's fine — add both. Don't dedupe across meetings; each meeting is its own record. **DO NOT ADD MEETINGS WHOSE ONLY ATTENDEES END IN @emlyai.ca**.
 
 ### 4. Upsert the person in Attio
 

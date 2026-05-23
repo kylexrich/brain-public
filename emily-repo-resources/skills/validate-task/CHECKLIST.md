@@ -47,9 +47,14 @@ Execute each section systematically and document findings.
 ### External Research Validation
 
 - [ ] Web search to verify third-party API assumptions
+- [ ] For every third-party API touched by the task, run or verify the `$provider-contract-verification` (`/provider-contract-verification`) skill
+- [ ] Fail validation if provider docs only prove endpoint existence or parameters while omitting response body shape for fields the implementation will parse
+- [ ] Verify steps require fixtures/tests that encode exact provider payload casing when parser or mapper code is in scope
 - [ ] Web search to verify technical approach is current best practice
 - [ ] Web search to verify any external service capabilities/limitations
 - [ ] Verify security considerations align with industry standards
+- [ ] Prefer the **FireCrawl MCP** and/or **Context7 MCP** when available for the doc verifications above — they pull live, source-of-truth docs and beat training-data recall. Only fall back to generic web search if neither MCP is connected.
+- [ ] Confirm referenced API versions are the **most recent / best** supported (model IDs, SDK versions, endpoint shapes, deprecations) — verify via FireCrawl/Context7 (or web search as a fallback), not training-data recall.
 
 ## 5) Completeness Check
 
@@ -100,6 +105,15 @@ Execute each section systematically and document findings.
 - [ ] Is the rollback plan actually executable?
 - [ ] Are there hidden risks not mentioned in the documents?
 - [ ] Is observability sufficient to detect problems?
+- [ ] Read `docs/rollout/AGENTS.md` (single source of truth for gate criteria) and verify the plan's rollout-doc decision against it. If the gate fires, the plan must reflect multi-phase rollout (see below)
+- [ ] The rollout doc itself and any migration/backfill/cleanup scripts are **not** expected to exist yet at planning time. Validate instead that the plan contains the work to produce them:
+  - The context doc has a `Phase shape` subsection listing each phase with a one-line purpose
+  - The steps guide step index has a `Phase` column with a value for every step
+  - Every step in every steps doc carries a `**Phase:**` metadata field
+  - There is an explicit plan step for authoring `docs/rollout/<slug>.md`
+  - There is an explicit plan step for each Prisma migration, backfill script, and cleanup script the rollout will need (cross-checked against the `Phase shape` subsection — every phase that implies one of these has the corresponding step)
+  - The context doc's `Rollout:` field matches the decision (`Single deploy` or `Multi-phase: see steps guide`)
+- [ ] If no rollout is planned: the plan genuinely fits `single commit + single deploy + (optional) one migration + (optional) one backfill` with no inter-deploy ordering constraints and no external-system changes required for success
 
 ## 8) Execution Feasibility
 

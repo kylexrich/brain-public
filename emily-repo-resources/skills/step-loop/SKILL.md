@@ -22,17 +22,20 @@ Execute a full task plan by repeatedly running the $step-execution (`/step-execu
 2. Identify step order, dependencies, completion status, and the steps doc for each step using the steps guide when present; otherwise derive ordering from step numbers across all steps docs.
 3. Loop through steps in dependency order:
    - Select the next incomplete step.
-   - Run the `$step-execution` (`/step-execution`) skill for that step using the input to the current `$step-execution` (`/step-execution`) skill.
+   - Run the `$step-execution` (`/step-execution`) skill for that step using the resolved task folder and selected step from the current `$step-loop` (`/step-loop`) invocation.
 4. After each step:
+   - Ensure `$doc-alignment` (`/doc-alignment`) has run for the affected current-doc scope.
    - Ensure the steps guide index and the steps doc metadata/checklists are updated, and the `$commit` (`/commit`) skill is run to commit the fully completed step. Goal: One commit per step.
    - If the step reveals a significant blocker that requires a user decision, stop and ask. In most cases, use your best judgment and continue.
 5. Continue until all steps are marked complete.
+6. Run a final `$doc-alignment` (`/doc-alignment`) pass for all current source-of-truth docs touched by the completed task. Exclude historical `docs/tasks/` and `docs/rollout/` unless the active task or rollout artifact itself was edited. If this pass changes docs, commit the fix with the relevant final step.
 
 ## Guardrails
 
 - Treat the `$step-execution` (`/step-execution`) skill workflow as authoritative implementation process for each step.
+- `$step-loop` owns the commit policy when it invokes `$step-execution`: do not ask the user after each step; commit each fully completed step exactly once with the `$commit` (`/commit`) skill.
 
 ## Example inputs
 
-- `.ai/tasks/2026-01-09/retell-webhook-processing/retell-webhook-processing-context.md`
-- `.ai/tasks/2026-01-09/retell-webhook-processing/retell-webhook-processing-steps-guide.md`
+- `docs/tasks/2026-02-26/issue-5-durable-queue-webhook-runtime-duplication/issue-5-durable-queue-webhook-runtime-duplication-context.md`
+- `docs/tasks/2026-02-26/issue-5-durable-queue-webhook-runtime-duplication/issue-5-durable-queue-webhook-runtime-duplication-steps-guide.md`

@@ -40,7 +40,7 @@ Use `{.ai,.claude,.codex}/skills/task-planning/CONTEXT_TEMPLATE.md`, `{.ai,.clau
 - [ ] Define scope boundaries and explicit non-goals
 - [ ] List constraints (time, policy, tech, compliance, UX)
 - [ ] Identify stakeholders and user personas
-- [ ] Search `.ai/tasks/` for similar or related plans
+- [ ] Search `docs/tasks/` for similar or related plans
 - [ ] Define explicit acceptance criteria (what must be true for the change to be considered complete)
 - [ ] List out-of-scope edge cases to avoid over-engineering (unlikely scenarios intentionally not addressed)
 
@@ -70,18 +70,16 @@ Use `{.ai,.claude,.codex}/skills/task-planning/CONTEXT_TEMPLATE.md`, `{.ai,.clau
 ### Backend (`app/`)
 
 - [ ] Review services in `app/src/services/`
-- [ ] Review controllers in `app/src/controllers/`
-- [ ] Review validators in `app/src/validators/`
-- [ ] Review DI registration in `app/src/config/DependencyInjector.ts`
-- [ ] Review route registration in `app/src/loaders/RouterLoader.ts`
+- [ ] Review controllers/services/validators in the relevant `app/src/api/<feature>/` folders
+- [ ] Review DI registration in `app/src/DependencyInjector.ts`
+- [ ] Review route registration in `app/src/RouterLoader.ts`
 - [ ] Identify data access patterns and transaction boundaries
 
 ### Frontend (`client/`)
 
-- [ ] Review components in `client/src/components/`
-- [ ] Review hooks in `client/src/hooks/`
-- [ ] Review stores in `client/src/stores/`
-- [ ] Review API clients in `client/src/api/`
+- [ ] Review route components in `client/app/`
+- [ ] Review shared components in `client/components/`
+- [ ] Review hooks, stores, and API helpers in `client/lib/`
 - [ ] Identify UI patterns, loading states, and error handling conventions
 
 ### Contracts (`common/`)
@@ -98,10 +96,14 @@ Use `{.ai,.claude,.codex}/skills/task-planning/CONTEXT_TEMPLATE.md`, `{.ai,.clau
 ## 6) External research and best practices
 
 - [ ] When integrations are involved, review third-party API docs
+- [ ] For third-party APIs touched by the task, run the `$provider-contract-verification` (`/provider-contract-verification`) skill and add its evidence block to the context doc
+- [ ] Treat sparse provider docs or missing response body examples as incomplete evidence, not as permission to infer fields from internal naming style
 - [ ] Research best practices for the domain (security, UX, reliability)
 - [ ] Note relevant standards or compliance requirements
 - [ ] Summarize findings and design implications
 - [ ] Resolve researchable questions from docs/best practices; do not defer them to open questions
+- [ ] Prefer the **FireCrawl MCP** and/or **Context7 MCP** when available for verifying API and other documentation — they pull live, source-of-truth docs and beat training-data recall. Only fall back to generic web search if neither MCP is connected.
+- [ ] Verify you are referencing the **most recent / best** API version (model IDs, SDK versions, endpoint shapes, deprecations) — confirm via FireCrawl/Context7 (or web search as a fallback). Do not rely on training-data versions.
 
 ## 7) Requirements and design decisions
 
@@ -117,11 +119,20 @@ Use `{.ai,.claude,.codex}/skills/task-planning/CONTEXT_TEMPLATE.md`, `{.ai,.clau
 
 - [ ] Identify risks and mitigations
 - [ ] Identify observability needs (logs, metrics)
+- [ ] Evaluate the rollout doc gate. Read `docs/rollout/AGENTS.md` (single source of truth for when the gate fires); default is **no rollout doc** unless that doc's criteria are met
+- [ ] If the gate fires:
+  - Record the **phase shape** (list of phases with a one-line purpose each, e.g., expand / backfill / contract) in the context doc's "Phase shape" section
+  - Add a `Phase` column to the steps guide step index, with a value for every step
+  - Add a `**Phase:**` metadata field to each step in each steps doc
+  - Add explicit plan steps for: authoring `docs/rollout/<slug>.md` (using `docs/rollout/TEMPLATE.md`), authoring each Prisma migration, each backfill script, and each cleanup script the rollout will need
+  - Do **NOT** author the rollout doc or any of those scripts at planning time — they are produced during step execution when paths, names, and edge cases are known
+- [ ] Set the context doc's `Rollout:` field to either `Single deploy` or `Multi-phase: see steps guide`
 
 ## 9) Validation
 
 - [ ] Define how correctness will be verified
 - [ ] Identify documentation updates required
+- [ ] Run the `$doc-alignment` (`/doc-alignment`) skill for the planned scope and reflect required current-doc updates in the plan
 
 ## 10) Dependency ordering and step design
 
@@ -133,7 +144,7 @@ Use `{.ai,.claude,.codex}/skills/task-planning/CONTEXT_TEMPLATE.md`, `{.ai,.clau
 - [ ] Split steps into multiple steps docs with a maximum of 5 steps per doc; create as many steps docs as needed
 - [ ] Ensure each step includes a checklist, clear "Done When" criteria, and any information needed to execute the step
 - [ ] **DO NOT REMOVE** the "**OVERRIDE:**" comment. This is meant to stay within the step checklist directly.
-- [ ] Add a final step that verifies end-to-end using `$e2e-review` (`/e2e-review`), and keep it last in the step index and in the final steps doc
+- [ ] Add a final step that verifies end-to-end using `$e2e-review` (`/e2e-review`) and `$doc-alignment` (`/doc-alignment`), and keep it last in the step index and in the final steps doc
 - [ ] Explicitly declare dependencies for each step:
   - If a step depends on other steps, list them in **Prereqs** (e.g., `1, 2`)
   - If a step has no dependencies, use `None`

@@ -4,13 +4,13 @@
 # [Title] - Steps Guide
 
 **Context doc (source of truth):**
-- `.ai/tasks/YYYY-MM-DD/<slug>/<slug>-context.md`
+- `docs/tasks/YYYY-MM-DD/<slug>/<slug>-context.md`
 
 **Steps docs (max 5 steps per doc):**
-- `.ai/tasks/YYYY-MM-DD/<slug>/<slug>-steps-1-5.md`
-- `.ai/tasks/YYYY-MM-DD/<slug>/<slug>-steps-6-10.md`
+- `docs/tasks/YYYY-MM-DD/<slug>/<slug>-steps-1-5.md`
+- `docs/tasks/YYYY-MM-DD/<slug>/<slug>-steps-6-10.md`
 
-**Coordination rule:** Each step is completed by one agent using the `$step-execution` (`/step-execution`) skill.
+**Coordination rule:** Each step is completed by one agent using the `$step-execution` (`/step-execution`) skill. Every step that changes implementation or current markdown must finish with `$doc-alignment` (`/doc-alignment`) for the affected current markdown scope, including relevant `AGENTS.md`, `.ai/guidance/`, and source skill references.
 Do not start a step until all the **Prereqs:** for that step are completed.
 
 > **NOTE:** Another AI agent may be completing an independent step in the same git worktree or branch at the same time. This is expected.
@@ -25,10 +25,22 @@ Do not start a step until all the **Prereqs:** for that step are completed.
 
 ## Step index
 
+For single-deploy tasks (the 99% case), omit the `Phase` column.
+For multi-phase rollout tasks (when the rollout doc gate in `docs/rollout/AGENTS.md` fires), include the `Phase` column and assign every step a phase value. Steps that produce the rollout doc itself or any migration/backfill/cleanup script are normal rows in the relevant phase. At execution time, `$phase-loop` (`/phase-loop`) reads these phase values and lands one commit per phase boundary.
+
+Single-deploy example:
+
 | Step | Name | Status | Owner | Doc |
 | --- | --- | --- | --- | --- |
-| 1 | [Name] | Incomplete | [Name or ai handle] | `.ai/tasks/YYYY-MM-DD/<slug>/<slug>-steps-1-4.md` |
-| N | Final validation & cleanup (required, always last) | Incomplete | [Name or ai handle] | `.ai/tasks/YYYY-MM-DD/<slug>/<slug>-steps-13-16.md` |
+| 1 | [Name] | Incomplete | [Name or ai handle] | `docs/tasks/YYYY-MM-DD/<slug>/<slug>-steps-1-5.md` |
+| N | Final validation & cleanup (required, always last) | Incomplete | [Name or ai handle] | `docs/tasks/YYYY-MM-DD/<slug>/<slug>-steps-N-M.md` |
+
+Multi-phase example:
+
+| Step | Name | Phase | Status | Owner | Doc |
+| --- | --- | --- | --- | --- | --- |
+| 1 | [Name] | 1 | Incomplete | [Name or ai handle] | `docs/tasks/YYYY-MM-DD/<slug>/<slug>-steps-1-5.md` |
+| N | Final validation & cleanup (required, always last) | [final phase] | Incomplete | [Name or ai handle] | `docs/tasks/YYYY-MM-DD/<slug>/<slug>-steps-N-M.md` |
 
 ---
 

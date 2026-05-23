@@ -1,6 +1,6 @@
 # Linear Integration — Discover, Confirm, Back-link
 
-Used by Step 4 of the `$commit` (`/commit`) skill when the Linear MCP is connected. Returns a confirmed list of related Linear issues (each with a proposed status) for inclusion in the commit body, or an empty list when nothing matches or the user declines.
+Used by Step 4 of the `$commit` (`/commit`) skill when Linear tooling is connected. Returns a confirmed list of related Linear issues (each with a proposed status) for inclusion in the commit body, or an empty list when nothing matches or the user declines.
 
 The post-commit write phase (status update + auto-assign + comment) lives in Step 6 of the parent skill — not here.
 

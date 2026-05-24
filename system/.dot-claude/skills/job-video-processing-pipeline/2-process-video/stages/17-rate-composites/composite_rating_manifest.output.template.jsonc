@@ -1,0 +1,31 @@
+// composite_rating_manifest.json — output artifact written by stage 17-rate-composites
+// Written to: <stream_dir>/meta/outputs/composite_rating_manifest.json
+{
+  "generated_at": "ISO8601",
+  "source_composite_manifest": "/absolute/path/to/composite_clip_production_manifest.json",
+  "rater_count": 3,
+  "aggregation_rule": "all-POST → publish; any-REJECT → reject; otherwise → hold",
+  "composite_count": 3,
+  "publish_count": 1,
+  "hold_count": 2,
+  "reject_count": 0,
+  "composites": [
+    {
+      "filename": "01-composite-title.mp4",
+      "title": "Composite Title",
+      "vibe_tier": "FAILURE_AND_RECOVERY | CHESS_CODE_FUSION | ENGINEERING_OPINION | AI_ORCHESTRATION_MOMENT | LIVE_INCIDENT | CHESS_INSIGHT | FOUNDER_LIFE",
+      "format_category": "GAME_RECAP | TOPIC_DEEP_DIVE | JOURNEY_ARC | LIVE_INCIDENT_ARC",
+      "raters": [
+        {
+          "rater_id": "rater-1",
+          "model": "claude-sonnet-4-6",
+          "verdict": "POST | BORDERLINE | REJECT",
+          "rationale": "2-4 sentences grounded in the segment transcripts and the binding thesis",
+          "concerns": ["specific weaknesses"],
+          "rated_at": "ISO8601"
+        }
+      ],
+      "aggregate_verdict": "publish | hold | reject"
+    }
+  ]
+}

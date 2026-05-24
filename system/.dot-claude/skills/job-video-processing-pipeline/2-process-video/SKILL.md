@@ -90,9 +90,10 @@ independently — their failures are recorded in `video-state.json` and reported
 - [ ] 5. Generation Stages
 - [ ] 6. YouTube Publish
 - [ ] 7. Clip Production Stages
-- [ ] 8. Upload Stages
-- [ ] 9. Finalize State
-- [ ] 10. Verify
+- [ ] 8. Rating Stages
+- [ ] 9. Upload Stages
+- [ ] 10. Finalize State
+- [ ] 11. Verify
 ```
 
 ---
@@ -122,8 +123,10 @@ Create an agent team via `TeamCreate` before starting the stages. You (the orche
 | 13 | youtube-publish            | Publication | youtube-metadata → YouTube API                |
 | 14 | clip-production            | Production  | clip_suggestions.json → ffmpeg clip files     |
 | 15 | composite-clip-production  | Production  | composite_clip_suggestions.json → composites  |
-| 16 | upload-clips               | Upload      | clip_production_manifest.json → YouTube uploads |
-| 17 | upload-composites          | Upload      | composite_clip_production_manifest.json → YouTube uploads with chapters |
+| 16 | rate-clips                 | Rating gate | 3 sonnet sub-agents per clip → aggregate verdict (publish/hold/reject) |
+| 17 | rate-composites            | Rating gate | 3 sonnet sub-agents per composite → aggregate verdict             |
+| 18 | upload-clips               | Upload      | Only clips with `publish` verdict → YouTube       |
+| 19 | upload-composites          | Upload      | Only composites with `publish` verdict → YouTube with chapters |
 
 ### 1. Load State
 
@@ -157,6 +160,8 @@ Build these paths from `stream_dir` and `stream_key`, then pass the relevant sub
 | `clip_production_manifest_file`          | `<stream_dir>/meta/outputs/clip_production_manifest.json`            |
 | `composite_clips_output_dir`             | `<stream_dir>/meta/outputs/composite-clips`                          |
 | `composite_clip_production_manifest_file`| `<stream_dir>/meta/outputs/composite_clip_production_manifest.json`  |
+| `clip_rating_manifest_file`              | `<stream_dir>/meta/outputs/clip_rating_manifest.json`               |
+| `composite_rating_manifest_file`         | `<stream_dir>/meta/outputs/composite_rating_manifest.json`          |
 | `clip_upload_manifest_file`              | `<stream_dir>/meta/outputs/clip_upload_manifest.json`               |
 | `composite_clip_upload_manifest_file`    | `<stream_dir>/meta/outputs/composite_clip_upload_manifest.json`     |
 
@@ -208,28 +213,43 @@ Run stages 05–12 in order. Pass `force` to each stage if set. Each stage's fai
 1. **When** stage 08 (clip-suggestions) succeeded: Run `14-clip-production`. Pass `force` if set. Record outcome in video state. Write `video-state.json` to disk. **Otherwise:** Record clip-production as skipped. Write `video-state.json` to disk.
 2. **When** stage 09 (composite-clip-suggestions) succeeded: Run `15-composite-clip-production`. Pass `force` if set. Record outcome in video state. Write `video-state.json` to disk. **Otherwise:** Record composite-clip-production as skipped. Write `video-state.json` to disk.
 
-### 8. Upload Stages
+### 8. Rating Stages
 
-1. **When** stage 14 (clip-production) succeeded and produced at least one clip with `status = "success"`: Run `16-upload-clips` with
-   `clip_production_manifest_file`, `source_stream_file`, `upload_manifest_file = clip_upload_manifest_file`, and `privacy_status` from
-   the orchestrator default (or override). Pass `force` if set. Record outcome in video state. Write `video-state.json` to disk.
-   **Otherwise:** Record upload-clips as skipped.
-2. **When** stage 15 (composite-clip-production) succeeded and produced at least one composite with `status = "success"`: Run
-   `17-upload-composites` with `composite_clip_production_manifest_file`, `source_stream_file`, `upload_manifest_file =
-   composite_clip_upload_manifest_file`, and `privacy_status`. Pass `force` if set. Record outcome in video state. Write
-   `video-state.json` to disk. **Otherwise:** Record upload-composites as skipped.
+These stages are the strict quality gate that determines what actually gets uploaded. Each spawns N independent sonnet sub-agents (default 3)
+per produced clip/composite and aggregates verdicts. Only items with aggregate verdict `publish` are uploaded by the next step. Items that
+land `hold` or `reject` stay on disk and are flagged in the rating manifest with full per-rater rationales.
+
+1. **When** stage 14 (clip-production) succeeded with at least one `status = "success"` clip: Run `16-rate-clips` with
+   `clip_production_manifest_file`, `chunks_dir`, `output_file = clip_rating_manifest_file`. Pass `force` if set. Record outcome in video
+   state. **Otherwise:** Record rate-clips as skipped.
+2. **When** stage 15 (composite-clip-production) succeeded with at least one `status = "success"` composite: Run `17-rate-composites` with
+   `composite_clip_production_manifest_file`, `chunks_dir`, `output_file = composite_rating_manifest_file`. Pass `force` if set. Record
+   outcome. **Otherwise:** Record rate-composites as skipped.
+
+### 9. Upload Stages
+
+Uploads are conditional on rating success. A clip/composite is uploaded only if its production succeeded AND its rating aggregate verdict
+is `publish`. Items with verdicts `hold` or `reject` are intentionally not uploaded — they're kept on disk for manual review.
+
+1. **When** stage 14 succeeded AND stage 16 (rate-clips) succeeded: Run `18-upload-clips` with `clip_production_manifest_file`,
+   `clip_rating_manifest_file`, `source_stream_file`, `upload_manifest_file = clip_upload_manifest_file`, and `privacy_status` from the
+   orchestrator default (or override). Pass `force` if set. Record outcome. **Otherwise:** Record upload-clips as skipped.
+2. **When** stage 15 succeeded AND stage 17 (rate-composites) succeeded: Run `19-upload-composites` with
+   `composite_clip_production_manifest_file`, `composite_rating_manifest_file`, `source_stream_file`, `upload_manifest_file =
+   composite_clip_upload_manifest_file`, and `privacy_status`. Pass `force` if set. Record outcome. **Otherwise:** Record
+   upload-composites as skipped.
 
 **Default privacy:** `unlisted` (sharable by URL, not in search/recommendations, doesn't flood the channel feed before review).
 Override via the orchestrator's `privacy_status` input or per-stage flag if you want `private` or `public`.
 
-### 9. Finalize State
+### 10. Finalize State
 
 1. Write the final `video-state.json` to `<stream_dir>/meta/pipeline/video-state.json` conforming to `video_state.output.template.jsonc`.
 2. Build and return the result JSON.
 
-### 10. Verify
+### 11. Verify
 
-- [ ] `video-state.json` exists and contains entries for all stages (including `upload_clips` and `upload_composites`)
+- [ ] `video-state.json` exists and contains entries for all stages (including `rate_clips`, `rate_composites`, `upload_clips`, `upload_composites`)
 - [ ] Every stage has a status of `success`, `error`, or `skipped` — none left `pending`
 - [ ] Result JSON includes correct `stages_succeeded`, `stages_failed`, and `stages_skipped` arrays
 - [ ] No unresolved errors in state for stages marked `success`

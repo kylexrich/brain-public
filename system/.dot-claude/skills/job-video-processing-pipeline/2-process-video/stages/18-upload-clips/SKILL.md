@@ -1,13 +1,13 @@
 ---
-name: 16-upload-clips
-description: "Upload each produced clip MP4 from stage 14 to YouTube as a standalone video with a per-clip title/description, and write a local upload manifest. Pure automation — no LLM."
+name: 18-upload-clips
+description: "Upload each produced clip MP4 from stage 14 to YouTube — gated by stage 16 rating (only clips with aggregate_verdict='publish' are uploaded). Pure automation — no LLM."
 ---
 
-# Stage 16 — Upload Clips
+# Stage 18 — Upload Clips
 
-**Mission:** Take the produced clip MP4 files from stage 14, upload each one to YouTube as a new standalone video via the YouTube Data API
-v3 `videos.insert` endpoint, and produce a manifest recording the upload outcome (video ID, URL, privacy status) per clip. All upload
-metadata is stored locally alongside the source MP4.
+**Mission:** Upload the produced clip MP4s that passed the stage 16 quality gate (3-rater aggregate verdict = `publish`) to YouTube as
+standalone videos. Skip clips that landed `hold` or `reject` — those stay on disk for manual review but never go to YouTube
+automatically. Per-clip upload outcomes are written to a local manifest.
 
 ---
 
@@ -21,6 +21,12 @@ clip_production_manifest_file:
   required: true
   description: Absolute path to clip_production_manifest.json (stage 14 output).
   constraints: Must exist and contain a valid clips array.
+
+clip_rating_manifest_file:
+  type: string
+  required: true
+  description: Absolute path to clip_rating_manifest.json (stage 16 output). Gates the upload — only clips with aggregate_verdict='publish' are uploaded.
+  constraints: Must exist on disk. Every clip in clip_production_manifest_file must have a corresponding entry here.
 
 source_stream_file:
   type: string
@@ -84,8 +90,8 @@ clip_upload_manifest:
 
 ### Dependency Gate
 
-This stage only runs when stage 14 (clip-production) succeeded and produced at least one clip with `status = "success"`. If stage 14 did not
-succeed, the orchestrator skips this stage.
+This stage only runs when stage 14 (clip-production) succeeded AND stage 16 (rate-clips) succeeded. If either failed, the orchestrator
+skips this stage entirely — uploads are conditional on having ratings, never unrated.
 
 ---
 
@@ -106,8 +112,11 @@ succeed, the orchestrator skips this stage.
 ### 2. Load inputs
 
 1. Read `clip_production_manifest_file` to get the list of produced clips with their per-clip metadata (title, description, format, vibe_tier, etc.).
-2. Read `source_stream_file` to get the source-stream YouTube URL — used to substitute `{source_stream_url}` into each clip's description.
-3. Filter the clips list to only those with `status = "success"` (clips that failed production cannot be uploaded).
+2. Read `clip_rating_manifest_file` to get the rating verdict per clip.
+3. Read `source_stream_file` to get the source-stream YouTube URL — used to substitute `{source_stream_url}` into each clip's description.
+4. **Filter the clips list to only those with `production.status = "success"` AND `rating.aggregate_verdict = "publish"`.** Clips that
+   failed production cannot be uploaded; clips with rating `hold` or `reject` are intentionally not uploaded. Record the skip reason
+   (`production_failed`, `rating_hold`, `rating_reject`) for every filtered-out clip so the upload manifest captures the full picture.
 
 ### 3. Upload each clip
 
@@ -140,19 +149,21 @@ Write `upload_manifest_file` conforming to `clip_upload_manifest.output.template
 
 - `generated_at`: current ISO8601 timestamp
 - `source_clip_manifest`: absolute path to the input clip production manifest
+- `source_rating_manifest`: absolute path to the input clip rating manifest
 - `source_stream_url`: the substituted URL from `source_stream.json`
 - `default_privacy_status`: the privacy_status used as default for this run
-- `clip_count`: total clips attempted
-- `clips`: array of per-clip upload results
+- `clip_count`: total clips considered (production-success ∪ rating-evaluated)
+- `clips`: array of per-clip results — uploaded clips have `status = "success"` and an upload payload; skipped clips have `status = "skipped"` and a `skip_reason` of `production_failed`, `rating_hold`, or `rating_reject`
 
 ### 5. Verify
 
 - [ ] `upload_manifest_file` exists and is non-empty
-- [ ] Top-level keys `generated_at`, `source_clip_manifest`, `source_stream_url`, `default_privacy_status`, `clip_count`, and `clips` are present
+- [ ] Top-level keys `generated_at`, `source_clip_manifest`, `source_rating_manifest`, `source_stream_url`, `default_privacy_status`, `clip_count`, and `clips` are present
 - [ ] `clip_count` matches `clips` array length
-- [ ] Every clip entry has populated `filename`, `title`, `vibe_tier`, `privacy_status`, `status` (`success` or `error`)
-- [ ] Every clip with `status: "success"` has a populated `video_id` (11 chars) and a `url`
+- [ ] Every clip entry has populated `filename`, `title`, `vibe_tier`, `aggregate_verdict`, `status` (`success`, `error`, or `skipped`)
+- [ ] Every clip with `status: "success"` has a populated `video_id` (11 chars), `url`, and `privacy_status`
 - [ ] Every clip with `status: "error"` has a populated `error` field
-- [ ] At least one clip has `status: "success"`
+- [ ] Every clip with `status: "skipped"` has a populated `skip_reason` (`production_failed`, `rating_hold`, or `rating_reject`)
+- [ ] If any clips were rated `publish`, at least one such clip has `status: "success"` (i.e. uploads actually ran)
 
 If any check fails: do not return success.

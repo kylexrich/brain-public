@@ -1,13 +1,14 @@
 ---
-name: 17-upload-composites
-description: "Upload each produced composite MP4 from stage 15 to YouTube with title, description, and parsed-from-description chapters, and write a local upload manifest. Pure automation — no LLM."
+name: 19-upload-composites
+description: "Upload each produced composite MP4 from stage 15 to YouTube — gated by stage 17 rating (only composites with aggregate_verdict='publish' are uploaded). Builds chapters from per-segment local timings. Pure automation — no LLM."
 ---
 
-# Stage 17 — Upload Composites
+# Stage 19 — Upload Composites
 
-**Mission:** Take the produced composite MP4 files from stage 15, build the final YouTube description (chapters substituted from segment
-local-timings, source-stream URL substituted), upload each composite to YouTube via the YouTube Data API v3 `videos.insert` endpoint, and
-produce a manifest recording the upload outcome per composite.
+**Mission:** Upload composites that passed the stage 17 quality gate. Build the final YouTube description (chapters substituted from
+per-segment local-timings, source-stream URL substituted), call the YouTube Data API v3 `videos.insert` endpoint, and write the per-composite
+upload manifest. Composites that landed `hold` or `reject` in stage 17 are recorded with `status = "skipped"` — they stay on disk for
+manual review and never go to YouTube automatically.
 
 ---
 
@@ -21,6 +22,12 @@ composite_clip_production_manifest_file:
   required: true
   description: Absolute path to composite_clip_production_manifest.json (stage 15 output).
   constraints: Must exist and contain a valid composites array with per-segment local timings.
+
+composite_rating_manifest_file:
+  type: string
+  required: true
+  description: Absolute path to composite_rating_manifest.json (stage 17 output). Gates the upload — only composites with aggregate_verdict='publish' are uploaded.
+  constraints: Must exist on disk. Every composite in the production manifest must have a corresponding entry here.
 
 source_stream_file:
   type: string
@@ -79,7 +86,8 @@ uploaded.
 
 ### Dependency Gate
 
-Runs only when stage 15 (composite-clip-production) succeeded with at least one composite at `status = "success"`.
+Runs only when stage 15 (composite-clip-production) succeeded AND stage 17 (rate-composites) succeeded. If either failed, the orchestrator
+skips this stage entirely — uploads are conditional on having ratings, never unrated.
 
 ---
 
@@ -92,7 +100,10 @@ Same shape as stage 16 — skip already-successfully-uploaded composites unless 
 ### 2. Load inputs
 
 1. Read `composite_clip_production_manifest_file` to get the produced composites with per-segment `local_start_sec` / `local_end_sec`.
-2. Read `source_stream_file` to get the source-stream URL.
+2. Read `composite_rating_manifest_file` to get the rating verdict per composite.
+3. Read `source_stream_file` to get the source-stream URL.
+4. **Filter to composites with `production.status = "success"` AND `rating.aggregate_verdict = "publish"`.** Record `skip_reason`
+   (`production_failed`, `rating_hold`, `rating_reject`) for every filtered-out composite so the upload manifest captures everything.
 
 ### 3. Build description per composite
 
@@ -135,15 +146,17 @@ GAME_RECAP`, `vibe_tier = CHESS_INSIGHT`) and you want to override to 20 (Gaming
 
 Write `upload_manifest_file` conforming to `composite_clip_upload_manifest.output.template.jsonc` with the same shape as the clip upload
 manifest, plus a per-composite `chapter_count` field recording how many chapters made it into the published description (0 if skipped).
+Skipped composites (production failure or rating hold/reject) are recorded with `status = "skipped"` and a `skip_reason`.
 
 ### 6. Verify
 
 - [ ] `upload_manifest_file` exists and is non-empty
-- [ ] Top-level keys `generated_at`, `source_composite_manifest`, `source_stream_url`, `default_privacy_status`, `composite_count`, `composites` are present
+- [ ] Top-level keys `generated_at`, `source_composite_manifest`, `source_rating_manifest`, `source_stream_url`, `default_privacy_status`, `composite_count`, `composites` are present
 - [ ] `composite_count` matches `composites` array length
-- [ ] Every composite entry has populated `filename`, `title`, `vibe_tier`, `format_category`, `privacy_status`, `chapter_count`, `status`
-- [ ] Every composite with `status: "success"` has a populated `video_id` (11 chars), `url`, and `uploaded_at`
+- [ ] Every composite entry has populated `filename`, `title`, `vibe_tier`, `format_category`, `aggregate_verdict`, `status` (`success`, `error`, or `skipped`)
+- [ ] Every composite with `status: "success"` has a populated `video_id` (11 chars), `url`, `uploaded_at`, `privacy_status`, and `chapter_count`
 - [ ] Every composite with `status: "error"` has a populated `error` field
-- [ ] At least one composite has `status: "success"`
+- [ ] Every composite with `status: "skipped"` has a populated `skip_reason` (`production_failed`, `rating_hold`, or `rating_reject`)
+- [ ] If any composites were rated `publish`, at least one such composite has `status: "success"`
 
 If any check fails: do not return success.

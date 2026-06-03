@@ -566,7 +566,7 @@ const TOOL_LIST = [
     inputSchema: {
       type: 'object' as const,
       properties: {
-        name: { type: 'string', description: 'Short identifier, e.g. "ring-light-on"' },
+        name: { type: 'string', description: 'Short identifier, e.g. "stream-lights-on"' },
         description: { type: 'string' },
         enabled: { type: 'boolean', description: 'Default true' },
         schedule: {

@@ -44,6 +44,8 @@ Use `{.ai,.claude,.codex}/skills/task-planning/CONTEXT_TEMPLATE.md`, `{.ai,.clau
 - [ ] Define explicit acceptance criteria (what must be true for the change to be considered complete)
 - [ ] List out-of-scope edge cases to avoid over-engineering (unlikely scenarios intentionally not addressed)
 
+> **[Ultracode] Research fan-out.** When running under ultracode (Claude Code only), execute the research surface in sections 2-6 as a parallel discovery swarm rather than one sequential reading pass: author a Workflow that dispatches one discovery agent per independent scope (`docs/` + the `AGENTS.md` chain, the codebase-pattern sweep, each of `app/` `client/` `common/` `cdk/`, and each third-party provider), then run a completeness critic ("what flow, file, contract, or edge case did the sweep miss?") and loop-until-dry. The checklist items below define WHAT each agent must establish; ultracode changes only HOW MANY agents run them. See `references/ultracode-orchestration.md`. All other agents and non-ultracode runs: ignore this note and complete the checklist as written.
+
 ## 2) Foundational context
 
 - [ ] Read `docs/product/scenario.md`

@@ -1,7 +1,6 @@
 ---
 name: frontend-review
 description: "FRONTEND/CLIENT ONLY. Review and refactor /client code against client/AGENTS.md. Only use when user explicitly mentions 'frontend' or 'client'. For backend use backend-review; for full-stack use e2e-review."
-allowed-tools: Bash, Read, Glob, Grep, Edit, Write
 ---
 
 # Frontend Review Skill

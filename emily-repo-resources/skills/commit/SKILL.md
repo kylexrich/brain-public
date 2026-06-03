@@ -1,7 +1,6 @@
 ---
 name: commit
 description: Create git commits with validation. Runs CI checks, generates descriptive commit messages, and proactively discovers related Linear issues to link and update.
-allowed-tools: Bash, Read, Glob, Grep, mcp__linear__*
 ---
 
 # Git Commit Skill

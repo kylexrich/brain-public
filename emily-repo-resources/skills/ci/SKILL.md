@@ -1,7 +1,6 @@
 ---
 name: ci
 description: Run CI checks before declaring work complete.
-allowed-tools: Bash
 ---
 
 # CI Skill

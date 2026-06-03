@@ -1,7 +1,6 @@
 ---
 name: rebase
 description: Rebase current branch onto a target commit SHA, resolving conflicts with context-aware judgment.
-allowed-tools: Bash, Read, Glob, Grep, Edit, AskUserQuestion
 ---
 
 # Rebase Skill

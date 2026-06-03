@@ -1,8 +1,8 @@
 {
   "version": 1,
   "tags": [
-    { "name": "lighting",       "description": "Smart-light automation (Elgato ring, Hue scenes)." },
-    { "name": "ring-light",     "description": "Elgato ring light only — narrower opt-in than 'lighting'." },
+    { "name": "lighting",       "description": "Smart-light automation (Elgato lights, Hue scenes)." },
+    { "name": "stream-lights",  "description": "Elgato stream-light group: Key Light, Key Light Neo, and Ring Light." },
     { "name": "daily-brief",    "description": "Morning brief preparation and delivery." },
     { "name": "health-nag",     "description": "Apple Health workout reminders across the day." },
     { "name": "video-pipeline", "description": "YouTube VOD discovery + per-video processing." },

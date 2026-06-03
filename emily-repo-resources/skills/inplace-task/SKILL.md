@@ -16,6 +16,8 @@ All real work is done by the wrapped skills — this skill only sequences them a
 - A task description, objective, or link to a spec — same shape `$task-planning` (`/task-planning`) accepts.
 - **`sub_agents`** (optional, integer): number of parallel sub-agents to dispatch in Step 2. **Defaults to `2`** when not specified. Treat any value the user mentions ("with 4 sub-agents", "use 6 agents", "extensively with 4+") as the override.
 
+  > **[Ultracode]** When running under ultracode (Claude Code only) and the user gave no explicit value, disregard the default of `2`: author a Workflow that swarms `$validate-task` (`/validate-task`) to the concurrency cap with adversarial + completeness verification (one verifier per checklist lens minimum). An explicit user value still wins, and the `2` default remains authoritative for all other agents and non-ultracode runs. See `{.ai,.claude,.codex}/skills/task-planning/references/ultracode-orchestration.md`.
+
 ## Workflow
 
 1. Run the `$task-planning` (`/task-planning`) skill to produce the context, steps guide, and steps documents. If the rollout doc gate fires (see `docs/rollout/AGENTS.md`), the plan groups steps into phases.

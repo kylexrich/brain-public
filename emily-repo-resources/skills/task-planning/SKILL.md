@@ -1,7 +1,6 @@
 ---
 name: task-planning
 description: Create comprehensive context and steps documents for large or complex tasks that require multi-step execution.
-allowed-tools: Bash, Read, Glob, Grep, WebSearch, WebFetch, Task, AskUserQuestion, Write
 ---
 
 # Task Planning Skill

@@ -1,7 +1,6 @@
 ---
 name: validate-task
 description: Validate task planning documents for accuracy, completeness, and logical correctness. Run after the `$task-planning` (`/task-planning`) skill to ensure the plan will actually achieve the objective.
-allowed-tools: Bash, Read, Glob, Grep, WebSearch, WebFetch, Task, AskUserQuestion, Write
 ---
 
 # Validate Task Skill
@@ -26,6 +25,8 @@ Validate existing task planning documents to ensure they will actually achieve t
 ## Provider Contract Validation Gate
 
 For any third-party API that the plan calls, parses, or persists, run or verify the `$provider-contract-verification` (`/provider-contract-verification`) skill. Treat missing provider contract evidence as a validation failure.
+
+> **[Ultracode] Validation swarm.** When running under ultracode (Claude Code only), do not walk this checklist as a single sequential pass. Author a Workflow that dispatches one verifier per checklist lens (Technical Accuracy; Completeness + Logical Correctness; External Research + Provider Contract; Risk + Missing Details + Edge Cases), adds adversarial skeptics that try to REFUTE "this plan achieves the objective" and each provider-contract claim (refuted on majority), adds a completeness critic, then synthesizes and fixes the documents in place. `CHECKLIST.md` stays the single source of truth for WHAT each verifier checks. See `{.ai,.claude,.codex}/skills/task-planning/references/ultracode-orchestration.md`. All other agents and non-ultracode runs: ignore this note and follow the Workflow below as written.
 
 ## Workflow
 

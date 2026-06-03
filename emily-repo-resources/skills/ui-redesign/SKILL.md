@@ -1,7 +1,6 @@
 ---
 name: ui-redesign
 description: Redesign UI with full creative freedom while preserving functionality.
-allowed-tools: Read, Edit, Write, Glob, Grep, Bash
 ---
 
 # UI Redesign Skill

@@ -1,7 +1,6 @@
 ---
 name: e2e-review
 description: "End-to-end correctness review. Validates that core logic is fundamentally correct across CDK, app, common/OpenAPI, and client. Use for general end to end 'review' requests, cross-cutting reviews, or when verifying full-stack flows."
-allowed-tools: Bash, Read, Glob, Grep, Edit, Write
 ---
 
 # End-to-End Review Skill

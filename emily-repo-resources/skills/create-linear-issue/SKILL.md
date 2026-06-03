@@ -57,6 +57,8 @@ If the user does not specify one of these, infer the best choice yourself — do
 
 6. Cycle, owner, deadline
    - **Deadline:** default to **no deadline** unless the user specifies one.
+   - **Relative-date anchor:** before resolving words like "today", "tomorrow", "tomorrow morning", or "this Friday", establish the user's local date. If Kyle states the current date in the conversation, his stated date is authoritative. Otherwise use the local environment date in Kyle's timezone, America/Vancouver. If tool/system metadata conflicts with Kyle's stated date, stop and clarify before creating or updating the issue.
+   - When a relative deadline is used, compute the exact ISO date and mention it in the response. Do not silently choose a date from stale or conflicting metadata.
    - **If a deadline IS set** (whether the user gave a date or asked you to set one), apply both of these automatically — do NOT leave them blank:
       - **Cycle:** look up the team's cycles and assign the issue to whichever cycle's `[startsAt, endsAt]` window contains the deadline. If the deadline falls outside every known cycle, leave the cycle blank and call this out in your response.
       - **Assignee:** default to the user (`me`). The act of giving something a deadline implies he's taking ownership unless he names someone else.

@@ -6,7 +6,6 @@
 ESC=$'\033'
 RST="${ESC}[0m"
 BLD="${ESC}[1m"
-DM="${ESC}[2m"
 SYNC_START="${ESC}[?2026h"
 SYNC_END="${ESC}[?2026l"
 
@@ -15,7 +14,8 @@ BG_HEX="#080A12"
 BG="${ESC}[48;2;8;10;18m"
 SUB_FG="${ESC}[38;2;100;130;175m"
 CLK_FG="${ESC}[38;2;140;175;225m"
-TMR_FG="${ESC}[38;2;75;100;145m"
+TMR_FG="${ESC}[38;2;64;85;119m"
+RTN_FG="${ESC}[38;2;88;114;151m"
 
 # Gradient: steel blue → ice white-blue → steel blue (center glow)
 HL_R=45  HL_G=100 HL_B=185
@@ -334,14 +334,14 @@ render_frame() {
     timer_col=$(( (cols - ${#timer_text}) / 2 + 1 ))
     (( timer_col < 1 )) && timer_col=1
     buf+="${ESC}[${TIMER_ROW};1H${BG}${spaces}${RST}"
-    buf+="${ESC}[${TIMER_ROW};${timer_col}H${BG}${TMR_FG}${DM}${timer_text}${RST}"
+    buf+="${ESC}[${TIMER_ROW};${timer_col}H${BG}${TMR_FG}${timer_text}${RST}"
 
     if [[ -n "$RETURN_TIME" ]]; then
         return_text="back in ~${RETURN_TIME}"
         return_col=$(( (cols - ${#return_text}) / 2 + 1 ))
         (( return_col < 1 )) && return_col=1
         buf+="${ESC}[${RETURN_ROW};1H${BG}${spaces}${RST}"
-        buf+="${ESC}[${RETURN_ROW};${return_col}H${BG}${CLK_FG}${DM}${return_text}${RST}"
+        buf+="${ESC}[${RETURN_ROW};${return_col}H${BG}${RTN_FG}${return_text}${RST}"
     fi
 
     for (( idx=0; idx<NUM_PARTICLES; idx++ )); do

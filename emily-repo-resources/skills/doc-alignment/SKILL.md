@@ -1,7 +1,6 @@
 ---
 name: doc-alignment
 description: Verify current markdown documentation and AI guidance match implementation. Auto-fix in-scope contradictions, flag out-of-scope ones.
-allowed-tools: Bash, Read, Glob, Grep, Edit
 ---
 
 # Doc Alignment Skill

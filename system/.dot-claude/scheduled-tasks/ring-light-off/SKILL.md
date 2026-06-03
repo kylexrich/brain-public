@@ -1,8 +1,14 @@
 ---
 name: ring-light-off
-description: Turn off Elgato ring light at 10pm daily
+description: Turn off Kyle's Elgato stream lights at 10pm daily
 ---
 
-Execute the control-ring-light skill exactly with ACTION=off.
+Turn Kyle's Elgato stream lights OFF. This controls the Key Light, Key Light Neo, and Ring Light together.
 
-/control-ring-light
+Invoke the `$control-stream-lights` skill with this INPUT:
+
+ACTION=off
+
+Follow the skill's output rules exactly: on success for all three devices, stay completely silent (no reply, no narration). Only if a device fails, send a one-line failure summary via the `$marvin-imsg` skill.
+
+/control-stream-lights

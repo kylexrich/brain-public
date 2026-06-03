@@ -1,7 +1,6 @@
 ---
 name: backend-review
 description: "BACKEND/API ONLY. Review and refactor /app code against app/AGENTS.md. Only use when user explicitly mentions 'backend' or 'api' or 'server'. For frontend use frontend-review; for full-stack use e2e-review."
-allowed-tools: Bash, Read, Glob, Grep, Edit, Write
 ---
 
 # Backend Review Skill

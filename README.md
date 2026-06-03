@@ -57,7 +57,7 @@ External tools needed: `ffmpeg`, `ffprobe`, `whisper-cli` (whisper.cpp, `brew in
 - **Skills** (`/skills/`) — Apple Notes, Reminders, Hue, Sonos, whisper transcription, image gen, video understanding, symlink management, scheduled-job skills, and more.
 - **Subagents** (`/agents/`) — CLI-invoked iMessage handlers for a personal 1:1 and a group chat.
 - **BlueBubbles MCP server** (`system/custom-mcp/bluebubbles/`) — A self-built HTTP MCP that bridges [BlueBubbles](https://bluebubbles.app/) iMessage into Claude sessions. Webhook-driven; one daemon serves many sessions.
-- **Scheduled tasks** (`/scheduled-tasks/`) — Morning brief, video-processing pipeline, OAuth refresh, health nags, ring-light control.
+- **Scheduled tasks** (`/scheduled-tasks/`) — Morning brief, video-processing pipeline, OAuth refresh, health nags, stream-light control, and a thrice-daily production log-health check that posts a digest to Slack.
 
 
 ## System layer

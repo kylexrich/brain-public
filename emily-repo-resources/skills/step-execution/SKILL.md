@@ -1,7 +1,6 @@
 ---
 name: step-execution
 description: Execute a step from a task steps guide or steps document end-to-end.
-allowed-tools: Bash, Read, Glob, Grep, Edit, Write, Task, AskUserQuestion
 ---
 
 # Step Execution Skill

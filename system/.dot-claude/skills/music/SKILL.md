@@ -51,6 +51,16 @@ This is a JSON array of recent picks. Each entry has: `timestamp`, `request` (wh
 
 **After every content pick**, append a new entry to the file (include the `category`). Keep the last 20 entries max — trim older ones when writing.
 
+## Artist Inference
+
+When a song or album name is given without an explicit artist, use context to resolve before asking:
+
+1. **Conversation context first.** If the artist is obvious from what's already been discussed (e.g., previous message mentioned Cannons), use it.
+2. **History cross-reference second.** If not obvious from conversation, check play history. If a known artist plausibly has a match, commit to them — don't ask.
+3. **Search confidence fallback.** If no history match, do the catalog search. If the top result is a strong/obvious match (right artist name, very likely title), play it. Only ask when results are genuinely ambiguous and history offers no signal.
+
+The goal: never ask when the answer is reasonably inferable. Ask only when genuine ambiguity exists and guessing wrong would be disruptive.
+
 ## Room Targeting — Default Behaviour
 
 **When Kyle targets a specific room/speaker without further instruction, all other speakers stay completely untouched** — same content, same volume, same playback state.
@@ -69,6 +79,14 @@ This means:
 
 Exception: if Kyle explicitly asks to change something across all speakers ("everywhere", "all rooms", "same for all"), apply the party group flow as normal.
 
+## Rejoining a Solo Speaker to the Group
+
+When bringing a solo speaker back into the main group:
+1. `sonos-pr3 group join --name "<Room>" --to "<Coordinator>"` — rejoins the speaker
+2. **Always** follow with `brain music volume-set <level> --name "<Coordinator>"` to normalize all grouped speakers to the same level
+
+**Never use `sonos-pr3 volume set` alone after a rejoin.** The rejoining speaker may retain its previous volume despite what the API reports. `brain music volume-set` sets every speaker in the group via RenderingControl directly, which is the only reliable way to ensure the volume is actually applied.
+
 ## Execution Model
 
 Four steps, every time:
@@ -82,20 +100,32 @@ Four steps, every time:
 
 `sonos-pr3` queries the **group coordinator** for ZoneGroupTopology before every command. If the coordinator is unreachable, **all commands fail** — even with `--ip` or `--name` targeting a different speaker. This is the single most common cause of total playback failure.
 
-**Always run this first:**
+**A speaker can respond to device_description.xml but still have a broken ZoneGroupTopology service.** Always verify the coordinator's control endpoint directly, not just HTTP reachability.
+
+**Two-stage check — run both:**
 
 ```bash
-# Quick reachability check — curl each speaker's description endpoint
+# Stage 1: HTTP reachability for all speakers
 for ip in 192.168.50.237 192.168.50.40 192.168.50.244 192.168.50.115; do
   echo -n "$ip: "
   curl -s --connect-timeout 2 "http://$ip:1400/xml/device_description.xml" \
     | grep -o '<roomName>[^<]*</roomName>' || echo "DOWN"
 done
+
+# Stage 2: Verify ZoneGroupTopology on a reachable speaker
+# This catches partially-failed speakers that respond to HTTP but not UPnP control
+curl -s --connect-timeout 3 "http://192.168.50.115:1400/ZoneGroupTopology/Control" \
+  -X POST -H "Content-Type: text/xml; charset=utf-8" \
+  -H 'SOAPACTION: "urn:schemas-upnp-org:service:ZoneGroupTopology:1#GetZoneGroupState"' \
+  -d '<?xml version="1.0"?><s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body><u:GetZoneGroupState xmlns:u="urn:schemas-upnp-org:service:ZoneGroupTopology:1"></u:GetZoneGroupState></s:Body></s:Envelope>' \
+  | grep -o 'ZoneGroupState' || echo "TOPOLOGY UNREACHABLE — run recovery"
 ```
 
-**If all speakers respond:** proceed normally with `sonos-pr3 group status --format json`.
+**If Stage 1 shows all UP and Stage 2 succeeds:** proceed normally with `sonos-pr3 group status --format json`.
 
-**If any speaker is DOWN and it might be the group coordinator:** run the recovery procedure (see Known Limitation #7). You must fix coordinator reachability before any `sonos-pr3` command will work.
+**If Stage 2 fails (even if all Stage 1 pass):** the current coordinator's ZoneGroupTopology is broken. Run the recovery procedure (see Known Limitation #7) to elect a new coordinator before any `sonos-pr3` command.
+
+**If Stage 2 times out on 192.168.50.115 (Sonos):** try Stage 2 on another reachable IP to identify a working coordinator, then use `--ip <working-ip>` for all subsequent commands.
 
 **If all speakers are DOWN:** report to Kyle — nothing can be done.
 

@@ -60,6 +60,14 @@ When changing public-facing repo structure, reusable tools, skills, agents, setu
 * If a useful resource should not be public, document the reason in the export config through an exclusion, sanitizer, verifier, or nearby source comment instead of leaving the omission implicit.
 * After changing export behavior or allowlists, run `brain repo export-public` and inspect `brain-public/` for expected additions, removals, and redactions before committing.
 
+## [STRICT] Config-Driven & Public-Export-Safe by Default
+
+When authoring skills, scripts, agents, scheduled tasks, or technical docs:
+* **Never hardcode environment-specific or sensitive values** (account IDs, credentials, channel/chat IDs, hostnames, profile names, resource ARNs, log groups, file paths that vary per machine). Reference them by name from configuration — environment variables (`system/zshrc/.env`, with placeholders in `.env.example`) or an existing config file — so the source artifact stays generic and shareable.
+* **Prefer config indirection over export exclusion.** Adding a value to the public-export deny/sanitize list to hide a hardcoded literal is a last resort, not the default. A resource that reads its values from config is public-exportable as-authored and needs no special-casing.
+* **Fix misleading or environment-coupled config at the source.** If a name or default does not mean what it says (e.g. a profile/alias pointing at the wrong target), correct the underlying config rather than documenting the discrepancy in a comment — back up first, then realign.
+* The goal: every reusable artifact should be config-driven and public-export-safe by construction, so secrets live in one gitignored place and the artifact itself can be shared without redaction.
+
 ## [STRICT] Skill Execution Protocol
 
 When a skill is invoked or clearly applies:

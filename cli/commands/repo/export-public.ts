@@ -558,6 +558,14 @@ function toExternalTargetPath(sourceRelativePath: string): string {
     return `skills/${sourceRelativePath.slice(".ai/skills/".length)}`;
   }
 
+  const guidanceMarker = ".ai/guidance/";
+  const guidanceIndex = sourceRelativePath.indexOf(guidanceMarker);
+  if (guidanceIndex !== -1) {
+    const packagePrefix = sourceRelativePath.slice(0, guidanceIndex).replace(/\/$/, "");
+    const guidanceRelativePath = sourceRelativePath.slice(guidanceIndex + guidanceMarker.length);
+    return `guidance/${packagePrefix === "" ? "root" : packagePrefix}/${guidanceRelativePath}`;
+  }
+
   return sourceRelativePath;
 }
 
@@ -570,6 +578,7 @@ Generated public-safe resources copied from allowlisted files in the private Emi
 
 - \`agents/\` contains copied \`AGENTS.md\` guidance renamed to \`AGENTS.source.md\`, so it remains reference material instead of active instruction files.
 - \`skills/\` contains copied non-sensitive skills from the Emily repo \`.ai/skills/\` source tree.
+- \`guidance/\` contains copied non-sensitive \`.ai/guidance/\` reference docs from the Emily repo, grouped by source package (\`root/\` for repo-root guidance).
 
 ## Refresh Rule
 

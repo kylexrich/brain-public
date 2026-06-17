@@ -1,0 +1,34 @@
+// <chunk_name>_candidates.json — per-chunk extraction candidates written by each worker
+// Written to: <parent(output_file)>/candidates/<chunk_name>_candidates.json
+//
+// Type-specific fields are required only for their respective extraction types.
+// See extraction-types/ for the full rules per type.
+{
+  "generated_at": "ISO8601",
+  "chunk_file": "chunk_001.txt",
+  "candidates": [
+    {
+      // Core fields — required for all types
+      "type": "belief | experience | preference | content-idea | idea | source",
+      "extraction_type": "direct | synthesized",
+      "title": "Short descriptive title",
+      "slug": "kebab-case-slug",
+      "body": "What the candidate actually is",
+      "evidence": "Exact quote or close paraphrase from transcript",
+      "confidence": "high | medium",
+      "tags": [
+        "tag1",
+        "tag2"
+      ],
+      // content-idea only
+      "format": "youtube-video | linkedin-post | series | unspecified",
+      // preference only
+      "stance": "like | dislike",
+      "category": "freeform grouping (optional)",
+      // source only
+      "source_type": "article | book | podcast | conversation | youtube",
+      "author": "Author Name",
+      "year": "2026"
+    }
+  ]
+}

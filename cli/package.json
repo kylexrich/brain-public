@@ -24,7 +24,9 @@
     "type-check": "tsc --noEmit -p tsconfig.json",
     "lint": "eslint .",
     "script:agents:sync": "tsx bin/run.ts repo agents-header",
-    "script:sync:all": "tsx bin/run.ts repo sync-ai",
+    "script:skills:sync": "tsx bin/run.ts repo sync-skills",
+    "script:instructions:sync": "tsx bin/run.ts repo sync-instructions",
+    "script:sync:all": "tsx bin/run.ts repo sync-ai && tsx bin/run.ts repo sync-skills && tsx bin/run.ts repo sync-instructions",
     "script:public:export": "tsx bin/run.ts repo export-public"
   },
   "dependencies": {

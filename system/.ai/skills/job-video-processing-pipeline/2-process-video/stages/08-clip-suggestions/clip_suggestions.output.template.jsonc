@@ -1,0 +1,36 @@
+// clip_suggestions.json — output artifact written by stage 08-clip-suggestions
+// Written to: <stream_dir>/meta/outputs/clip_suggestions.json
+//
+// Hard cap: max 6 suggestions per stream. Quality > volume.
+// SHORT format is intentionally not supported.
+{
+  "generated_at": "ISO8601",
+  "suggestion_count": 6,
+  "suggestions": [
+    {
+      "title": "Clip headline in Kyle's voice — see vibe-context.md title rules",
+      "description": "Multi-line YouTube description per criteria.md description rules. Must include the AI-disclosure line and the source-stream link placeholder {source_stream_url} which the upload stage fills in.",
+      "vibe_tier": "FAILURE_AND_RECOVERY | CHESS_CODE_FUSION | ENGINEERING_OPINION | AI_ORCHESTRATION_MOMENT | LIVE_INCIDENT | CHESS_INSIGHT | FOUNDER_LIFE",
+      "format": "HIGHLIGHT | TUTORIAL | STORY",
+      "thesis": "One-sentence summary of the clip's claim or insight — must be extractable from the clip transcript itself, not paraphrased from broader context",
+      "payoff": "One-sentence description of what lands inside the clip window — the answer/punchline/resolution",
+      "gates_passed": {
+        "thesis_present": true,
+        "payoff_inside_window": true,
+        "self_contained_references": true,
+        "named_subject": true,
+        "clean_exit": true,
+        "no_prior_context_required": true,
+        "fits_vibe_tier": true,
+        "substance_over_momentum": true
+      },
+      "reason": "Why this works as standalone content for THIS channel specifically — reference the vibe tier and the named subject",
+      "start_seconds": 21815,
+      "end_seconds": 22116,
+      "start_timestamp": "6:03:35",
+      "end_timestamp": "6:08:36",
+      "duration_sec": 301,
+      "confidence": "high | medium"
+    }
+  ]
+}

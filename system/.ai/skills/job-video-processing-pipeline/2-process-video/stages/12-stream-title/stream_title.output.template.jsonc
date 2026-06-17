@@ -1,0 +1,14 @@
+// stream_title.json — output artifact written by stage 12-stream-title
+// Written to: <stream_dir>/meta/outputs/stream_title.json
+{
+  "generated_at": "ISO8601",
+  // timestamp when title was generated
+  "title": "Building in Public — Day 42 | OAuth at 3AM and Regrets",
+  // full assembled YouTube title
+  "day_number": 42,
+  // stream day number (integer)
+  "part_number": null,
+  // part number for multi-part days; null if single stream
+  "suffix": "OAuth at 3AM and Regrets"
+  // the generated suffix (without prefix)
+}

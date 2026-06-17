@@ -1,0 +1,42 @@
+{
+  "version": 3,
+  "chat": "marv-sucks",
+  "next_target_at_ms": 1719676800000,
+  "recent_sends": [
+    {
+      "timestamp": "2026-01-23T22:14:33-08:00",
+      "category": "hot-take",
+      "message": "ok hear me out, breakfast burritos are objectively the best travel food and i'll die on this hill",
+      "engagement_level": "high",
+      "engagement_summary": "harry pushed back hard for breakfast sandwiches, travis sided with burritos, 14-message thread. landed."
+    },
+    {
+      "timestamp": "2026-02-08T21:47:09-08:00",
+      "category": "callback",
+      "message": "harry did you ever actually finish that home espresso setup or is it still in pieces",
+      "engagement_level": "medium",
+      "engagement_summary": "harry replied with a photo and a one-liner about the grinder, no real thread but the question landed."
+    },
+    {
+      "timestamp": "2026-03-14T22:03:51-07:00",
+      "category": "debate-starter",
+      "message": "settle this — bagels at brunch: deal-breaker yes or no",
+      "engagement_level": "low",
+      "engagement_summary": "two short replies, no real take. bagels apparently aren't a hot-button issue for this group."
+    },
+    {
+      "timestamp": "2026-04-11T21:32:18-07:00",
+      "category": "trivia-stumble",
+      "message": "did you know octopuses have three hearts and two of them stop beating when they swim. like why even have them at that point",
+      "engagement_level": "negative",
+      "engagement_summary": "travis told marvin to stop posting wikipedia facts. don't do trivia-stumble again for a while."
+    },
+    {
+      "timestamp": "2026-05-02T22:14:33-07:00",
+      "category": "banter",
+      "message": "kyle the way you respond to texts in 4 seconds flat we know you're hiding from your inbox",
+      "engagement_level": null,
+      "engagement_summary": null
+    }
+  ]
+}

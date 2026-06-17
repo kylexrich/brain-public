@@ -168,6 +168,8 @@ Default rule: if a command writes files, touches credentials, controls devices, 
 - `npm run lint`
 - `brain repo agents-header`
 - `brain repo sync-ai`
+- `brain repo sync-skills`
+- `brain repo sync-instructions`
 
 ### Read-only but live/private data access
 
@@ -216,5 +218,5 @@ If you are unsure which bucket a new command belongs in, classify it conservativ
 - Keep refactors behavior-preserving unless the task explicitly includes a behavior change.
 - Prefer small, reversible refactors with validation checkpoints over large rewrites.
 - When touching automation-facing stream commands, review neighboring stream commands and shared helpers so output shape and pipeline-state semantics remain consistent.
-- When editing repo tooling, remember that `brain repo agents-header` and `brain repo sync-ai` are the source of truth for precedence headers and `CLAUDE.md` stubs.
+- When editing repo tooling, remember that `brain repo agents-header` and `brain repo sync-ai` are the source of truth for precedence headers and `CLAUDE.md` stubs, `brain repo sync-skills` regenerates the `.dot-claude/skills` and `.dot-codex/skills` mirrors from `system/.ai/skills`, and `brain repo sync-instructions` regenerates `system/.dot-claude/CLAUDE.md` and `system/.dot-codex/AGENTS.md` from `system/.ai/AGENTS.md`. Author skills and global instructions in the `system/.ai/` source, not the generated mirrors. `agents-header` deliberately skips `.ai/` and `.dot-codex/` so it does not fight `sync-instructions`.
 - Leave unrelated cleanup alone unless it directly blocks the task or is necessary to keep the touched area coherent.

@@ -13,7 +13,14 @@ const IGNORED_DIRECTORIES = new Set([
   "out",
   "coverage",
   "build",
-  "deprecated"
+  "deprecated",
+  // Source-of-truth staging area, not repo-tree guidance. Its AGENTS.md (the
+  // global instructions source) and skills AGENTS.md are owned elsewhere; the
+  // precedence-header injector must not manage them.
+  ".ai",
+  // `.dot-codex/AGENTS.md` is generated from `system/.ai/AGENTS.md` by
+  // `brain repo sync-instructions`, which owns its header. Keep this injector out.
+  ".dot-codex"
 ]);
 
 const HEADER_START = "> **`AGENTS.md` Instruction Precedence (DO NOT EDIT)**";
@@ -75,7 +82,7 @@ function generateHeader(agentsPath: string): string {
   ].join("\n");
 }
 
-function stripHeader(content: string): string {
+export function stripHeader(content: string): string {
   if (!content.startsWith(HEADER_START)) {
     return content;
   }

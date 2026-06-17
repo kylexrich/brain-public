@@ -1,0 +1,31 @@
+// wide_view_candidates.json — cross-cutting candidates from the wide-view analyst
+// Written to: <output_dir>/wide_view_candidates.json
+//
+// Candidate objects follow the stage's chunk-worker output schema.
+// The only addition is `cross_chunk_sources` on each candidate.
+{
+  "generated_at": "ISO8601",
+  "candidate_count": 3,
+  "candidates": [
+    {
+      // All fields from the stage's chunk-worker candidate schema go here.
+      //
+      // Stage 08 (clip-suggestions):
+      //   title, reason, format, start_seconds, end_seconds, start_timestamp,
+      //   end_timestamp, duration_sec, confidence
+      //
+      // Stage 09 (composite-clip-suggestions):
+      //   candidate_theme, format_category, confidence, segments[]
+      //
+      // Stage 05 (brain-extract):
+      //   type, extraction_type, title, slug, body, evidence, confidence, tags[]
+
+      // Required for all wide-view candidates — the chunks that contributed
+      // to this cross-cutting finding. Must contain at least 2 entries.
+      "cross_chunk_sources": [
+        "chunk_001.txt",
+        "chunk_004.txt"
+      ]
+    }
+  ]
+}

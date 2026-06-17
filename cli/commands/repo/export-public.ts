@@ -374,6 +374,8 @@ function parseConfig(configPath: string): ParsedPublicExportConfig {
 function listTrackedFiles(root: string = REPO_ROOT): string[] {
   const raw = execFileSync("git", ["-C", root, "ls-files", "-z"], {
     encoding: "utf8",
+    // Repo tracks 10k+ files; the default 1MB buffer overflows (ENOBUFS).
+    maxBuffer: 1024 * 1024 * 256,
   });
 
   return raw

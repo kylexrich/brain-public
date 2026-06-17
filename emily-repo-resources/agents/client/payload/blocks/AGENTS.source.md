@@ -18,6 +18,6 @@ The rules below are the binding rules for this directory and every subdirectory 
 
 ### Blog Block Schemas And App AI Pipeline
 
-* `client/payload/blocks/blogBlocks.ts` and `app/src/services/ai/pipelines/blog-content-revision/steps/GenerateBlogContentRevisionStep.ts` are intentionally duplicated.
-* Any edit to block slugs, field names, field requirements, array constraints, enum values, or option sets in `client/payload/blocks/blogBlocks.ts` must be mirrored in `app/src/services/ai/pipelines/blog-content-revision/steps/GenerateBlogContentRevisionStep.ts` in the same change.
+* `client/payload/blocks/blogBlocks.ts` and `app/src/pipelines/definitions/blog-content-revision/steps/GenerateBlogContentRevisionAIStep.ts` are intentionally duplicated.
+* Any edit to block slugs, field names, field requirements, array constraints, enum values, or option sets in `client/payload/blocks/blogBlocks.ts` must be mirrored in `app/src/pipelines/definitions/blog-content-revision/steps/GenerateBlogContentRevisionAIStep.ts` in the same change.
 * Do not merge `client/payload/blocks/blogBlocks.ts` changes without matching synchronization updates in the app pipeline file.

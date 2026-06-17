@@ -1,0 +1,35 @@
+// chunk_NNN_extensions.json — augmentations to existing chunk worker candidates
+// Written to: <output_dir>/chunk_NNN_extensions.json (one per chunk that has extensions)
+//
+// Each extension references an existing candidate from the chunk worker's output
+// and adds cross-cutting context discovered by the wide-view analyst.
+{
+  "generated_at": "ISO8601",
+  "chunk_file": "chunk_003.txt",
+  "extensions": [
+    {
+      // Identifies the target candidate in the chunk worker's output.
+      "candidate_index": 0,
+      "candidate_title": "Original candidate title (for human readability)",
+
+      // Elevate confidence based on corroborating evidence in other chunks.
+      // null if confidence should not change.
+      "elevated_confidence": "high | null",
+      "confidence_reason": "Why confidence should be elevated | null",
+
+      // Links to related candidates in other chunks.
+      "cross_references": [
+        {
+          "chunk_file": "chunk_007.txt",
+          "candidate_index": 2,
+          "candidate_title": "Related candidate title",
+          "relationship": "How these candidates relate"
+        }
+      ],
+
+      // Additional context from other chunks that enriches this candidate.
+      // null if no additional context.
+      "extended_context": "string | null"
+    }
+  ]
+}

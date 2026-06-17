@@ -20,8 +20,9 @@ emily-repo-resources/ — Public-only generated Emily AGENTS snapshots + skills
 deprecated/
   openclaw/        — Legacy OpenClaw runtime archive (not actively used)
 system/            — Machine config (AI config, shell, bootstrap, symlinks)
-  .dot-claude/     — Configuration for Claude Code and Claude Desktop
-  .dot-codex/      — Configuration for OpenAI Codex
+  .ai/             — Source of truth: global instructions (AGENTS.md) + skills, mirrored to the configs below
+  .dot-claude/     — Configuration for Claude Code and Claude Desktop (incl. generated CLAUDE.md + skills mirror)
+  .dot-codex/      — Configuration for OpenAI Codex (incl. generated AGENTS.md + skills mirror)
   bootstrap-system.md — macOS setup guide
   credentials/     — Private local OAuth/client credential storage (excluded)
   symlinks/        — Per-machine symlink manifests + apply scripts
@@ -41,7 +42,7 @@ A TypeScript oclif CLI under `cli/` used exclusively by AI agents. Topics:
 - **`stream`** — YouTube VOD pipeline: discover livestreams, download, transcribe locally, chunk, sync + publish metadata.
 - **`image`** — Gemini image generation / editing.
 - **`stt` / `tts`** — On-device whisper.cpp transcription and Microsoft Edge text-to-speech.
-- **`repo`** — Maintenance: `AGENTS.md` header injection, public-mirror export, AI config sync.
+- **`repo`** — Maintenance: `AGENTS.md` header injection, public-mirror export, AI config sync, skill-folder sync.
 - **`token`** — OAuth rotation (YouTube).
 
 External tools needed: `ffmpeg`, `ffprobe`, `whisper-cli` (whisper.cpp, `brew install whisper-cpp`), `yt-dlp`, `gog` (Google Contacts), Sonos discovery (bundled at `cli/bin/`), `curl`.
@@ -54,7 +55,7 @@ External tools needed: `ffmpeg`, `ffprobe`, `whisper-cli` (whisper.cpp, `brew in
 
 - **Codex config** (`system/.dot-codex/`) — For OpenAI Codex.
 - **Claude config** (`system/.dot-claude/`) — For Claude.
-- **Skills** (`/skills/`) — Apple Notes, Reminders, Hue, Sonos, whisper transcription, image gen, video understanding, symlink management, scheduled-job skills, and more.
+- **Skills** — Apple Notes, Reminders, Hue, Sonos, whisper transcription, image gen, video understanding, symlink management, scheduled-job skills, and more. Authored once in `system/.ai/skills/` (the source of truth) and mirrored into each tool's `skills/` folder by `brain repo sync-skills`, which runs on every build.
 - **Subagents** (`/agents/`) — CLI-invoked iMessage handlers for a personal 1:1 and a group chat.
 - **BlueBubbles MCP server** (`system/custom-mcp/bluebubbles/`) — A self-built HTTP MCP that bridges [BlueBubbles](https://bluebubbles.app/) iMessage into Claude sessions. Webhook-driven; one daemon serves many sessions.
 - **Scheduled tasks** (`/scheduled-tasks/`) — Morning brief, video-processing pipeline, OAuth refresh, health nags, stream-light control, and a thrice-daily production log-health check that posts a digest to Slack.
@@ -100,6 +101,6 @@ If you want the full setup on your own machine:
 3. Supply your own credentials in `system/zshrc/.env`.
 4. Work through (adapted) `system/bootstrap-system.md`.
 5. Apply symlinks with the per-machine script under `system/symlinks/`.
-6. Run `brain repo sync-ai` to regenerate CLAUDE.md stubs.
+6. Run `npm run build` (or `brain repo sync-ai && brain repo sync-skills`) to regenerate the CLAUDE.md stubs and the per-tool skill mirrors.
 
 I don't promise a smooth path. This is personal plumbing, not a distributable framework.

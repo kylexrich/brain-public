@@ -25,6 +25,7 @@
  *   BB_HTTP_PORT                HTTP listen port                (default: 47239)
  *   BB_FETCH_TIMEOUT_MS         Default fetch timeout           (default: 5000)
  *   BB_ATTACHMENT_TIMEOUT_MS    Attachment upload timeout ms    (default: 180000)
+ *   BB_TTS_TIMEOUT_MS           TTS synthesis timeout ms        (default: 120000)
  *   BB_DEBOUNCE_MS              Debounce window ms              (default: 6000, 0 = disabled)
  *   BB_MAX_ATTACHMENT_BYTES     Max inbound attachment size     (default: 104857600 = 100 MB)
  *   ATTACHMENTS_MAX_TOTAL_BYTES Total attachments disk budget   (default: 524288000 = 500 MB)
@@ -54,6 +55,7 @@ const BB_PASSWORD = process.env.BB_PASSWORD ?? ''
 const BB_HTTP_PORT = parseInt(process.env.BB_HTTP_PORT ?? '47239')
 const BB_FETCH_TIMEOUT_MS = parseInt(process.env.BB_FETCH_TIMEOUT_MS ?? '5000')
 const BB_ATTACHMENT_TIMEOUT_MS = parseInt(process.env.BB_ATTACHMENT_TIMEOUT_MS ?? '180000')
+const BB_TTS_TIMEOUT_MS = parseInt(process.env.BB_TTS_TIMEOUT_MS ?? '120000')
 const BB_DEBOUNCE_MS = parseInt(process.env.BB_DEBOUNCE_MS ?? '6000')
 const BB_MAX_ATTACHMENT_BYTES = parseInt(process.env.BB_MAX_ATTACHMENT_BYTES ?? String(100 * 1024 * 1024))
 const ATTACHMENTS_MAX_TOTAL_BYTES = parseInt(process.env.ATTACHMENTS_MAX_TOTAL_BYTES ?? String(500 * 1024 * 1024))
@@ -662,7 +664,7 @@ async function sendTts(chatId: string, text: string): Promise<void> {
   try {
     const res = spawnSync(BRAIN_CLI, ['tts', 'synthesize', clean, '--out', outPath], {
       encoding: 'utf8',
-      timeout: 60_000,
+      timeout: BB_TTS_TIMEOUT_MS,
       env: { ...process.env },
     })
     if (res.status !== 0) {

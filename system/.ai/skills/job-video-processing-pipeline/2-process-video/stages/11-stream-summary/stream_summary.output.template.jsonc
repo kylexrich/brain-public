@@ -1,0 +1,7 @@
+// stream_summary.json — output artifact written by stage 11-stream-summary
+// Written to: <stream_dir>/meta/outputs/stream_summary.json
+{
+  "generated_at": "ISO8601",
+  // timestamp when the summary was generated
+  "summary": "Plain text, 2–4 sentences describing what happened in the stream."
+}

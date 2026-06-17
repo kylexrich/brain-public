@@ -3,11 +3,13 @@
   "private": true,
   "scripts": {
     "brain": "npm run brain --prefix cli",
-    "build": "npm run build --prefix cli",
+    "build": "npm run script:sync:all --prefix cli && npm run build --prefix cli",
     "type-check": "npm run type-check --prefix cli",
     "lint": "npm run lint --prefix cli",
     "postinstall": "cd cli && npm install",
     "script:agents:sync": "npm run script:agents:sync --prefix cli",
+    "script:skills:sync": "npm run script:skills:sync --prefix cli",
+    "script:instructions:sync": "npm run script:instructions:sync --prefix cli",
     "script:sync:all": "npm run script:sync:all --prefix cli",
     "script:public:export": "npm run script:public:export --prefix cli"
   }

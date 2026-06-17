@@ -47,6 +47,9 @@
 
 ### Step checklist
 - [ ] Step-specific tasks complete
+
+> **[STRICT — REQUIRED, DO NOT SKIP]** The review-skill gate below is mandatory, not optional. Run the review skill(s) matching the step scope (omit the non-matching ones) using **two or more sub-agents** (use more as the size, scope, and risk of the change grow), checking the changes extensively against every applicable `AGENTS.md` rule and for correctness/security, and resolve all confirmed findings before this step is marked complete or the next step begins.
+
 - [ ] `$backend-review` (`/backend-review`) run
 - [ ] `$frontend-review` (`/frontend-review`) run
 - [ ] `$e2e-review` (`/e2e-review`) run
@@ -78,7 +81,7 @@
 ### Final Step Checklist
 * [ ] Confirm all prior steps are complete
 * [ ] Review and resolve any outstanding TODOs introduced during this task
-* [ ] Run the `$e2e-review` (`/e2e-review`) skill with all required context provided
+* [ ] **[STRICT — REQUIRED, DO NOT SKIP]** Run the `$e2e-review` (`/e2e-review`) skill using **two or more sub-agents** (use more as the size, scope, and risk of the change grow) to review the completed task's changes extensively against every applicable `AGENTS.md` rule and for correctness/security; resolve all confirmed findings. This review is mandatory, not optional.
 * [ ] Run the `$doc-alignment` (`/doc-alignment`) skill with all required context provided for current source-of-truth markdown, including relevant `AGENTS.md`, `.ai/guidance/`, and source skill references; exclude `docs/tasks/` and `docs/rollout/` unless the active task or rollout artifact itself is in scope
 * [ ] Run the `$ci` (`/ci`) skill and confirm it passes
 - [ ] Fix any issues caused by `$ci` (`/ci`)

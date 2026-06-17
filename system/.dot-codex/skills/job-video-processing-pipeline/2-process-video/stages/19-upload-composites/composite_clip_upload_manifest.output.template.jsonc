@@ -1,0 +1,32 @@
+// composite_clip_upload_manifest.json — output artifact written by stage 19-upload-composites
+// Written to: <stream_dir>/meta/outputs/composite_clip_upload_manifest.json
+//
+// Includes ALL composites considered. Uploaded composites have status=success.
+// Composites that failed production or rated hold/reject are recorded with status=skipped + skip_reason.
+{
+  "generated_at": "ISO8601",
+  "source_composite_manifest": "/absolute/path/to/composite_clip_production_manifest.json",
+  "source_rating_manifest": "/absolute/path/to/composite_rating_manifest.json",
+  "source_stream_url": "https://youtube.com/watch?v=...",
+  "default_privacy_status": "private | unlisted | public",
+  "composite_count": 3,
+  "composites": [
+    {
+      "filename": "01-composite-title.mp4",
+      "title": "Composite Title",
+      "vibe_tier": "FAILURE_AND_RECOVERY | CHESS_CODE_FUSION | ENGINEERING_OPINION | AI_ORCHESTRATION_MOMENT | LIVE_INCIDENT | CHESS_INSIGHT | FOUNDER_LIFE",
+      "format_category": "GAME_RECAP | TOPIC_DEEP_DIVE | JOURNEY_ARC | LIVE_INCIDENT_ARC",
+      "aggregate_verdict": "publish | hold | reject",
+      "status": "success | error | skipped",
+      "skip_reason": "production_failed | rating_hold | rating_reject | null",
+      "chapter_count": 3,
+      "privacy_status": "private | unlisted | public | null",
+      "video_id": "11-char-youtube-id | null",
+      "url": "https://youtube.com/watch?v=<video_id> | null",
+      "uploaded_at": "ISO8601 | null",
+      "category_id": "28 | null",
+      "contains_synthetic_media": false,
+      "error": "string | null"
+    }
+  ]
+}

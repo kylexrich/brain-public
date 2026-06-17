@@ -1,0 +1,22 @@
+// stream_chapters.json — output artifact written by stage 10-stream-chapters
+// Written to: <stream_dir>/meta/outputs/stream-chapters/stream_chapters.json
+{
+  "generated_at": "ISO8601",
+  // timestamp when chapters were generated
+  "chapter_count": 12,
+  // number of chapters in the chapters array
+  "vod_duration_sec": 12345,
+  // total VOD duration in seconds (matches transcript_duration_sec input)
+  "description": "0:00:00 Stream Start and Day Plan\n0:04:30 Chess Warmup Game\n...",
+  // YouTube-formatted chapter list (one per line)
+  "chapters": [
+    {
+      "time": "0:00:00",
+      // formatted time string H:MM:SS
+      "time_seconds": 0,
+      // chapter start time in integer seconds
+      "title": "Stream Start and Day Plan"
+      // chapter title (2–6 words, privacy-safe)
+    }
+  ]
+}

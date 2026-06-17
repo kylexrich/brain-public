@@ -24,8 +24,20 @@ deprecated/        — Deprecated runtime archives
   openclaw/        — Legacy OpenClaw runtime archive (not actively used)
 docs/              — Historical task plans and migration docs
 system/            — System configuration (AI config, shell, symlinks, scripts)
+  .ai/AGENTS.md    — Global instructions source (mirrored to both tool configs)
+  .ai/skills/      — Skill source of truth (see system/.ai/skills/AGENTS.md)
+  .dot-claude/CLAUDE.md  — generated global instructions (do not edit; from .ai/AGENTS.md)
+  .dot-claude/skills/    — generated Claude mirror (do not edit; from .ai/skills)
+  .dot-codex/AGENTS.md   — generated global instructions (do not edit; from .ai/AGENTS.md)
+  .dot-codex/skills/     — generated Codex mirror (do not edit; .system/ preserved)
 vault/             — Knowledge graph content (see vault/AGENTS.md)
 ```
+
+Skills are authored once in `system/.ai/skills/` and mirrored into both per-tool
+folders by `$sync-skills` (`brain repo sync-skills`). The global instructions in
+`system/.ai/AGENTS.md` are likewise mirrored into `system/.dot-claude/CLAUDE.md`
+and `system/.dot-codex/AGENTS.md` by `$sync-instructions`
+(`brain repo sync-instructions`). Both run on every build.
 
 ## Operating Mode
 

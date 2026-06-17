@@ -54,6 +54,10 @@ system/.dot-*/**/*.backup.*
 system/.dot-*/**/*.bak
 system/.dot-*/**/sessions/
 
+# Skill source of truth (system/.ai/skills) is stateless; live runtime state
+# lives only in the generated mirrors where it is written through the symlink.
+system/.ai/skills/*/state/
+
 # Claude Code projects — ignore conversation data, keep memory/ subdirs
 system/.dot-claude/projects/**
 !system/.dot-claude/projects/*/

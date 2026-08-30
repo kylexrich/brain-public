@@ -1,0 +1,4 @@
+interface:
+  display_name: "Review PR Comments"
+  short_description: "Deeply fix or dismiss bot PR feedback"
+  default_prompt: "Use $review-pr-comments to deeply address every bot review comment across this PR stack."

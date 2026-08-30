@@ -1,0 +1,4 @@
+interface:
+  display_name: "Open Conductor Workspace"
+  short_description: "Open the current workspace in PyCharm"
+  default_prompt: "Use $open-conductor-workspace to open this Conductor workspace in PyCharm."

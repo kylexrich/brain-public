@@ -3,6 +3,7 @@ import { execFileSync } from "node:child_process";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { DEFAULT_FFMPEG, ensureBinary } from "../../lib/shared/media/ffmpeg.js";
 
 /** Max chars per Edge TTS synthesis call (service limit is ~4096 bytes). */
 const CHUNK_LIMIT = 3500;
@@ -68,7 +69,7 @@ export default class TtsSynthesize extends Command {
       const listPath = join(workDir, "concat.txt");
       const listContent = chunkPaths.map((p) => `file '${p}'`).join("\n");
       writeFileSync(listPath, listContent);
-      execFileSync("ffmpeg", [
+      execFileSync(ensureBinary(DEFAULT_FFMPEG), [
         "-y",
         "-f", "concat",
         "-safe", "0",

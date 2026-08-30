@@ -1,0 +1,4 @@
+interface:
+  display_name: "Image Upload"
+  short_description: "Upload PNGs through CleanShot Cloud"
+  default_prompt: "Use $image-upload to upload this PNG to CleanShot Cloud and return the appropriate share link."

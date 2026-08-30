@@ -5,7 +5,7 @@ description: "Use when asked about the brain repo symlink setup, when adding a n
 
 # Symlink Setup
 
-Kyle's brain repo (`~/Developer/brain/`) is the source of truth for all user configuration. Symlinks from home directory config locations point into the repo so edits are automatically tracked in git.
+Kyle's brain repo (`$BRAIN_ROOT`) is the source of truth for all user configuration. Symlinks from home directory config locations point into the repo so edits are automatically tracked in git.
 
 ## Architecture
 
@@ -28,7 +28,7 @@ Append a line to `system/symlinks/mbp-m4max-16/symlinks.conf`:
 ```
 
 - `LINK_PATH` is the absolute path where the symlink will live (use `~` for home).
-- `BRAIN_PATH` is relative to `~/Developer/brain/`.
+- `BRAIN_PATH` is relative to `$BRAIN_ROOT`.
 - If the brain-side directory doesn't exist yet, create it and move/copy the file there first.
 
 ### Step 2 — Run setup

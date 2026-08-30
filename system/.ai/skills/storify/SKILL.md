@@ -1,11 +1,15 @@
 ---
 name: storify
-description: Use when asked to reformat, retell, or translate any content — technical docs, structured output, bullet lists, code-heavy explanations — into flowing narrative prose. Triggers on phrases like "storify this", "explain this as prose", "turn this into a story", or "no formatting".
+description: "ONLY use when the user explicitly asks for story or narrative format, explicitly invokes $storify, or asks to turn a long technical discussion into flowing spoken prose for listening, text-to-speech, or continuing a voice conversation. Do not use for ordinary rewriting, Markdown or formatting changes, prose cleanup, summaries, translations, removing bullets or headers, or requests such as 'no formatting' unless the user also explicitly requests a story or narrative presentation."
 ---
 
 # Storify
 
 Transform any input into dense, flowing prose at the same level of technical depth — the way a senior engineer would verbally walk another senior engineer through something at a whiteboard. No bullets. No tables. No headers mid-paragraph. No formatting artifacts. Full fidelity.
+
+## Explicit Activation Gate
+
+Apply this transformation only when the user's current request explicitly asks for `$storify`, a story or narrative format, or a listening-oriented spoken rendition of a long technical discussion. A generic request to rewrite, reformat, translate, remove Markdown, convert bullets to prose, or produce plain text does not qualify. If the request does not meet this gate, do not apply this skill; fulfill the request normally in the format the user actually requested.
 
 ## The Voice
 

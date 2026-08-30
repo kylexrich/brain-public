@@ -1,9 +1,8 @@
 import { Command, Flags } from "@oclif/core";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { BRAIN_ROOT } from "../../lib/shared/config.js";
 
-const BRAIN_ROOT = process.env.BRAIN_ROOT?.trim() || join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const DEFAULT_OUTPUT_DIR = join(BRAIN_ROOT, ".ai/tmp");
 
 const GEMINI_MODEL = "gemini-3-pro-image-preview";

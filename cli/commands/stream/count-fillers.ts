@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import { Command, Flags } from "@oclif/core";
 import { safeExists } from "../../lib/shared/util/fs.js";
 import { buildResult, jsonDumps, loadJson, nowIsoPacific, writeJson } from "../../lib/stream/pipeline-utils.js";
+import { isRecord } from "../../lib/shared/util/json.js";
 
 interface FillerPattern {
   key: string;
@@ -51,9 +52,6 @@ class CountFillersError extends Error {
   }
 }
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
-}
 
 function countPatterns(text: string, patterns: FillerPattern[]): Record<string, number> {
   const counts: Record<string, number> = {};

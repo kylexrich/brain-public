@@ -1,0 +1,4 @@
+interface:
+  display_name: "Project Planning"
+  short_description: "Create the three core project documents"
+  default_prompt: "Use $project-planning to establish the project folder and its three concise documents."

@@ -4,6 +4,7 @@ import { join, resolve } from "node:path";
 import { Command, Flags } from "@oclif/core";
 import { safeExists } from "../../lib/shared/util/fs.js";
 import { atomicWriteText, buildResult, jsonDumps } from "../../lib/stream/pipeline-utils.js";
+import { isRecord } from "../../lib/shared/util/json.js";
 
 interface StreamRow {
   stream_key: string;
@@ -26,9 +27,6 @@ class FillersTimelineError extends Error {
   }
 }
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
-}
 
 function findFillersFilesRecursive(dir: string): string[] {
   const results: string[] = [];

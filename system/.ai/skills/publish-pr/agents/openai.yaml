@@ -1,0 +1,4 @@
+interface:
+  display_name: "Publish PR"
+  short_description: "Post ready PRs to GitHub and Slack"
+  default_prompt: "Use $publish-pr whenever the user says post, publish, or ready a PR. Ensure the intended PR exists, never stop at its draft prerequisite, publish it ready for review, and announce it in the pull-requests Slack channel."

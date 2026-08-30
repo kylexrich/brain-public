@@ -8,39 +8,29 @@
 
 # `system/.ai/skills/` — Skill Source of Truth
 
-This directory is the single source of truth for Marvin's skills. It is mirrored
-into the per-tool folders by `$sync-skills` (`brain repo sync-skills`):
+This directory is the single source of truth for Marvin's skills. Every tool
+reads it directly through symlinks — there are no generated copies:
 
-- `system/.dot-claude/skills/` — Claude Code mirror (symlinked to `~/.claude/skills`)
-- `system/.dot-codex/skills/` — Codex mirror (symlinked to `~/.codex/skills`)
+- `system/.dot-claude/skills` → `../.ai/skills` (and `~/.claude/skills` symlinks to that)
+- `system/.dot-codex/skills` → `../.ai/skills` (and `~/.codex/skills` symlinks to that)
 
-The sync runs as part of `npm run build` (via `script:sync:all`).
+`brain repo sync-skills` (part of every build) only ensures these symlinks
+exist and point correctly — an edit here is live everywhere immediately.
 
-## [STRICT] Edit here, never the mirrors
+Retired skill bundles belong under `system/.ai/archive/skills/`; see
+`system/.ai/archive/AGENTS.md`.
 
-* Author and edit every skill in `system/.ai/skills/<name>/`. The mirror copies
-  carry an auto-generated `README.md` marker and are overwritten on the next
-  sync — edits made directly in a mirror are silently lost.
-* After changing a skill, run `brain repo sync-skills` (or any build) to refresh
-  the mirrors before relying on them.
+## [STRICT] Runtime-owned content stays out of git
 
-## [STRICT] Stateless source — runtime state lives in the mirror
+Because the tools write through the symlinks, two kinds of runtime-owned
+content land inside this directory and must never be committed (both are
+gitignored — keep it that way):
 
-* The source must stay stateless. A skill's live runtime state (e.g.
-  `music/state/`, `proactive-reach-out/state/`) lives only in the generated
-  mirror, where it is written through the symlink, and is preserved across syncs.
-* Keep only templates/examples in the source (e.g.
-  `proactive-reach-out/state.example.json`). `system/.ai/skills/*/state/` is
-  gitignored to enforce this.
-
-## [STRICT] Mirror preservation contract
-
-The sync wipes and regenerates each mirrored skill, with two exceptions it must
-never touch:
-
-* `system/.dot-codex/skills/.system/` — Codex's bundled system skills (and the
-  `.codex-system-skills.marker`). Never deleted or overwritten.
-* Any `state/` subdir inside a skill — runtime-owned, never deleted or written.
+* `system/.ai/skills/*/state/` — live skill state (e.g. `music/state/`,
+  `proactive-reach-out/state/`). Keep only templates/examples in tracked files
+  (e.g. `proactive-reach-out/state.example.json`).
+* `system/.ai/skills/.system/` — Codex's bundled system skills and its marker,
+  written and updated by Codex itself. Never edit, delete, or track it.
 
 ## Skill authoring
 

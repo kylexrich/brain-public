@@ -1,0 +1,4 @@
+interface:
+  display_name: "Create Slack Reply"
+  short_description: "Research context and create concise Slack drafts"
+  default_prompt: "Use $create-slack-reply with this Slack link to investigate the full context and create a concise unsent reply draft."

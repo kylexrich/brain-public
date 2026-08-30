@@ -54,9 +54,15 @@ system/.dot-*/**/*.backup.*
 system/.dot-*/**/*.bak
 system/.dot-*/**/sessions/
 
-# Skill source of truth (system/.ai/skills) is stateless; live runtime state
-# lives only in the generated mirrors where it is written through the symlink.
+# Skill source of truth (system/.ai/skills) keeps runtime-owned content out of
+# git: per-skill state/ and Codex's bundled .system/ skills are written into it
+# through the ~/.claude and ~/.codex symlinks and stay untracked.
 system/.ai/skills/*/state/
+system/.ai/skills/.system/
+
+# Python runtime artifacts
+__pycache__/
+*.py[cod]
 
 # Claude Code projects — ignore conversation data, keep memory/ subdirs
 system/.dot-claude/projects/**
@@ -69,7 +75,6 @@ deprecated/openclaw/**/cron/runs/
 
 .claude/worktrees/
 
-system/.dot-claude/plugins/known_marketplaces.json
 system/.dot-claude/claude.json
 system/.dot-claude/claude-desktop-config.json
 system/.dot-claude/plans/

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Understand Codebase"
+  short_description: "Capture the codebase principles that matter"
+  default_prompt: "Use $understand-codebase to capture the codebase principles that matter for this work."

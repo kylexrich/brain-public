@@ -1,0 +1,4 @@
+interface:
+  display_name: "Review Observability"
+  short_description: "Audit baseline logging, metrics, and analytics"
+  default_prompt: "Use $review-observability to audit the observability of the code in scope."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Create PR"
+  short_description: "Create explicitly requested draft GitHub PRs"
+  default_prompt: "Use $create-pr only for an explicit create, open, or draft request. Commit the scoped changes if needed, rebase and push the target branch, and create or reuse a draft PR. Never use it as the top-level workflow for post, publish, or ready requests."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Define Project"
+  short_description: "Define the essential project direction"
+  default_prompt: "Use $define-project to create or refine the concise project document for this work."

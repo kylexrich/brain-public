@@ -1,0 +1,4 @@
+interface:
+  display_name: "Simple Code Review"
+  short_description: "Review local changes with a high-signal bar"
+  default_prompt: "Use $simple-code-review to review the current repository change."

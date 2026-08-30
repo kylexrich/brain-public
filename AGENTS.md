@@ -24,20 +24,23 @@ deprecated/        — Deprecated runtime archives
   openclaw/        — Legacy OpenClaw runtime archive (not actively used)
 docs/              — Historical task plans and migration docs
 system/            — System configuration (AI config, shell, symlinks, scripts)
-  .ai/AGENTS.md    — Global instructions source (mirrored to both tool configs)
+  .ai/AGENTS.md    — Global instructions source (served to both tools via symlinks)
+  .ai/archive/     — Retired AI artifacts, outside active discovery
   .ai/skills/      — Skill source of truth (see system/.ai/skills/AGENTS.md)
-  .dot-claude/CLAUDE.md  — generated global instructions (do not edit; from .ai/AGENTS.md)
-  .dot-claude/skills/    — generated Claude mirror (do not edit; from .ai/skills)
-  .dot-codex/AGENTS.md   — generated global instructions (do not edit; from .ai/AGENTS.md)
-  .dot-codex/skills/     — generated Codex mirror (do not edit; .system/ preserved)
+  .dot-claude/CLAUDE.md  — symlink → .ai/AGENTS.md
+  .dot-claude/skills     — symlink → .ai/skills
+  .dot-codex/AGENTS.md   — symlink → .ai/AGENTS.md
+  .dot-codex/skills      — symlink → .ai/skills
 vault/             — Knowledge graph content (see vault/AGENTS.md)
 ```
 
-Skills are authored once in `system/.ai/skills/` and mirrored into both per-tool
-folders by `$sync-skills` (`brain repo sync-skills`). The global instructions in
-`system/.ai/AGENTS.md` are likewise mirrored into `system/.dot-claude/CLAUDE.md`
-and `system/.dot-codex/AGENTS.md` by `$sync-instructions`
-(`brain repo sync-instructions`). Both run on every build.
+Skills and global instructions live once under `system/.ai/` and every tool
+reads them through symlinks — there are no generated copies and nothing to
+regenerate. `$sync-skills` (`brain repo sync-skills`) and `$sync-instructions`
+(`brain repo sync-instructions`) just ensure those symlinks exist and are
+correct; both run on every build. Per-directory `CLAUDE.md` files across the
+repo are likewise symlinks to their sibling `AGENTS.md`, ensured by
+`brain repo sync-ai`.
 
 ## Operating Mode
 
@@ -64,13 +67,9 @@ When changing code, scripts, config, or technical docs:
 * Do not apply test-first/TDD workflows by default in this repo. Use non-test validation such as type-checking, linting, builds, static inspection, or the smallest safe manual command that exercises the changed path.
 * Existing tests may only be run when the user asks for test execution or when the current task is explicitly about maintaining an existing test suite.
 
-## [STRICT] Public Mirror Documentation and Export Hygiene
+## [STRICT] Public Mirror Workflow
 
-When changing public-facing repo structure, reusable tools, skills, agents, setup docs, or public export behavior:
-* Update `README.md` in the same change when the public-facing layout, capabilities, setup flow, or generated public resources change.
-* Review `.public-export.json` in the same change to include newly useful non-sensitive resources and to exclude, sanitize, or verify sensitive resources.
-* If a useful resource should not be public, document the reason in the export config through an exclusion, sanitizer, verifier, or nearby source comment instead of leaving the omission implicit.
-* After changing export behavior or allowlists, run `brain repo export-public` and inspect `brain-public/` for expected additions, removals, and redactions before committing.
+When changing public-facing repo structure, reusable tools, skills, agents, setup docs, `.public-export.json`, or public export behavior, invoke `$brain-public-export` at `system/.ai/skills/brain-public-export/SKILL.md`. It is the single authority for public/private policy, export-config changes, disposable candidate audits, generated-mirror updates, public commits, leak recovery, and public pushes. Do not duplicate that workflow elsewhere.
 
 ## [STRICT] Config-Driven & Public-Export-Safe by Default
 

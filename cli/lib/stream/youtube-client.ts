@@ -1,14 +1,13 @@
 import { chmodSync, createReadStream, statSync } from "node:fs";
 import { createServer } from "node:http";
 import { spawnSync } from "node:child_process";
-import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join, resolve } from "node:path";
 import { google, type youtube_v3 } from "googleapis";
 import { OAuth2Client, type Credentials } from "google-auth-library";
 import { readJsonFile, writeJsonFile } from "../shared/util/json.js";
 import { loadJson } from "./pipeline-utils.js";
+import { BRAIN_ROOT } from "../shared/config.js";
 
-const BRAIN_ROOT = process.env.BRAIN_ROOT?.trim() || join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const DEFAULT_CREDENTIALS_DIR = join(BRAIN_ROOT, "system/credentials/youtube");
 
 export const DEFAULT_CLIENT_SECRET = join(DEFAULT_CREDENTIALS_DIR, "youtube-client-secret.json");

@@ -17,7 +17,7 @@ Audit all symlinks declared in `system/symlinks/mbp-m4max-16/symlinks.conf`, fix
 ### 1. Check status
 
 ```bash
-/Users/kylerich/Developer/brain/system/symlinks/mbp-m4max-16/symlinks.sh status
+"$BRAIN_ROOT"/system/symlinks/mbp-m4max-16/symlinks.sh status
 ```
 
 If all green, report "all healthy" and stop.
@@ -61,7 +61,7 @@ When a live file exists as a regular file instead of a symlink (the `!` case):
 
 5. **Verify:**
    ```bash
-   /Users/kylerich/Developer/brain/system/symlinks/mbp-m4max-16/symlinks.sh verify
+   "$BRAIN_ROOT"/system/symlinks/mbp-m4max-16/symlinks.sh verify
    ```
 
 ### 4. Fix: missing or wrong target
@@ -69,7 +69,7 @@ When a live file exists as a regular file instead of a symlink (the `!` case):
 For entries that just need (re)creation, run:
 
 ```bash
-/Users/kylerich/Developer/brain/system/symlinks/mbp-m4max-16/symlinks.sh setup
+"$BRAIN_ROOT"/system/symlinks/mbp-m4max-16/symlinks.sh setup
 ```
 
 The setup script handles creating missing symlinks and skips healthy ones.

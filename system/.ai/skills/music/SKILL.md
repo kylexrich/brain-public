@@ -35,7 +35,7 @@ Apply when Kyle doesn't specify. Use `session_status` or current time for time-o
 
 ## Play History
 
-State file: `~/Developer/brain/system/.dot-claude/skills/music/state/music-history.json`
+State file: `state/music-history.json` (a sibling `state/` directory of this skill)
 
 This is a JSON array of recent picks. Each entry has: `timestamp`, `request` (what Kyle asked), `picked` (what you chose), `type` (album/library-playlist/artist/catalog-playlist), `id` (Apple Music ID).
 

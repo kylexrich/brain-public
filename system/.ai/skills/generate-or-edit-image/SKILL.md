@@ -57,12 +57,12 @@ The command prints the output path. Use the `Read` tool on that path to display 
 
 ## Sending via iMessage (BlueBubbles)
 
-After generating, use send_attachment with the output path directly — no base64 encoding needed:
+After generating, use send_attachment with the output path directly — no base64 encoding needed. MCP tool arguments are not shell-expanded, so pass the **absolute path the command printed** rather than a variable:
 
 ```
 send_attachment({
   chat_id: "<chat_id from channel tag>",
   filename: "<name>.png",
-  file_path: "/Users/kylerich/Developer/brain/.ai/tmp/<name>.png"
+  file_path: "<absolute path printed by `brain image generate`>"
 })
 ```

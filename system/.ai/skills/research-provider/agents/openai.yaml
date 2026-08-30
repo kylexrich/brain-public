@@ -1,0 +1,4 @@
+interface:
+  display_name: "Research Provider"
+  short_description: "Verify the external facts that constrain the work"
+  default_prompt: "Use $research-provider to research the provider facts that constrain this work."

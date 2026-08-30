@@ -16,7 +16,7 @@ Apply `AGENTS.md` at the repo root too. That file owns universal repo rules such
 
 - Node/TypeScript CLI with oclif command discovery.
 - ESM package (`"type": "module"`) with `module: "NodeNext"` and `moduleResolution: "NodeNext"`.
-- Current command topics are `contact`, `music`, `repo`, `stream`, and `token`.
+- Current command topics are `contact`, `image`, `music`, `repo`, `stream`, and `token`.
 - This is one-shot automation tooling, not a long-running service. Optimize for clear orchestration, explicit side effects, and maintainable local scripts over framework-heavy architecture.
 
 ## Directory Layout
@@ -186,6 +186,7 @@ Default rule: if a command writes files, touches credentials, controls devices, 
 
 ### Side-effecting external/live systems
 
+- `brain image upload` — creates a CleanShot Cloud media record and uploads PNG bytes
 - `brain music play-*` — changes Sonos queue or transport state
 - `brain stream update-description`, `brain stream update-title`, and `brain stream youtube-auth` — talk to YouTube and/or update remote state
 - `brain token refresh-*` — rotates OAuth tokens and rewrites local credential/config files
@@ -218,5 +219,5 @@ If you are unsure which bucket a new command belongs in, classify it conservativ
 - Keep refactors behavior-preserving unless the task explicitly includes a behavior change.
 - Prefer small, reversible refactors with validation checkpoints over large rewrites.
 - When touching automation-facing stream commands, review neighboring stream commands and shared helpers so output shape and pipeline-state semantics remain consistent.
-- When editing repo tooling, remember that `brain repo agents-header` and `brain repo sync-ai` are the source of truth for precedence headers and `CLAUDE.md` stubs, `brain repo sync-skills` regenerates the `.dot-claude/skills` and `.dot-codex/skills` mirrors from `system/.ai/skills`, and `brain repo sync-instructions` regenerates `system/.dot-claude/CLAUDE.md` and `system/.dot-codex/AGENTS.md` from `system/.ai/AGENTS.md`. Author skills and global instructions in the `system/.ai/` source, not the generated mirrors. `agents-header` deliberately skips `.ai/` and `.dot-codex/` so it does not fight `sync-instructions`.
+- When editing repo tooling, remember that `brain repo agents-header` owns the precedence headers, and the three sync commands are symlink ensurers, not generators: `brain repo sync-ai` ensures each `AGENTS.md` has a sibling `CLAUDE.md` symlink, `brain repo sync-skills` ensures `system/.dot-claude/skills` and `system/.dot-codex/skills` link to `system/.ai/skills/`, and `brain repo sync-instructions` ensures `system/.dot-claude/CLAUDE.md` and `system/.dot-codex/AGENTS.md` link to `system/.ai/AGENTS.md`. Author skills and global instructions in the `system/.ai/` source; the source carries its own precedence header because `agents-header` deliberately skips `.ai/`, `.dot-codex/`, and `.claude/` (other sessions' worktrees live under `.claude/worktrees/`).
 - Leave unrelated cleanup alone unless it directly blocks the task or is necessary to keep the touched area coherent.

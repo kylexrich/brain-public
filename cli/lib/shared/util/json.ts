@@ -13,3 +13,7 @@ export function writeJsonFile(filePath: string, payload: unknown): void {
   mkdirSync(dirname(filePath), { recursive: true });
   writeFileSync(filePath, formatJson(payload), "utf8");
 }
+
+export function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}

@@ -46,4 +46,4 @@ Anything ffmpeg can read: `mp3`, `m4a`, `wav`, `aac`, `caf`, `mp4`, `mov`, `webm
 
 - Runs fully offline. Uses Metal GPU acceleration on Apple Silicon via whisper.cpp.
 - For chunked long-form stream-video transcription (parallel workers + hallucination dedup), use `brain stream transcribe` instead — it's the specialized pipeline path.
-- If the `brain` binary isn't on PATH, it lives at `~/Developer/brain/cli/bin/brain`.
+- If the `brain` binary isn't on PATH, it lives at `$BRAIN_ROOT/cli/bin/brain`.

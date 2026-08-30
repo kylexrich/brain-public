@@ -6,8 +6,6 @@ import { safeExists } from "../shared/util/fs.js";
 
 const execFileAsync = promisify(execFile);
 
-export const DEFAULT_FFMPEG = "/opt/homebrew/bin/ffmpeg";
-export const DEFAULT_FFPROBE = "/opt/homebrew/bin/ffprobe";
 export const DEFAULT_WHISPER_CLI = "/opt/homebrew/bin/whisper-cli";
 export const DEFAULT_MODEL =
   process.env.BRAIN_WHISPER_MODEL_PATH?.trim() || "/opt/homebrew/share/whisper-cpp/ggml-large-v3-turbo.bin";
@@ -15,20 +13,10 @@ export const DEFAULT_CHUNK_SECONDS = 20 * 60;
 export const DEFAULT_WORKERS = 2;
 
 export { safeExists } from "../shared/util/fs.js";
+export { DEFAULT_FFMPEG, DEFAULT_FFPROBE, ensureBinary } from "../shared/media/ffmpeg.js";
 
 function utcNowIso(): string {
   return new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
-}
-
-export function ensureBinary(path: string): string {
-  if (safeExists(path)) {
-    return path;
-  }
-  const result = spawnSync("which", [path], { encoding: "utf8" });
-  if (result.status === 0 && result.stdout.trim()) {
-    return result.stdout.trim();
-  }
-  throw new Error(`Required binary not found: ${path}`);
 }
 
 function probeDuration(ffprobe: string, mediaPath: string): number {

@@ -3,6 +3,7 @@ import { basename, dirname, join, resolve } from "node:path";
 import { Command, Flags } from "@oclif/core";
 import { safeExists } from "../../lib/shared/util/fs.js";
 import { buildResult, formatTimestamp, jsonDumps, loadJson, removePath } from "../../lib/stream/pipeline-utils.js";
+import { isRecord } from "../../lib/shared/util/json.js";
 
 interface NormalizedSegment {
   chunkIndex: number;
@@ -26,9 +27,6 @@ class ChunkTranscriptError extends Error {
   }
 }
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return value !== null && typeof value === "object" && !Array.isArray(value);
-}
 
 function parseNonNegativeInteger(value: unknown): number | null {
   return typeof value === "number" && Number.isInteger(value) && value >= 0 ? value : null;

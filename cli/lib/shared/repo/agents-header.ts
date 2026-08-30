@@ -1,9 +1,7 @@
 import { Command } from "@oclif/core";
 import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
-import { fileURLToPath } from "node:url";
-
-export const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "..");
+import { REPO_ROOT } from "../config.js";
 
 const IGNORED_DIRECTORIES = new Set([
   ".git",
@@ -18,13 +16,25 @@ const IGNORED_DIRECTORIES = new Set([
   // global instructions source) and skills AGENTS.md are owned elsewhere; the
   // precedence-header injector must not manage them.
   ".ai",
-  // `.dot-codex/AGENTS.md` is generated from `system/.ai/AGENTS.md` by
-  // `brain repo sync-instructions`, which owns its header. Keep this injector out.
-  ".dot-codex"
+  // `.dot-codex/AGENTS.md` is a symlink to `system/.ai/AGENTS.md`, whose
+  // header is authored in the source. Keep this injector out.
+  ".dot-codex",
+  // Harness-owned dir; `.claude/worktrees/` holds other sessions' checkouts —
+  // walking into them rewrites files in someone else's workspace.
+  ".claude"
 ]);
 
 const HEADER_START = "> **`AGENTS.md` Instruction Precedence (DO NOT EDIT)**";
 const SEPARATOR = "\n\n---\n\n";
+
+function isReadableFile(path: string): boolean {
+  try {
+    readFileSync(path, "utf8");
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 function buildChain(agentsPath: string): string[] {
   const chain: string[] = [];
@@ -32,11 +42,8 @@ function buildChain(agentsPath: string): string[] {
 
   while (true) {
     const candidatePath = join(currentDirectory, "AGENTS.md");
-    try {
-      readFileSync(candidatePath, "utf8");
+    if (isReadableFile(candidatePath)) {
       chain.push(relative(REPO_ROOT, candidatePath) || "AGENTS.md");
-    } catch {
-      // Skip missing files while walking upward.
     }
 
     if (currentDirectory === REPO_ROOT) {

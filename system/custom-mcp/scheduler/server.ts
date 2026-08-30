@@ -38,6 +38,8 @@
  *   BRAIN_ROOT               Brain repo root            (default: $HOME/Developer/brain)
  *   CLAUDE_BIN               Path to claude CLI binary  (default: $HOME/.local/bin/claude)
  *   SCHEDULER_DEFAULT_CWD    Default cwd for spawn jobs (default: BRAIN_ROOT)
+ *   SCHEDULER_MODEL_PREFLIGHT             "0" disables spawnModel preflight (default: enabled)
+ *   SCHEDULER_MODEL_PREFLIGHT_TIMEOUT_MS  Preflight timeout ms       (default: 30000)
  *
  * MCP registration (Claude Code) — in claude.json mcpServers:
  *   "scheduler": { "type": "http", "url": "http://127.0.0.1:47240/mcp" }
@@ -63,6 +65,8 @@ const SCHEDULER_DEFAULT_TZ = process.env.SCHEDULER_DEFAULT_TZ ?? process.env.BRA
 const BRAIN_ROOT = process.env.BRAIN_ROOT ?? join(homedir(), 'Developer/brain')
 const CLAUDE_BIN = process.env.CLAUDE_BIN ?? join(homedir(), '.local/bin/claude')
 const SCHEDULER_DEFAULT_CWD = process.env.SCHEDULER_DEFAULT_CWD ?? BRAIN_ROOT
+const SCHEDULER_MODEL_PREFLIGHT = process.env.SCHEDULER_MODEL_PREFLIGHT !== '0'
+const SCHEDULER_MODEL_PREFLIGHT_TIMEOUT_MS = parseInt(process.env.SCHEDULER_MODEL_PREFLIGHT_TIMEOUT_MS ?? '30000')
 
 const JOBS_FILE = join(import.meta.dirname, 'jobs.json')
 const RUNS_DIR = join(import.meta.dirname, 'runs')
@@ -247,6 +251,101 @@ function validateTags(tags: string[] | undefined): void {
   }
 }
 
+// --- spawnModel preflight ----------------------------------------------------
+//
+// spawnModel is free text handed straight to `claude --model`. A typo or a
+// retired model id used to persist happily and surface only at fire time, as a
+// dead job in a run log nobody watches. A hardcoded allowlist is the wrong fix:
+// it goes stale exactly the way stale docs do, and a stale allowlist is worse
+// than stale docs because it blocks *valid* new models. So ask the CLI itself —
+// it is the only source of truth that stays current with the installed version.
+//
+// Fails OPEN. Only a definitive "not a recognized model" verdict rejects; a
+// timeout, a missing binary, or an offline box warns and allows. Validation must
+// never be the reason a job cannot be created — same philosophy as tags.json.
+
+const MODEL_EXAMPLES = '"claude-sonnet-5", "claude-haiku-4-5", "claude-opus-5"'
+
+// Substrings that mean the CLI positively rejected the model (vs. any other failure).
+const MODEL_REJECT_MARKERS = ['unrecognized_model', 'is not a model', 'issue with the selected model']
+
+const VERIFIED_MODELS = new Set<string>()
+
+type ModelProbe = { recognized: boolean; inconclusive: boolean; detail: string }
+
+function probeModel(model: string): Promise<ModelProbe> {
+  return new Promise(resolve => {
+    // Empty MCP set: the probe only asks "is this model real?", so the user's
+    // servers are irrelevant and would just make it slow (or blow the prompt limit).
+    const args = ['-p', 'ok', '--model', model, '--strict-mcp-config', '--mcp-config', '{"mcpServers":{}}']
+
+    let child
+    try {
+      child = spawn(CLAUDE_BIN, args, {
+        cwd: SCHEDULER_DEFAULT_CWD,
+        env: { ...process.env },
+        stdio: ['ignore', 'pipe', 'pipe'],
+      })
+    } catch (err) {
+      resolve({ recognized: false, inconclusive: true, detail: String(err) })
+      return
+    }
+
+    let buf = ''
+    const capture = (chunk: Buffer) => { if (buf.length < 16_384) buf += chunk.toString() }
+    child.stdout?.on('data', capture)
+    child.stderr?.on('data', capture)
+
+    let settled = false
+    const finish = (v: ModelProbe) => {
+      if (settled) return
+      settled = true
+      clearTimeout(timer)
+      resolve(v)
+    }
+
+    const timer = setTimeout(() => {
+      try { child.kill('SIGKILL') } catch {}
+      finish({ recognized: false, inconclusive: true, detail: 'preflight timed out' })
+    }, SCHEDULER_MODEL_PREFLIGHT_TIMEOUT_MS)
+
+    child.on('error', err => finish({ recognized: false, inconclusive: true, detail: String(err) }))
+    child.on('close', code => {
+      const haystack = buf.toLowerCase()
+      const marker = MODEL_REJECT_MARKERS.find(m => haystack.includes(m))
+      if (marker) {
+        finish({ recognized: false, inconclusive: false, detail: `CLI reported: ${marker}` })
+      } else if (code === 0) {
+        finish({ recognized: true, inconclusive: false, detail: '' })
+      } else {
+        // Non-zero without a rejection marker: transient/API/auth trouble, not a verdict.
+        finish({ recognized: false, inconclusive: true, detail: `exit ${code}` })
+      }
+    })
+  })
+}
+
+async function validateSpawnModel(model: string | undefined): Promise<void> {
+  if (!model) {
+    throw new Error(`spawnModel is required when delivery is "spawn" — pick an explicit model (e.g. ${MODEL_EXAMPLES})`)
+  }
+  if (!SCHEDULER_MODEL_PREFLIGHT || VERIFIED_MODELS.has(model)) return
+
+  const probe = await probeModel(model)
+  if (probe.recognized) {
+    VERIFIED_MODELS.add(model)
+    return
+  }
+  if (probe.inconclusive) {
+    logger.warn('spawnModel preflight inconclusive — allowing', { model, detail: probe.detail })
+    return
+  }
+  throw new Error(
+    `spawnModel "${model}" is not a model this Claude Code install recognizes (${probe.detail}). ` +
+    `Use a current model id (e.g. ${MODEL_EXAMPLES}), or set SCHEDULER_MODEL_PREFLIGHT=0 to skip this check.`,
+  )
+}
+
 function findJob(id: string): Job | undefined {
   return JOBS.find(j => j.id === id)
 }
@@ -384,6 +483,18 @@ function closeSession(sid: string, reason: string): void {
 
 // --- Spawn-mode delivery -----------------------------------------------------
 
+function runLogDirectoryName(job: Job): string {
+  const safeName = job.name
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 80)
+
+  return safeName || job.id
+}
+
 function spawnJob(job: Job, firedAtMs: number): Promise<{ status: 'ok' | 'error' | 'timeout'; durationMs: number; error?: string }> {
   return new Promise(resolve => {
     const startMs = Date.now()
@@ -404,8 +515,15 @@ function spawnJob(job: Job, firedAtMs: number): Promise<{ status: 'ok' | 'error'
     if (job.spawnArgs?.length) args.push(...job.spawnArgs)
 
     const cwd = job.spawnCwd ?? SCHEDULER_DEFAULT_CWD
-    const runLog = join(RUNS_DIR, `${job.id}-${firedAtMs}.log`)
+    const jobRunsDir = join(RUNS_DIR, runLogDirectoryName(job))
+    const runLog = join(jobRunsDir, `${job.id}-${firedAtMs}.log`)
     const timeoutMs = job.spawnTimeoutMs ?? 600_000
+
+    try {
+      mkdirSync(jobRunsDir, { recursive: true })
+    } catch (err) {
+      logger.warn('failed to prepare job run log directory', { jobId: job.id, err: String(err) })
+    }
 
     let child
     try {
@@ -593,7 +711,7 @@ const TOOL_LIST = [
         delivery: { enum: ['notify', 'spawn'], description: '"notify" pushes to live sessions; "spawn" runs `claude -p` headless' },
         spawnArgs: { type: 'array', items: { type: 'string' }, description: 'Extra CLI args appended to `claude -p <prompt>`' },
         spawnCwd: { type: 'string', description: 'Working directory for spawn mode' },
-        spawnModel: { type: 'string', description: 'Model passed to `claude --model`. REQUIRED when delivery is "spawn". Examples: "claude-sonnet-4-6", "claude-haiku-4-5", "claude-opus-4-7-1m".' },
+        spawnModel: { type: 'string', description: 'Model passed to `claude --model`. REQUIRED when delivery is "spawn". Examples: ' + MODEL_EXAMPLES + '. Verified against the local Claude Code install at create/update time.' },
         spawnTimeoutMs: { type: 'number', description: 'Kill after this many ms (default 600000)' },
         spawnMcpConfig: { type: 'string', description: 'Optional --mcp-config value (JSON string or file path). When set, paired with --strict-mcp-config so the spawned session ignores the user\'s normal MCP config. Leave unset to inherit the user\'s normal MCPs.' },
         tags: { type: 'array', items: { type: 'string' } },
@@ -657,7 +775,7 @@ const INSTRUCTIONS = [
   'When you receive a scheduler notification, treat the content as your prompt for this turn — execute it, then stop.',
   'Tools (this server): list_jobs, get_job, create_job, update_job, cancel_job, run_now, list_tags.',
   'Schedule shape: cron uses 5-field expressions ("min hr dom mon dow") with optional IANA tz; one-shots use an ISO 8601 timestamp and are deleted on successful firing (or disabled if the run errored).',
-  'Delivery modes: "notify" pushes the prompt into any live Claude Code session subscribed to the scheduler MCP (filtered by tags). "spawn" runs `claude -p <prompt> --dangerously-skip-permissions --model <spawnModel>` as a fresh headless process — use this for unattended cron-style automation. spawnModel is required for spawn jobs (no implicit default). Spawn jobs inherit the user\'s normal MCP config; if claude exits with "Prompt is too long", trim the user\'s `~/.claude.json` mcpServers (or this project\'s `disabledMcpServers`) or pass `spawnMcpConfig` to pin a smaller MCP set.',
+  'Delivery modes: "notify" pushes the prompt into any live Claude Code session subscribed to the scheduler MCP (filtered by tags). "spawn" runs `claude -p <prompt> --dangerously-skip-permissions --model <spawnModel>` as a fresh headless process — use this for unattended cron-style automation. spawnModel is required for spawn jobs (no implicit default) and is verified against the local Claude Code install when a job is created or updated, so a stale or mistyped model id fails immediately instead of silently killing the run. Spawn jobs inherit the user\'s normal MCP config; if claude exits with "Prompt is too long", trim the user\'s `~/.claude.json` mcpServers (or this project\'s `disabledMcpServers`) or pass `spawnMcpConfig` to pin a smaller MCP set.',
   'Tag filtering: sessions can opt in with ?subscribe=tag1,tag2 (only matching tags) and/or opt out with ?exclude=tag1,tag2 (drop matching tags). Untagged jobs broadcast to all subscribers. Exclude takes priority over subscribe — use ?exclude= to keep a session listening to everything except a specific chat-targeted tag.',
   'Use list_tags to see the canonical tag allowlist; create_job/update_job reject unknown tags when the allowlist is enabled.',
 ].join('\n')
@@ -729,9 +847,7 @@ function createMcpServer(): Server {
       if (a.schedule.kind === 'once' && probe === null) {
         throw new Error(`invalid or already-past one-shot timestamp: ${(a.schedule as OnceSchedule).at}`)
       }
-      if (a.delivery === 'spawn' && !a.spawnModel) {
-        throw new Error('spawnModel is required when delivery is "spawn" — pick an explicit model (e.g. "claude-sonnet-4-6", "claude-haiku-4-5")')
-      }
+      if (a.delivery === 'spawn') await validateSpawnModel(a.spawnModel)
       validateTags(a.tags)
       const now = Date.now()
       const job: Job = {
@@ -784,9 +900,7 @@ function createMcpServer(): Server {
         validateTags(a.tags)
         job.tags = a.tags
       }
-      if (job.delivery === 'spawn' && !job.spawnModel) {
-        throw new Error('spawnModel is required when delivery is "spawn" — set spawnModel to an explicit model name')
-      }
+      if (job.delivery === 'spawn') await validateSpawnModel(job.spawnModel)
       job.updatedAtMs = Date.now()
       refreshNextRun(job, Date.now())
       persist()

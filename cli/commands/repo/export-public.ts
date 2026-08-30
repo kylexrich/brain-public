@@ -12,7 +12,8 @@ import {
 } from "node:fs";
 import { dirname, join, relative, resolve } from "node:path";
 import { Command, Flags } from "@oclif/core";
-import { REPO_ROOT } from "../../lib/shared/repo/agents-header.js";
+import { REPO_ROOT } from "../../lib/shared/config.js";
+import { isRecord } from "../../lib/shared/util/json.js";
 
 const DEFAULT_CONFIG_PATH = join(REPO_ROOT, ".public-export.json");
 
@@ -181,9 +182,6 @@ function compileGlob(pattern: string): RegExp {
   return new RegExp(regex);
 }
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
 
 function requireNonEmptyString(value: unknown, label: string): string {
   if (typeof value !== "string" || value.trim() === "") {
@@ -389,6 +387,58 @@ function matchesAny(pathValue: string, matchers: RegExp[]): boolean {
   return matchers.some((matcher) => matcher.test(pathValue));
 }
 
+// Mirrors git's has_symlink_leading_path semantics: a tracked path whose
+// leading directory is now a symlink no longer exists as that path — lstat
+// alone would resolve through the link and report a phantom file, which the
+// export would then copy under a path its sanitize rules no longer cover.
+function hasSymlinkLeadingPath(root: string, relativePath: string, symlinkDirCache: Map<string, boolean>): boolean {
+  const segments = relativePath.split("/");
+  let leadingPath = "";
+
+  for (const segment of segments.slice(0, -1)) {
+    leadingPath = leadingPath === "" ? segment : `${leadingPath}/${segment}`;
+    let isSymlink = symlinkDirCache.get(leadingPath);
+    if (isSymlink === undefined) {
+      try {
+        isSymlink = lstatSync(join(root, leadingPath)).isSymbolicLink();
+      } catch {
+        isSymlink = false;
+      }
+      symlinkDirCache.set(leadingPath, isSymlink);
+    }
+    if (isSymlink) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function filterToOnDiskPaths(root: string, relativePaths: string[]): string[] {
+  const symlinkDirCache = new Map<string, boolean>();
+
+  const isOnDisk = (relativePath: string): boolean => {
+    if (hasSymlinkLeadingPath(root, relativePath, symlinkDirCache)) {
+      return false;
+    }
+    try {
+      // lstat so broken symlinks still count as present; they are copied as symlinks.
+      lstatSync(join(root, relativePath));
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  return relativePaths.filter((relativePath) => {
+    if (isOnDisk(relativePath)) {
+      return true;
+    }
+    process.stderr.write(`export-public: skipping tracked file missing from disk: ${relativePath}\n`);
+    return false;
+  });
+}
+
 function resolveTargetRoot(configPath: string, config: PublicExportConfig, targetOverride?: string): string {
   const targetBase = targetOverride ? resolveFromRepoRoot(targetOverride) : resolve(dirname(configPath), config.target);
   const relativeToSource = relative(REPO_ROOT, targetBase);
@@ -405,8 +455,9 @@ function buildExportPlan(configPath: string, targetOverride?: string): ExportPla
   const trackedFiles = listTrackedFiles();
   const includeMatchers = config.include.map(compileGlob);
   const excludeMatchers = config.exclude.map(compileGlob);
-  const selectedPaths = trackedFiles.filter(
-    (pathValue) => matchesAny(pathValue, includeMatchers) && !matchesAny(pathValue, excludeMatchers),
+  const selectedPaths = filterToOnDiskPaths(
+    REPO_ROOT,
+    trackedFiles.filter((pathValue) => matchesAny(pathValue, includeMatchers) && !matchesAny(pathValue, excludeMatchers)),
   );
 
   if (selectedPaths.length === 0) {
@@ -517,10 +568,8 @@ function copyFileFromRoot(
   mkdirSync(dirname(targetPath), { recursive: true });
 
   if (sourceStats.isSymbolicLink()) {
-    if (needsSanitize) {
-      throw new Error(`Cannot sanitize symlinked path: ${targetRelativePath}`);
-    }
-
+    // A symlink carries no content of its own — its target is sanitized and
+    // verified under the target's own exported path (or is not exported at all).
     symlinkSync(readlinkSync(sourcePath), targetPath);
     return;
   }
@@ -594,8 +643,9 @@ export function copyExternalResourceSet(
   const sourceTrackedFiles = listTrackedFiles(resourceSet.sourceRoot);
   const includeMatchers = resourceSet.include.map(compileGlob);
   const excludeMatchers = (resourceSet.exclude ?? []).map(compileGlob);
-  const selectedPaths = sourceTrackedFiles.filter(
-    (pathValue) => matchesAny(pathValue, includeMatchers) && !matchesAny(pathValue, excludeMatchers),
+  const selectedPaths = filterToOnDiskPaths(
+    resourceSet.sourceRoot,
+    sourceTrackedFiles.filter((pathValue) => matchesAny(pathValue, includeMatchers) && !matchesAny(pathValue, excludeMatchers)),
   );
 
   if (selectedPaths.length === 0) {
@@ -631,6 +681,11 @@ function runVerifyChecks(targetRoot: string, selectedPaths: string[], verifyRule
     }
 
     const targetPath = join(targetRoot, relativePath);
+    // Symlinks (e.g. the skills-dir links) carry no content of their own; their
+    // targets are verified under their real source paths.
+    if (!lstatSync(targetPath).isFile()) {
+      continue;
+    }
     const fileText = readTextBuffer(readFileSync(targetPath));
     if (fileText === null) {
       continue;

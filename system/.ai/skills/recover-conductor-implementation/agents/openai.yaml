@@ -1,0 +1,4 @@
+interface:
+  display_name: "Recover Conductor Implementation"
+  short_description: "Return exact Git state to Conductor"
+  default_prompt: "Use $recover-conductor-implementation to return the current implementation and its unchanged Git state to the proper native Conductor workspace."
